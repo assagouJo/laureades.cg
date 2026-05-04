@@ -506,16 +506,16 @@
                 {% set annee_active = parametres_ecole.get('annee_scolaire_active', '2025-2026') if parametres_ecole else '2025-2026' %}
                 <div style="margin-top: 8px; padding: 6px 10px; background: rgba(255,255,255,0.15); border-radius: 6px; font-size: 0.75rem;">
                     <i class="fas fa-calendar-alt me-1" style="color: #ffd700;"></i>
-                    <strong style="color: #ffd700;">{{ annee_active }}</strong>
+                    <strong style="color: #1b1a16;">{{ annee_active }}</strong>
                 </div>
             </div>
             
             {% if session.get('dossier_actif') %}
             <div class="dossier-indicator">
                 <i class="fas fa-folder-open"></i>
-                {% if session.get('dossier_actif') == 'maternelle' %}🧸 Maternelle
-                {% elif session.get('dossier_actif') == 'primaire' %}📚 Primaire
-                {% elif session.get('dossier_actif') == 'secondaire' %}🎓 Secondaire
+                {% if session.get('dossier_actif') == 'maternelle' %}Maternelle
+                {% elif session.get('dossier_actif') == 'primaire' %} Primaire
+                {% elif session.get('dossier_actif') == 'secondaire' %}Secondaire
                 {% endif %}
             </div>
             {% endif %}
@@ -536,17 +536,17 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item {% if session.get('dossier_actif') == 'maternelle' %}active{% endif %}" 
                                href="{{ url_for('changer_dossier', dossier='maternelle') }}">
-                            <i class="fas fa-baby"></i> 🧸 Maternelle</a></li>
+                            🧸 Maternelle</a></li>
                         <li><a class="dropdown-item {% if session.get('dossier_actif') == 'primaire' %}active{% endif %}" 
                                href="{{ url_for('changer_dossier', dossier='primaire') }}">
-                            <i class="fas fa-child"></i> 📚 Primaire</a></li>
+                             📚 Primaire</a></li>
                         <li><a class="dropdown-item {% if session.get('dossier_actif') == 'secondaire' %}active{% endif %}" 
                                href="{{ url_for('changer_dossier', dossier='secondaire') }}">
-                            <i class="fas fa-user-graduate"></i> 🎓 Secondaire</a></li>
+                             🎓 Secondaire</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item {% if not session.get('dossier_actif') %}active{% endif %}" 
                                href="{{ url_for('changer_dossier', dossier='tous') }}">
-                            <i class="fas fa-folder-open"></i> 📁 Tous</a></li>
+                             📁 Tous</a></li>
                     </ul>
                 </div>
                 
@@ -610,14 +610,14 @@
                     <button class="btn btn-link d-md-none p-0" id="menuToggle" aria-label="Menu">
                         <i class="fas fa-bars fa-lg"></i>
                     </button>
-                    <h5>{% block page_title %}Tableau de bord{% endblock %}</h5>
+                    <h5>{% block page_title %}Gestion utilisateur{% endblock %}</h5>
                     
                     {% if session.get('dossier_actif') %}
                     <span class="dossier-badge d-none d-md-inline-block">
                         <i class="fas fa-folder-open"></i>
-                        {% if session.get('dossier_actif') == 'maternelle' %}🧸 Maternelle
-                        {% elif session.get('dossier_actif') == 'primaire' %}📚 Primaire
-                        {% elif session.get('dossier_actif') == 'secondaire' %}🎓 Secondaire
+                        {% if session.get('dossier_actif') == 'maternelle' %}Maternelle
+                        {% elif session.get('dossier_actif') == 'primaire' %}Primaire
+                        {% elif session.get('dossier_actif') == 'secondaire' %}Secondaire
                         {% endif %}
                     </span>
                     {% endif %}

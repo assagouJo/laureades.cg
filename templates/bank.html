@@ -22,35 +22,83 @@ Gestion des dépôts bancaires
     .badge-en_attente { background: #ffc107; color: #333; }
     .badge-valide { background: #28a745; color: white; }
     .badge-annule { background: #dc3545; color: white; }
+    .period-badge {
+        background: rgba(102, 126, 234, 0.15);
+        border-left: 3px solid #667eea;
+    }
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+    }
+    .empty-state i {
+        font-size: 64px;
+        color: #cbd5e0;
+        margin-bottom: 20px;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid mb-4">
+
+    <!-- ========== BANDEAU PÉRIODE ACTIVE ========== -->
+    <div class="alert {% if info_periode.debut and info_periode.fin %}alert-info{% else %}alert-warning{% endif %} mb-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <i class="fas fa-calendar-alt me-2"></i>
+                <strong>Période active :</strong>
+                {% if info_periode.debut and info_periode.fin %}
+                    📅 Du {{ info_periode.debut|replace('-', '/') }} au {{ info_periode.fin|replace('-', '/') }}
+                    <span class="badge bg-primary ms-2">{{ info_periode.annee }}</span>
+                {% else %}
+                    ⚠️ Aucune période définie
+                    <a href="{{ url_for('parametres') }}" class="ms-2">Configurer</a>
+                {% endif %}
+            </div>
+            <div>
+                <small>
+                    <i class="fas fa-chart-line me-1"></i>
+                    <span class="badge bg-secondary">{{ depots|length }} dépôt(s)</span> dans cette période
+                </small>
+                <a href="{{ url_for('parametres') }}#periodes" class="btn btn-sm btn-outline-primary ms-2">
+                    <i class="fas fa-edit me-1"></i> Modifier
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Statistiques -->
-    <div class="row mb-3 mt-4">
+    <div class="row mb-3 mt-2">
         <div class="col-md-3">
             <div class="stat-card">
                 <small><i class="fas fa-clock me-1"></i> En attente</small>
                 <h5>{{ depots|selectattr('statut', 'equalto', 'en_attente')|list|length }}</h5>
+                <small class="opacity-75">
+                    {{ "{:,.0f}".format(depots|selectattr('statut', 'equalto', 'en_attente')|sum(attribute='montant_total')) }} FCFA
+                </small>
             </div>
         </div>
         <div class="col-md-3">
             <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
                 <small><i class="fas fa-check-circle me-1"></i> Validés</small>
                 <h5>{{ depots|selectattr('statut', 'equalto', 'valide')|list|length }}</h5>
+                <small class="opacity-75">
+                    {{ "{:,.0f}".format(depots|selectattr('statut', 'equalto', 'valide')|sum(attribute='montant_total')) }} FCFA
+                </small>
             </div>
         </div>
         <div class="col-md-3">
             <div class="stat-card" style="background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);">
-                <small><i class="fas fa-money-bill-wave me-1"></i> Montant total</small>
-                <h5>FCFA {{ "{:,.0f}".format(depots|sum(attribute='montant_total')) }}</h5>
+                <small><i class="fas fa-money-bill-wave me-1"></i> Montant total période</small>
+                <h5>{{ "{:,.0f}".format(depots|sum(attribute='montant_total')) }} FCFA</h5>
+                <small class="opacity-75">{{ depots|length }} dépôt(s)</small>
             </div>
         </div>
         <div class="col-md-3">
             <div class="stat-card" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
                 <small><i class="fas fa-file-invoice me-1"></i> Paiements non déposés</small>
                 <h5>{{ paiements_non_deposes|length }}</h5>
+                <small class="opacity-75">à déposer à la banque</small>
             </div>
         </div>
     </div>
@@ -65,12 +113,16 @@ Gestion des dépôts bancaires
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="depots-tab" data-bs-toggle="tab" data-bs-target="#depots" type="button" role="tab">
                 <i class="fas fa-history me-1"></i> Historique des dépôts
+                {% if depots|length > 0 %}
+                <span class="badge bg-secondary ms-1">{{ depots|length }}</span>
+                {% endif %}
             </button>
         </li>
     </ul>
 
     <div class="tab-content" id="bankTabsContent">
-        <!-- Onglet Nouveau dépôt -->
+        
+        <!-- ========== ONGLET NOUVEAU DÉPÔT ========== -->
         <div class="tab-pane fade show active" id="new-depot" role="tabpanel">
             <div class="card shadow-sm">
                 <div class="card-header bg-success text-white">
@@ -78,6 +130,11 @@ Gestion des dépôts bancaires
                 </div>
                 <div class="card-body">
                     {% if paiements_non_deposes %}
+                    <div class="alert alert-info alert-sm mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <small>Période : {{ info_periode.annee }} ({{ info_periode.debut|replace('-', '/') }} au {{ info_periode.fin|replace('-', '/') }})</small>
+                    </div>
+                    
                     <form id="formGenererDepot">
                         <div class="table-responsive">
                             <table class="table table-sm table-hover" id="paiementsTable">
@@ -96,7 +153,6 @@ Gestion des dépôts bancaires
                                 <tbody>
                                     {% for p in paiements_non_deposes %}
                                     <tr>
-                                        <!-- CORRECTION ICI : name="paiements_ids" (pluriel) -->
                                         <td><input type="checkbox" name="paiements_ids" value="{{ p.id }}" class="paiement-checkbox"></td>
                                         <td><code>{{ p.recu }}</code></td>
                                         <td>{{ p.date_paiement.strftime('%d/%m/%Y') }}</td>
@@ -141,7 +197,7 @@ Gestion des dépôts bancaires
                         
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            Les paiements sélectionnés seront marqués comme "déposés" et un numéro de dépôt unique sera généré.
+                            Les paiements sélectionnés seront marqués comme "déposés" et un numéro de dépôt unique sera généré pour la période {{ info_periode.annee }}.
                         </div>
                         
                         <button type="submit" class="btn btn-success" id="btnGenererDepot">
@@ -149,25 +205,28 @@ Gestion des dépôts bancaires
                         </button>
                     </form>
                     {% else %}
-                    <div class="alert alert-success text-center">
-                        <i class="fas fa-check-circle me-2"></i>
-                        Tous les paiements ont déjà été déposés à la banque !
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <h5>Tous les paiements ont déjà été déposés !</h5>
+                        <p class="text-muted">Aucun paiement en attente de dépôt bancaire pour la période {{ info_periode.annee }}.</p>
                     </div>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- Onglet Historique des dépôts -->
+        <!-- ========== ONGLET HISTORIQUE DES DÉPÔTS ========== -->
         <div class="tab-pane fade" id="depots" role="tabpanel">
             <div class="card shadow-sm">
                 <div class="card-body">
+                    {% if depots %}
                     <div class="table-responsive">
                         <table class="table table-hover" id="depotsTable">
                             <thead class="table-light">
                                 <tr>
                                     <th>N° Dépôt</th>
                                     <th>Date</th>
+                                    <th>Année scolaire</th>
                                     <th>Nombre paiements</th>
                                     <th class="text-end">Montant total</th>
                                     <th>Banque</th>
@@ -181,6 +240,20 @@ Gestion des dépôts bancaires
                                 <tr id="depotRow{{ depot.id }}">
                                     <td><code>{{ depot.numero_depot }}</code></td>
                                     <td>{{ depot.date_depot.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        {% if depot.date_depot %}
+                                            {% set annee_depot = depot.date_depot.year %}
+                                            {% if annee_depot >= 2025 and annee_depot < 2026 %}
+                                                <span class="badge bg-primary">2025-2026</span>
+                                            {% elif annee_depot >= 2026 and annee_depot < 2027 %}
+                                                <span class="badge bg-info">2026-2027</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ annee_depot }}-{{ annee_depot + 1 }}</span>
+                                            {% endif %}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
                                     <td>{{ depot.paiements|length }}</td>
                                     <td class="text-end text-success fw-bold">{{ "{:,.0f}".format(depot.montant_total) }} F</td>
                                     <td>{{ depot.banque }}</td>
@@ -209,11 +282,35 @@ Gestion des dépôts bancaires
                                             {% endif %}
                                         </div>
                                     </td>
-                                </tr>
+                                <table>
                                 {% endfor %}
                             </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="4" class="text-end">TOTAL période :</th>
+                                    <th class="text-end text-success">{{ "{:,.0f}".format(depots|sum(attribute='montant_total')) }} F</th>
+                                    <th colspan="4"></th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-inbox text-muted"></i>
+                        <h5>Aucun dépôt trouvé</h5>
+                        <p class="text-muted">
+                            {% if info_periode.debut and info_periode.fin %}
+                                Aucun dépôt bancaire n'a été effectué entre le 
+                                {{ info_periode.debut|replace('-', '/') }} et le {{ info_periode.fin|replace('-', '/') }}.
+                            {% else %}
+                                Veuillez configurer une période dans les paramètres.
+                            {% endif %}
+                        </p>
+                        <button class="btn btn-primary btn-sm" onclick="document.querySelector('#new-depot-tab').click()">
+                            <i class="fas fa-plus me-1"></i> Créer un dépôt
+                        </button>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

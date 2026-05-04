@@ -2757,6 +2757,13 @@ def modifier_paiement(paiement_id):
         return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
     
     paiement = Paiement.query.get_or_404(paiement_id)
+
+    if paiement.est_verrouille_par_depot():
+        return jsonify({
+            'success': False, 
+            'message': 'Ce paiement ne peut pas être modifié car il est inclus dans un dépôt bancaire déjà validé.'
+        }), 403
+    
     eleve = paiement.eleve
     ancien_montant = paiement.montant
     
@@ -2815,6 +2822,13 @@ def annuler_paiement_api(paiement_id):
         return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
     
     paiement = Paiement.query.get_or_404(paiement_id)
+
+    if paiement.est_verrouille_par_depot():
+        return jsonify({
+            'success': False,
+            'message': 'Ce paiement ne peut pas être supprimé car il est inclus dans un dépôt bancaire déjà validé.'
+        }), 403
+    
     eleve = paiement.eleve
     montant = paiement.montant
     num_recu = paiement.recu
@@ -2855,22 +2869,35 @@ def annuler_paiement_api(paiement_id):
 @app.route('/bank')
 @login_required
 def bank():
-    """Page principale des dépôts bancaires"""
+    """Page principale des dépôts bancaires - filtrée par année scolaire"""
     if current_user.role not in ['admin', 'comptable']:
         flash('Accès non autorisé', 'danger')
         return redirect(url_for('liste_eleves'))
     
-    # Récupérer tous les dépôts
-    depots = DepotBancaire.query.order_by(DepotBancaire.date_depot.desc()).all()
+    from models import Parametre
     
-    # Récupérer les paiements non encore déposés
+    # Récupérer la période active
+    periode_active = Parametre.get('annee_scolaire_active', '2025-2026')
+    
+    # Filtrer les dépôts par année scolaire (pas par date)
+    depots = DepotBancaire.query.filter_by(annee_scolaire=periode_active).order_by(DepotBancaire.date_depot.desc()).all()
+    
+    # Paiements non déposés (à filtrer aussi par année scolaire)
     paiements_non_deposes = Paiement.query.filter(
         ~Paiement.depots_lies.any()
     ).order_by(Paiement.date_paiement.desc()).all()
     
+    # Filtrer les paiements par année scolaire (optionnel)
+    # Vous pouvez aussi ajouter une colonne annee_scolaire dans Paiement
+    
+    info_periode = {
+        'annee': periode_active
+    }
+    
     return render_template('bank.html',
                          depots=depots,
-                         paiements_non_deposes=paiements_non_deposes)
+                         paiements_non_deposes=paiements_non_deposes,
+                         info_periode=info_periode)
 
 
 @app.route('/bank/generer_depot', methods=['POST'])
@@ -2881,12 +2908,17 @@ def generer_depot():
         return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
     
     try:
+        from models import Parametre
+        
         paiements_ids = request.form.getlist('paiements_ids')
         banque = request.form.get('banque', 'Banque')
         observations = request.form.get('observations', '')
         
         if not paiements_ids:
             return jsonify({'success': False, 'message': 'Aucun paiement sélectionné'})
+        
+        # Récupérer la période active
+        periode_active = Parametre.get('annee_scolaire_active', '2025-2026')
         
         # Récupérer les paiements
         paiements = Paiement.query.filter(Paiement.id.in_(paiements_ids)).all()
@@ -2896,14 +2928,16 @@ def generer_depot():
         today = datetime.now()
         numero_depot = f"DEP-{today.strftime('%Y%m%d')}-{DepotBancaire.query.count() + 1:04d}"
         
-        # Créer le dépôt
+        # Créer le dépôt avec l'année scolaire
         depot = DepotBancaire(
             numero_depot=numero_depot,
             montant_total=montant_total,
             statut='en_attente',
             effectue_par=current_user.username,
             banque=banque,
-            observations=observations
+            observations=observations,
+            date_depot=today,
+            annee_scolaire=periode_active  # ← IMPORTANT : enregistre l'année
         )
         db.session.add(depot)
         db.session.flush()
@@ -2918,12 +2952,9 @@ def generer_depot():
         
         db.session.commit()
         
-        log_action('GENERER_DEPOT',
-                   f"Dépôt {numero_depot} généré: {len(paiements_ids)} paiements pour {montant_total:,.0f} FCFA")
-        
         return jsonify({
             'success': True,
-            'message': f'Dépôt {numero_depot} généré avec succès',
+            'message': f'Dépôt {numero_depot} généré avec succès pour {periode_active}',
             'depot_id': depot.id
         })
         

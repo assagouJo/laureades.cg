@@ -106,6 +106,26 @@ class Parametre(db.Model):
     valeur = db.Column(db.String(500))
     description = db.Column(db.String(200))
     date_modification = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    @classmethod
+    def get(cls, cle, default=None):
+        """Récupère la valeur d'un paramètre"""
+        param = cls.query.filter_by(cle=cle).first()
+        return param.valeur if param else default
+    
+    @classmethod
+    def set(cls, cle, valeur, description=None):
+        """Définit la valeur d'un paramètre"""
+        param = cls.query.filter_by(cle=cle).first()
+        if param:
+            param.valeur = valeur
+            if description:
+                param.description = description
+        else:
+            param = cls(cle=cle, valeur=valeur, description=description or '')
+            db.session.add(param)
+        db.session.commit()
+        return param
     
     def __repr__(self):
         return f'<Parametre {self.cle}={self.valeur}>'
@@ -442,6 +462,18 @@ class Paiement(db.Model):
     def montant_absolu(self):
         """Retourne la valeur absolue du montant"""
         return abs(self.montant)
+    
+    def est_verrouille_par_depot(self):
+        """Vérifie si le paiement est lié à un dépôt bancaire validé"""
+        # Vérifier si ce paiement est dans un dépôt validé
+        for liaison in self.depots_lies:
+            if liaison.depot and liaison.depot.statut == 'valide':
+                return True
+        return False
+    
+    def peut_etre_modifie(self):
+        """Un paiement ne peut être modifié que s'il n'est pas verrouillé par un dépôt validé"""
+        return not self.est_verrouille_par_depot()
 
 
 class HistoriquePriseEnCharge(db.Model):
@@ -478,6 +510,7 @@ class DepotBancaire(db.Model):
     banque = db.Column(db.String(100), default='Banque')
     reference_banque = db.Column(db.String(100))
     observations = db.Column(db.String(200))
+    annee_scolaire = db.Column(db.String(20), default='2025-2026')
     
     paiements = db.relationship('PaiementDepot', backref='depot', lazy=True, cascade='all, delete-orphan')
     
