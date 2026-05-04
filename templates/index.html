@@ -1,0 +1,599 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Gestion Scolaire{% endblock %}
+
+{% block styles %}
+<style>
+    .stat-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 12px;
+        border: none;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(102, 126, 234, 0.1);
+    }
+    .progress {
+        border-radius: 10px;
+        background-color: #e9ecef;
+    }
+    .list-item-hover:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+        transition: all 0.2s;
+    }
+    .badge-role {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
+    .welcome-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-tachometer-alt me-2"></i>Tableau de bord</h2>
+            <p class="text-muted">
+                <i class="fas fa-user-circle me-1"></i>
+                Bienvenue, <strong class="welcome-text">{{ current_user.username }}</strong> !
+                {% if current_user.role == 'admin' %}
+                    <span class="badge bg-danger ms-2"><i class="fas fa-crown me-1"></i>Administrateur</span>
+                {% elif current_user.role == 'comptable' %}
+                    <span class="badge bg-warning text-dark ms-2"><i class="fas fa-calculator me-1"></i>Comptable</span>
+                {% else %}
+                    <span class="badge bg-info ms-2"><i class="fas fa-user me-1"></i>Opérateur</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- ============ SECTION ADMIN (vue complète) ============ -->
+    {% if current_user.role == 'admin' %}
+    
+    <!-- Cartes statistiques admin -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Élèves</h6>
+                            <h3 class="mb-0 text-primary">{{ total_eleves }}</h3>
+                            <small class="text-muted">inscrits au total</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Encaissé</h6>
+                            <h4 class="mb-0 text-success">{{ "{:,.0f}".format(total_encaisse) }} F</h4>
+                            <small class="text-muted">tous paiements confondus</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Paiements du Jour</h6>
+                            <h4 class="mb-0 text-info">{{ "{:,.0f}".format(total_jour) }} F</h4>
+                            <small class="text-muted">{{ nb_paiements_jour }} transactions</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-day fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Taux de Recouvrement</h6>
+                            <h3 class="mb-0 text-warning">{{ "%.1f"|format(taux_recouvrement) }}%</h3>
+                            <small class="text-muted">objectif annuel</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-pie fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques avancées admin -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-simple me-2"></i>Statut des paiements</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-check-circle text-success me-1"></i> Payé</span>
+                            <span class="fw-bold">{{ eleves_payes }} élèves ({{ "%.1f"|format((eleves_payes/total_eleves*100) if total_eleves > 0 else 0) }}%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: {{ (eleves_payes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-clock text-warning me-1"></i> Partiel</span>
+                            <span class="fw-bold">{{ eleves_partiels }} élèves ({{ "%.1f"|format((eleves_partiels/total_eleves*100) if total_eleves > 0 else 0) }}%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: {{ (eleves_partiels/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-times-circle text-danger me-1"></i> Impayé</span>
+                            <span class="fw-bold">{{ eleves_impayes }} élèves ({{ "%.1f"|format((eleves_impayes/total_eleves*100) if total_eleves > 0 else 0) }}%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-danger" style="width: {{ (eleves_impayes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Affectation par l'État</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-hand-holding-heart text-success me-1"></i> Affectés État</span>
+                            <span class="fw-bold">{{ eleves_affectes }} élèves ({{ "%.1f"|format((eleves_affectes/total_eleves*100) if total_eleves > 0 else 0) }}%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: {{ (eleves_affectes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-user text-secondary me-1"></i> Non affectés</span>
+                            <span class="fw-bold">{{ eleves_non_affectes }} élèves ({{ "%.1f"|format((eleves_non_affectes/total_eleves*100) if total_eleves > 0 else 0) }}%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-secondary" style="width: {{ (eleves_non_affectes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top payeurs et top dette -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-trophy text-warning me-2"></i>Top 5 meilleurs payeurs</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for eleve in top_payeurs %}
+                        <div class="list-group-item list-item-hover">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-user-graduate text-primary me-2"></i>
+                                    <strong>{{ eleve.prenom }} {{ eleve.nom }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ eleve.classe }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-success fw-bold">{{ "{:,.0f}".format(eleve.montant_paye) }} F</span>
+                                    <div class="progress mt-1" style="width: 120px; height: 3px;">
+                                        <div class="progress-bar bg-success" style="width: {{ eleve.taux_paiement }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">
+                            <i class="fas fa-info-circle me-1"></i>Aucun paiement enregistré
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Top 5 plus gros débiteurs</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for eleve in top_dette %}
+                        <div class="list-group-item list-item-hover">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-user-graduate text-danger me-2"></i>
+                                    <strong>{{ eleve.prenom }} {{ eleve.nom }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ eleve.classe }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-danger fw-bold">{{ "{:,.0f}".format(eleve.solde) }} F</span>
+                                    <div class="progress mt-1" style="width: 120px; height: 3px;">
+                                        <div class="progress-bar bg-danger" style="width: {{ (eleve.solde/eleve.frais_scolarite_total*100) if eleve.frais_scolarite_total > 0 else 0 }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">
+                            <i class="fas fa-check-circle text-success me-1"></i>Aucun débiteur
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paiements récents et dernières inscriptions -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-history me-2"></i>Derniers paiements</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for paiement in paiements_recents[:10] %}
+                        <div class="list-group-item list-item-hover">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-receipt text-info me-2"></i>
+                                    <strong>{{ paiement.eleve.prenom }} {{ paiement.eleve.nom }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i>{{ paiement.date_paiement.strftime('%d/%m/%Y %H:%M') }}
+                                        <i class="fas fa-tag ms-2 me-1"></i>{{ paiement.type_paiement }}
+                                    </small>
+                                </div>
+                                <span class="text-success fw-bold">{{ "{:,.0f}".format(paiement.montant) }} F</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">
+                            <i class="fas fa-info-circle me-1"></i>Aucun paiement récent
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-user-plus me-2"></i>Dernières inscriptions</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for eleve in derniers_eleves %}
+                        <div class="list-group-item list-item-hover">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-user-graduate text-primary me-2"></i>
+                                    <strong>{{ eleve.prenom }} {{ eleve.nom }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-graduation-cap me-1"></i>{{ eleve.classe }}
+                                        <i class="fas fa-calendar-alt ms-2 me-1"></i>{{ eleve.date_inscription.strftime('%d/%m/%Y') }}
+                                    </small>
+                                </div>
+                                <span class="badge bg-{{ 'success' if eleve.est_affecte_etat else 'secondary' }}">
+                                    {{ 'Affecté' if eleve.est_affecte_etat else 'Non affecté' }}
+                                </span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">
+                            <i class="fas fa-info-circle me-1"></i>Aucune inscription récente
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphique d'évolution des paiements -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Évolution des paiements (6 derniers mois)</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="paiementsChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ SECTION COMPTABLE ============ -->
+    {% elif current_user.role == 'comptable' %}
+    
+    <!-- Cartes comptable -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Encaissé</h6>
+                            <h3 class="text-success mb-0">{{ "{:,.0f}".format(total_encaisse) }} F</h3>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-money-bill-wave fa-2x text-success"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Reste à recouvrer</h6>
+                            <h3 class="text-danger mb-0">{{ "{:,.0f}".format(reste_a_recouvrer) }} F</h3>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-exclamation-triangle fa-2x text-danger"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Taux de recouvrement</h6>
+                            <h3 class="text-info mb-0">{{ taux_recouvrement }}%</h3>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-chart-pie fa-2x text-info"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suite du dashboard comptable -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Paiements du jour</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for p in paiements_jour %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ p.eleve.prenom }} {{ p.eleve.nom }}</strong>
+                                    <br><small class="text-muted">{{ p.date_paiement.strftime('%H:%M') }} - {{ p.type_paiement }}</small>
+                                </div>
+                                <span class="text-success fw-bold">{{ "{:,.0f}".format(p.montant) }} F</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">Aucun paiement aujourd'hui</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-users me-2"></i>Élèves avec solde</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for eleve in eleves_avec_solde[:10] %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ eleve.prenom }} {{ eleve.nom }}</strong>
+                                    <br><small class="text-muted">{{ eleve.classe }}</small>
+                                </div>
+                                <span class="text-danger fw-bold">{{ "{:,.0f}".format(eleve.solde) }} F</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">Tous les élèves sont à jour</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ SECTION OPÉRATEUR ============ -->
+    {% else %}
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-primary mb-2"></i>
+                    <h3>{{ total_eleves }}</h3>
+                    <p class="text-muted mb-0">Total élèves</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-money-bill-wave fa-3x text-success mb-2"></i>
+                    <h3>{{ "{:,.0f}".format(total_jour) }} F</h3>
+                    <p class="text-muted mb-0">Encaissé aujourd'hui</p>
+                    <small>{{ nb_paiements_jour }} transaction(s)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-3x text-info mb-2"></i>
+                    <h3>{{ derniers_paiements|length }}</h3>
+                    <p class="text-muted mb-0">Derniers paiements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-history me-2"></i>Derniers paiements</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for p in derniers_paiements[:10] %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ p.eleve.prenom }} {{ p.eleve.nom }}</strong>
+                                    <br><small class="text-muted">{{ p.date_paiement.strftime('%d/%m/%Y %H:%M') }}</small>
+                                </div>
+                                <span class="text-success">{{ "{:,.0f}".format(p.montant) }} F</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">Aucun paiement</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-user-plus me-2"></i>Dernières inscriptions</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for e in derniers_eleves[:10] %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ e.prenom }} {{ e.nom }}</strong>
+                                    <br><small class="text-muted">{{ e.classe }} - {{ e.date_inscription.strftime('%d/%m/%Y') }}</small>
+                                </div>
+                                <span class="badge bg-secondary">{{ 'Affecté' if e.est_affecte_etat else 'Non affecté' }}</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">Aucune inscription</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    {% if current_user.role == 'admin' or current_user.role == 'comptable' %}
+    // Graphique des paiements (uniquement pour admin et comptable)
+    fetch('/rapports/api/paiements')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('paiementsChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels || ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                        datasets: [{
+                            label: 'Montant encaissé (FCFA)',
+                            data: data.values || [0, 0, 0, 0, 0, 0],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#667eea',
+                            pointBorderColor: '#fff',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.raw.toLocaleString() + ' FCFA';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString() + ' F';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        })
+        .catch(error => console.error('Erreur chargement graphique:', error));
+    {% endif %}
+</script>
+{% endblock %}

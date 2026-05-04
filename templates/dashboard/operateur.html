@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - GestScolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-tachometer-alt me-2"></i>Tableau de bord - Operateur</h2>
+            <p class="text-muted">Bienvenue, {{ current_user.username }} !</p>
+        </div>
+    </div>
+
+    <!-- Cartes statistiques opérateur -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-primary mb-2"></i>
+                    <h3>{{ total_eleves }}</h3>
+                    <p class="text-muted mb-0">Total élèves</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-money-bill-wave fa-3x text-success mb-2"></i>
+                    <h3>{{ "{:,.0f}".format(total_jour) }} F</h3>
+                    <p class="text-muted mb-0">Encaissé aujourd'hui</p>
+                    <small>{{ nb_paiements_jour }} transaction(s)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-receipt fa-3x text-info mb-2"></i>
+                    <h3>{{ paiements_recents|length }}</h3>
+                    <p class="text-muted mb-0">Derniers paiements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paiements du jour -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-calendar-day me-2"></i>Paiements du jour</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% if paiements_jour %}
+                            {% for p in paiements_jour %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-user-graduate text-primary me-2"></i>
+                                        <strong>{{ p.eleve.prenom }} {{ p.eleve.nom }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>{{ p.date_paiement.strftime('%H:%M') }}
+                                            <i class="fas fa-tag ms-2 me-1"></i>{{ p.type_paiement }}
+                                        </small>
+                                    </div>
+                                    <span class="text-success fw-bold">{{ "{:,.0f}".format(p.montant) }} F</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="list-group-item text-center text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Aucun paiement aujourd'hui
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <div class="d-flex justify-content-between">
+                        <span>Total du jour</span>
+                        <strong class="text-success">{{ "{:,.0f}".format(total_jour) }} F</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-history me-2"></i>Derniers paiements</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for p in derniers_paiements[:10] %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-receipt text-info me-2"></i>
+                                    <strong>{{ p.eleve.prenom }} {{ p.eleve.nom }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ p.date_paiement.strftime('%d/%m/%Y %H:%M') }}</small>
+                                </div>
+                                <span class="text-success">{{ "{:,.0f}".format(p.montant) }} F</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">
+                            <i class="fas fa-info-circle me-1"></i>Aucun paiement
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dernières inscriptions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-user-plus me-2"></i>Dernières inscriptions</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Matricule</th>
+                                    <th>Élève</th>
+                                    <th>Classe</th>
+                                    <th>Date d'inscription</th>
+                                    <th>Affectation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for e in derniers_eleves %}
+                                <tr>
+                                    <td><code>{{ e.matricule }}</code></td>
+                                    <td>{{ e.prenom }} {{ e.nom }}</td>
+                                    <td>{{ e.classe }}</td>
+                                    <td>{{ e.date_inscription.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        {% if e.est_affecte_etat %}
+                                            <span class="badge bg-success">Affecté État</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Non affecté</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Aucune inscription récente</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,736 @@
+<!-- templates/base.html - Template principal optimisé mobile -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>{% block title %}GestScolaire - Système de Gestion Scolaire{% endblock %}</title>
+    
+    <!-- CSS Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
+    <style>
+        /* ========== VARIABLES ========== */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --sidebar-width: 260px;
+            --topbar-height: 60px;
+            --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+        }
+        
+        /* ========== RESET ========== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        
+        body {
+            overflow: hidden;
+        }
+        
+        /* ========== LAYOUT PRINCIPAL ========== */
+        .app-layout {
+            display: flex;
+            height: 100vh;
+            height: 100dvh;
+            width: 100%;
+        }
+        
+        /* ========== SIDEBAR FIXE ========== */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            height: 100vh;
+            height: 100dvh;
+            background: var(--primary-gradient);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1030;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 3px 0 15px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
+        
+        .sidebar-logo h4 {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .sidebar-logo small {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            color: white;
+            letter-spacing: 0.5px;
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.85);
+            padding: 11px 20px;
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+        
+        .sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding-left: 25px;
+        }
+        
+        .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-left-color: #ffd700;
+            font-weight: 600;
+        }
+        
+        .sidebar .nav-link i {
+            width: 22px;
+            margin-right: 10px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        
+        .eleves-dropdown .dropdown-menu {
+            background: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 0;
+            margin-left: 15px;
+            min-width: 200px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            /* 🔥 Animation lente et fluide 🔥 */
+            display: block;
+            opacity: 0;
+            transform: translateY(-15px);
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            pointer-events: none;
+        }
+
+        .eleves-dropdown .dropdown-menu.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        
+        .eleves-dropdown .dropdown-item {
+            padding: 9px 20px;
+            color: #333;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .eleves-dropdown .dropdown-item:hover,
+        .eleves-dropdown .dropdown-item.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .dossier-indicator {
+            margin: 10px 15px;
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.78rem;
+            border-left: 3px solid #ffd700;
+        }
+        
+        .dossier-indicator i {
+            color: #ffd700;
+            margin-right: 6px;
+        }
+        
+        .sidebar hr {
+            margin: 10px 20px;
+            border-color: rgba(255,255,255,0.15);
+        }
+        
+        /* ========== CONTENU PRINCIPAL ========== */
+        .main-area {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f0f2f5;
+        }
+        
+        .topbar {
+            height: var(--topbar-height);
+            min-height: var(--topbar-height);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            z-index: 1020;
+            flex-shrink: 0;
+        }
+        
+        .topbar h5 {
+            margin: 0;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .topbar .dropdown-menu {
+            display: block;
+            opacity: 0;
+            transform: translateY(-15px);
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            pointer-events: none;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .topbar .dropdown-menu.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        
+        .dossier-badge {
+            background: var(--primary-gradient);
+            padding: 6px 14px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        .dossier-badge i {
+            margin-right: 6px;
+        }
+        
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.2s;
+        }
+        
+        .user-dropdown:hover {
+            background: #f8f9fa;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        /* ========== CONTENU SCROLLABLE ========== */
+        .page-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 15px;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: calc(15px + var(--safe-area-bottom));
+        }
+        
+        .page-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .page-content::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border-radius: 10px;
+        }
+        
+        /* ========== COMPOSANTS ========== */
+        .card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 15px;
+        }
+        
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 12px 15px;
+        }
+        
+        .badge-paid { background: #28a745; color: white; }
+        .badge-partial { background: #ffc107; color: #333; }
+        .badge-unpaid { background: #dc3545; color: white; }
+        
+        .btn {
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .btn:active {
+            transform: scale(0.97);
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            font-size: 16px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.2);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            animation: slideDown 0.3s ease;
+        }
+        
+        .table {
+            font-size: 0.85rem;
+        }
+        
+        .table td, .table th {
+            padding: 8px 10px;
+            vertical-align: middle;
+        }
+        
+        /* ========== OVERLAY MOBILE ========== */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1025;
+        }
+        
+        .overlay.show {
+            display: block;
+        }
+        
+        /* ========== ANIMATIONS ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* ========== RESPONSIVE MOBILE ========== */
+        @media (max-width: 768px) {
+            :root {
+                --topbar-height: 50px;
+            }
+            
+            body {
+                overflow: auto;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                min-width: 280px;
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-area {
+                margin-left: 0 !important;
+                height: 100dvh;
+                height: -webkit-fill-available;
+            }
+            
+            .topbar {
+                padding: 0 12px;
+            }
+            
+            .topbar h5 {
+                font-size: 0.9rem;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .dossier-badge {
+                display: none;
+            }
+            
+            .user-dropdown .d-none {
+                display: none !important;
+            }
+            
+            .page-content {
+                padding: 10px;
+                padding-bottom: 80px;
+            }
+            
+            .table-responsive {
+                margin: 0 -10px;
+                width: calc(100% + 20px);
+            }
+            
+            .modal-dialog {
+                margin: 0;
+                max-width: 100% !important;
+                height: 100%;
+            }
+            
+            .modal-content {
+                border-radius: 0;
+                height: 100%;
+            }
+            
+            .modal-body {
+                max-height: calc(100vh - 120px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 15px;
+            }
+            
+            .btn-sm {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            
+            .dropdown-menu {
+                max-height: 50vh;
+                overflow-y: auto;
+            }
+        }
+        
+        @media (max-width: 375px) {
+            .page-content {
+                padding: 8px;
+                padding-bottom: 80px;
+            }
+            
+            .table td, .table th {
+                padding: 6px 8px;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+    
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <div class="app-layout">
+        
+        <!-- Overlay pour mobile -->
+        <div class="overlay" id="overlay"></div>
+        
+        <!-- ========== SIDEBAR ========== -->
+        {% if current_user.is_authenticated %}
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <h4><i class="fas fa-school me-2"></i>Agora School</h4>
+                <small>Gestion Scolaire</small>
+                
+                {% set annee_active = parametres_ecole.get('annee_scolaire_active', '2025-2026') if parametres_ecole else '2025-2026' %}
+                <div style="margin-top: 8px; padding: 6px 10px; background: rgba(255,255,255,0.15); border-radius: 6px; font-size: 0.75rem;">
+                    <i class="fas fa-calendar-alt me-1" style="color: #ffd700;"></i>
+                    <strong style="color: #ffd700;">{{ annee_active }}</strong>
+                </div>
+            </div>
+            
+            {% if session.get('dossier_actif') %}
+            <div class="dossier-indicator">
+                <i class="fas fa-folder-open"></i>
+                {% if session.get('dossier_actif') == 'maternelle' %}🧸 Maternelle
+                {% elif session.get('dossier_actif') == 'primaire' %}📚 Primaire
+                {% elif session.get('dossier_actif') == 'secondaire' %}🎓 Secondaire
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <nav class="sidebar-nav">
+                {% if current_user.role == 'admin' %}
+                <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" 
+                   href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                {% endif %}
+                
+                <div class="eleves-dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.endpoint == 'liste_eleves' %}active{% endif %}" 
+                       href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-users"></i> Élèves
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item {% if session.get('dossier_actif') == 'maternelle' %}active{% endif %}" 
+                               href="{{ url_for('changer_dossier', dossier='maternelle') }}">
+                            <i class="fas fa-baby"></i> 🧸 Maternelle</a></li>
+                        <li><a class="dropdown-item {% if session.get('dossier_actif') == 'primaire' %}active{% endif %}" 
+                               href="{{ url_for('changer_dossier', dossier='primaire') }}">
+                            <i class="fas fa-child"></i> 📚 Primaire</a></li>
+                        <li><a class="dropdown-item {% if session.get('dossier_actif') == 'secondaire' %}active{% endif %}" 
+                               href="{{ url_for('changer_dossier', dossier='secondaire') }}">
+                            <i class="fas fa-user-graduate"></i> 🎓 Secondaire</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item {% if not session.get('dossier_actif') %}active{% endif %}" 
+                               href="{{ url_for('changer_dossier', dossier='tous') }}">
+                            <i class="fas fa-folder-open"></i> 📁 Tous</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 🔥 NOUVEAU MENU RÉINSCRIPTIONS 🔥 -->
+                {% if current_user.role in ['admin', 'comptable'] %}
+                <div class="eleves-dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.endpoint in ['liste_reinscriptions', 'reinscrire_anciens'] %}active{% endif %}" 
+                       href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-redo"></i> Réinscriptions
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item {% if request.endpoint == 'liste_reinscriptions' %}active{% endif %}" 
+                               href="{{ url_for('liste_reinscriptions') }}">
+                            <i class="fas fa-list"></i> 📋 Liste</a></li>
+                        <li><a class="dropdown-item {% if request.endpoint == 'reinscrire_anciens' %}active{% endif %}" 
+                               href="{{ url_for('reinscrire_anciens') }}">
+                            <i class="fas fa-user-graduate"></i> 🎓 Réinscrire anciens</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('parametres') }}#periodes">
+                            <i class="fas fa-calendar-alt"></i> 📅 Périodes</a></li>
+                    </ul>
+                </div>
+                {% endif %}
+                
+                {% if current_user.role in ['admin', 'comptable'] %}
+                <a class="nav-link {% if request.endpoint == 'rapports' %}active{% endif %}" 
+                   href="{{ url_for('rapports') }}">
+                    <i class="fas fa-chart-line"></i> Rapports
+                </a>
+                <a class="nav-link {% if request.endpoint == 'bank' %}active{% endif %}" 
+                   href="{{ url_for('bank') }}">
+                    <i class="fas fa-university"></i> Bank
+                </a>
+                {% endif %}
+                
+                {% if current_user.role == 'admin' %}
+                <a class="nav-link {% if request.endpoint == 'liste_utilisateurs' %}active{% endif %}" 
+                   href="{{ url_for('liste_utilisateurs') }}">
+                    <i class="fas fa-users-cog"></i> Utilisateurs
+                </a>
+                <a class="nav-link {% if request.endpoint == 'parametres' %}active{% endif %}" 
+                   href="{{ url_for('parametres') }}">
+                    <i class="fas fa-cog"></i> Paramètres
+                </a>
+                {% endif %}
+                
+                <hr>
+                
+                <a class="nav-link" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
+            </nav>
+        </aside>
+        {% endif %}
+        
+        <!-- ========== ZONE PRINCIPALE ========== -->
+        <main class="main-area">
+            {% if current_user.is_authenticated %}
+            <header class="topbar">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-link d-md-none p-0" id="menuToggle" aria-label="Menu">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
+                    <h5>{% block page_title %}Tableau de bord{% endblock %}</h5>
+                    
+                    {% if session.get('dossier_actif') %}
+                    <span class="dossier-badge d-none d-md-inline-block">
+                        <i class="fas fa-folder-open"></i>
+                        {% if session.get('dossier_actif') == 'maternelle' %}🧸 Maternelle
+                        {% elif session.get('dossier_actif') == 'primaire' %}📚 Primaire
+                        {% elif session.get('dossier_actif') == 'secondaire' %}🎓 Secondaire
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <div class="dropdown">
+                    <a href="#" class="user-dropdown dropdown-toggle" data-bs-toggle="dropdown" aria-label="Menu utilisateur">
+                        <div class="user-avatar">
+                            {{ current_user.prenom[0]|upper if current_user.prenom else current_user.username[0]|upper }}
+                            {{ current_user.nom[0]|upper if current_user.nom else '' }}
+                        </div>
+                        <div class="d-none d-md-block text-start">
+                            <strong>{{ current_user.nom_complet or current_user.username }}</strong>
+                            <div>
+                                <span class="badge bg-{{ 'primary' if current_user.role == 'admin' else 'warning' if current_user.role == 'comptable' else 'info' }}" 
+                                      style="font-size:0.65rem;">
+                                    {{ current_user.role|capitalize }}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('profil') }}"><i class="fas fa-user-circle me-2"></i>Profil</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('parametres') }}"><i class="fas fa-cog me-2"></i>Paramètres</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
+                    </ul>
+                </div>
+            </header>
+            {% endif %}
+            
+            <div class="page-content" id="pageContent">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show">
+                            {% if category == 'success' %}<i class="fas fa-check-circle me-2"></i>
+                            {% elif category == 'danger' %}<i class="fas fa-exclamation-circle me-2"></i>
+                            {% elif category == 'warning' %}<i class="fas fa-exclamation-triangle me-2"></i>
+                            {% else %}<i class="fas fa-info-circle me-2"></i>
+                            {% endif %}
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltips.forEach(function(el) { new bootstrap.Tooltip(el); });
+            
+            var menuToggle = document.getElementById('menuToggle');
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('overlay');
+            
+            function openMenu() {
+                sidebar.classList.add('mobile-open');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeMenu() {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+            
+            if (menuToggle) menuToggle.addEventListener('click', openMenu);
+            if (overlay) overlay.addEventListener('click', closeMenu);
+            
+            if (sidebar) {
+                sidebar.querySelectorAll('.nav-link').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            setTimeout(closeMenu, 200);
+                        }
+                    });
+                });
+            }
+            
+            function setMobileHeight() {
+                var vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', vh + 'px');
+            }
+            
+            setMobileHeight();
+            window.addEventListener('resize', setMobileHeight);
+            window.addEventListener('orientationchange', function() {
+                setTimeout(setMobileHeight, 100);
+            });
+            
+            setTimeout(function() {
+                document.querySelectorAll('.alert').forEach(function(alert) {
+                    new bootstrap.Alert(alert).close();
+                });
+            }, 5000);
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

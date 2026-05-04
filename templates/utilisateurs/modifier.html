@@ -1,0 +1,368 @@
+<!-- templates/utilisateurs/modifier.html -->
+{% extends "base.html" %}
+
+{% block title %}Modifier {{ utilisateur.username }} - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+    <a href="{{ url_for('liste_utilisateurs') }}" class="btn btn-outline-secondary me-3">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h2 class="mb-0"><i class="fas fa-user-edit me-2"></i>Modifier {{ utilisateur.username }}</h2>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <form method="POST" id="userForm">
+                    <!-- Identifiants de connexion -->
+                    <h5 class="mb-3"><i class="fas fa-key me-2"></i>Identifiants de connexion</h5>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user me-1"></i>Nom d'utilisateur
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="username" 
+                               name="username" 
+                               value="{{ utilisateur.username }}"
+                               required 
+                               minlength="3">
+                        <div class="form-text">Minimum 3 caractères (lettres et chiffres uniquement)</div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Informations personnelles -->
+                    <h5 class="mb-3"><i class="fas fa-id-card me-2"></i>Informations personnelles</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nom" class="form-label">
+                                <i class="fas fa-user-tag me-1"></i>Nom
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="nom" 
+                                   name="nom" 
+                                   value="{{ utilisateur.nom }}"
+                                   required 
+                                   minlength="2">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="prenom" class="form-label">
+                                <i class="fas fa-user-astronaut me-1"></i>Prénom
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="prenom" 
+                                   name="prenom" 
+                                   value="{{ utilisateur.prenom }}"
+                                   required 
+                                   minlength="2">
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Rôle et statut -->
+                    <h5 class="mb-3"><i class="fas fa-tag me-2"></i>Rôle et permissions</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="role" class="form-label">
+                                <i class="fas fa-shield-alt me-1"></i>Rôle
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="role" name="role" {% if utilisateur.id == current_user.id %}disabled{% endif %}>
+                                <option value="user" {% if utilisateur.role == 'user' %}selected{% endif %}>
+                                    👤 Opérateur
+                                </option>
+                                <option value="comptable" {% if utilisateur.role == 'comptable' %}selected{% endif %}>
+                                    🧮 Comptable
+                                </option>
+                                <option value="admin" {% if utilisateur.role == 'admin' %}selected{% endif %}>
+                                    👑 Administrateur
+                                </option>
+                            </select>
+                            {% if utilisateur.id == current_user.id %}
+                                <div class="form-text text-warning">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Vous ne pouvez pas modifier votre propre rôle
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-toggle-on me-1"></i>Statut du compte
+                            </label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="actif" name="actif" 
+                                       {% if utilisateur.actif %}checked{% endif %}
+                                       {% if utilisateur.id == current_user.id %}disabled{% endif %}>
+                                <label class="form-check-label" for="actif">
+                                    <span id="statutLabel" class="{% if utilisateur.actif %}text-success{% else %}text-danger{% endif %}">
+                                        {% if utilisateur.actif %}Compte actif{% else %}Compte désactivé{% endif %}
+                                    </span>
+                                </label>
+                            </div>
+                            {% if utilisateur.id == current_user.id %}
+                                <div class="form-text text-warning">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Vous ne pouvez pas modifier votre propre statut
+                                </div>
+                            {% else %}
+                                <div class="form-text">Désactiver pour bloquer temporairement l'accès</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Changement de mot de passe -->
+                    <h5 class="mb-3"><i class="fas fa-key me-2"></i>Changer le mot de passe</h5>
+                    <div class="alert alert-info small">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Laissez vide si vous ne souhaitez pas modifier le mot de passe.
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nouveau_password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Nouveau mot de passe
+                            </label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="nouveau_password" 
+                                       name="nouveau_password" 
+                                       minlength="4"
+                                       placeholder="••••••">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('nouveau_password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Minimum 4 caractères</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="confirm_password" class="form-label">
+                                <i class="fas fa-check-circle me-1"></i>Confirmer le mot de passe
+                            </label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="confirm_password" 
+                                       name="confirm_password" 
+                                       placeholder="••••••">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm_password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('liste_utilisateurs') }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Enregistrer les modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Carte d'information utilisateur -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="avatar-lg mx-auto mb-2">
+                        <span class="avatar-initials">{{ utilisateur.prenom[0] }}{{ utilisateur.nom[0] }}</span>
+                    </div>
+                    <h5 class="mb-1">{{ utilisateur.nom_complet }}</h5>
+                    <span class="badge {% if utilisateur.role == 'admin' %}bg-danger{% elif utilisateur.role == 'comptable' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                        {% if utilisateur.role == 'admin' %}👑 Administrateur
+                        {% elif utilisateur.role == 'comptable' %}🧮 Comptable
+                        {% else %}👤 Opérateur{% endif %}
+                    </span>
+                </div>
+                
+                <hr>
+                
+                <ul class="list-unstyled small">
+                    <li class="mb-2">
+                        <i class="fas fa-calendar-alt me-2 text-muted"></i>
+                        <strong>Créé le :</strong><br>
+                        {{ utilisateur.created_at.strftime('%d/%m/%Y à %H:%M') if utilisateur.created_at else 'N/A' }}
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-clock me-2 text-muted"></i>
+                        <strong>Dernière connexion :</strong><br>
+                        {{ utilisateur.last_login.strftime('%d/%m/%Y à %H:%M') if utilisateur.last_login else 'Jamais' }}
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-id-card me-2 text-muted"></i>
+                        <strong>ID utilisateur :</strong> {{ utilisateur.id }}
+                    </li>
+                    <li>
+                        <i class="fas fa-user-tag me-2 text-muted"></i>
+                        <strong>Nom d'utilisateur :</strong> {{ utilisateur.username }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Carte de conseils -->
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Conseils</h6>
+            </div>
+            <div class="card-body">
+                <ul class="small mb-0">
+                    <li class="mb-2">Le nom d'utilisateur doit être unique</li>
+                    <li class="mb-2">Le mot de passe doit contenir au moins 4 caractères</li>
+                    <li class="mb-2">Seul un administrateur peut modifier les rôles</li>
+                    <li class="mb-2">Vous ne pouvez pas modifier votre propre rôle ou statut</li>
+                    <li>Un compte désactivé ne peut pas se connecter</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Carte d'alerte pour dernier admin -->
+        {% if utilisateur.role == 'admin' and utilisateurs_admin_count <= 1 and utilisateur.id != current_user.id %}
+        <div class="card shadow mt-3 border-danger">
+            <div class="card-header bg-danger text-white">
+                <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Attention</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Cet utilisateur est le dernier administrateur. Vous ne pouvez pas le rétrograder ou le désactiver.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.avatar-lg {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-initials {
+    font-size: 32px;
+    color: white;
+    font-weight: bold;
+}
+</style>
+
+<script>
+// Toggle password visibility
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const button = field.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Validation du nom d'utilisateur
+document.getElementById('username').addEventListener('input', function() {
+    const value = this.value;
+    if (value.length < 3) {
+        this.setCustomValidity('Le nom d\'utilisateur doit contenir au moins 3 caractères');
+        this.classList.add('is-invalid');
+    } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+        this.setCustomValidity('Utilisez uniquement des lettres, chiffres et underscores');
+        this.classList.add('is-invalid');
+    } else {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+});
+
+// Validation de la confirmation du mot de passe
+const nouveauPassword = document.getElementById('nouveau_password');
+const confirmPassword = document.getElementById('confirm_password');
+
+function validatePasswordMatch() {
+    if (nouveauPassword.value || confirmPassword.value) {
+        if (nouveauPassword.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Les mots de passe ne correspondent pas');
+            confirmPassword.classList.add('is-invalid');
+            return false;
+        } else if (nouveauPassword.value.length < 4) {
+            nouveauPassword.setCustomValidity('Le mot de passe doit contenir au moins 4 caractères');
+            nouveauPassword.classList.add('is-invalid');
+            return false;
+        } else {
+            nouveauPassword.setCustomValidity('');
+            confirmPassword.setCustomValidity('');
+            nouveauPassword.classList.remove('is-invalid');
+            confirmPassword.classList.remove('is-invalid');
+            nouveauPassword.classList.add('is-valid');
+            confirmPassword.classList.add('is-valid');
+            return true;
+        }
+    }
+    return true;
+}
+
+nouveauPassword.addEventListener('input', validatePasswordMatch);
+confirmPassword.addEventListener('input', validatePasswordMatch);
+
+// Gestion du statut
+const statusCheckbox = document.getElementById('actif');
+if (statusCheckbox) {
+    statusCheckbox.addEventListener('change', function() {
+        const label = document.getElementById('statutLabel');
+        if (this.checked) {
+            label.textContent = 'Compte actif';
+            label.classList.remove('text-danger');
+            label.classList.add('text-success');
+        } else {
+            label.textContent = 'Compte désactivé';
+            label.classList.remove('text-success');
+            label.classList.add('text-danger');
+        }
+    });
+}
+
+// Validation avant soumission
+document.getElementById('userForm').addEventListener('submit', function(e) {
+    if (!validatePasswordMatch()) {
+        e.preventDefault();
+        alert('Veuillez vérifier les mots de passe');
+    }
+});
+</script>
+{% endblock %}

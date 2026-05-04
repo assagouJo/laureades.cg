@@ -1,0 +1,1043 @@
+<!-- templates/parametres.html -->
+{% extends "base.html" %}
+
+{% block title %}Paramètres - GestScolaire{% endblock %}
+
+{% block page_title %}
+<i class="fas fa-cog me-2" style="color: #667eea;"></i>Paramètres du système
+{% endblock %}
+
+{% block styles %}
+<style>
+    .nav-tabs .nav-link {
+        color: #495057;
+        font-weight: 500;
+        border: none;
+        padding: 12px 20px;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #667eea;
+        border-bottom: 3px solid #667eea;
+        background: transparent;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        border-bottom: 3px solid #a0a0ff;
+    }
+    
+    .settings-section {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .section-title i {
+        color: #667eea;
+        margin-right: 10px;
+    }
+    
+    .table-actions {
+        white-space: nowrap;
+    }
+    
+    .table-actions .btn {
+        padding: 4px 8px;
+        margin: 0 2px;
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Onglets de navigation -->
+    <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+                <i class="fas fa-school me-2"></i>Général
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="periodes-tab" data-bs-toggle="tab" data-bs-target="#periodes" type="button" role="tab">
+                <i class="fas fa-calendar-alt me-2"></i>Périodes
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="groupes-tab" data-bs-toggle="tab" data-bs-target="#groupes" type="button" role="tab">
+                <i class="fas fa-layer-group me-2"></i>Groupes
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sous-groupes-tab" data-bs-toggle="tab" data-bs-target="#sous-groupes" type="button" role="tab">
+                <i class="fas fa-folder-tree me-2"></i>Sous-groupes
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tarifs-tab" data-bs-toggle="tab" data-bs-target="#tarifs" type="button" role="tab">
+                <i class="fas fa-money-bill-wave me-2"></i>Tarifs
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="transports-tab" data-bs-toggle="tab" data-bs-target="#transports" type="button" role="tab">
+                <i class="fas fa-bus me-2"></i>Transports
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cantines-tab" data-bs-toggle="tab" data-bs-target="#cantines" type="button" role="tab">
+                <i class="fas fa-utensils me-2"></i>Cantines
+            </button>
+        </li>
+    </ul>
+
+    <!-- Contenu des onglets -->
+    <div class="tab-content" id="settingsTabContent">
+        
+        <!-- ========== ONGLET GÉNÉRAL ========== -->
+        <div class="tab-pane fade show active" id="general" role="tabpanel">
+            <div class="settings-section">
+                <h5 class="section-title">
+                    <i class="fas fa-cog"></i>Paramètres généraux
+                </h5>
+                
+                <form method="POST" action="{{ url_for('sauvegarder_parametres_generaux') }}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Nom de l'établissement</label>
+                                <input type="text" name="nom_ecole" class="form-control" 
+                                       value="{{ parametres.get('nom_ecole', 'GestScolaire') }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Devise</label>
+                                <input type="text" name="devise" class="form-control" 
+                                       value="{{ parametres.get('devise', 'FCFA') }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Année scolaire</label>
+                                <input type="text" name="annee_scolaire" class="form-control" 
+                                       value="{{ parametres.get('annee_scolaire', '2024-2025') }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Frais d'inscription (FCFA)</label>
+                                <input type="number" name="frais_inscription" class="form-control" 
+                                       value="{{ parametres.get('frais_inscription', '0') }}">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Téléphone de l'école</label>
+                                <input type="text" name="telephone_ecole" class="form-control" 
+                                       value="{{ parametres.get('telephone_ecole', '') }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Email de notification</label>
+                                <input type="email" name="email_notification" class="form-control" 
+                                       value="{{ parametres.get('email_notification', '') }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Délai de paiement (jours)</label>
+                                <input type="number" name="delai_paiement" class="form-control" 
+                                       value="{{ parametres.get('delai_paiement', '30') }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Pénalité de retard (%)</label>
+                                <input type="number" name="penalite_retard" class="form-control" 
+                                       value="{{ parametres.get('penalite_retard', '0') }}">
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label">Adresse</label>
+                                <textarea name="adresse_ecole" class="form-control" rows="2">{{ parametres.get('adresse_ecole', '') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========== 🔥 ONGLET PÉRIODES AVEC ACTIVATION/DÉSACTIVATION 🔥 ========== -->
+        <div class="tab-pane fade" id="periodes" role="tabpanel">
+            <div class="settings-section">
+                <h5 class="section-title">
+                    <i class="fas fa-calendar-alt"></i>Gestion des périodes scolaires
+                </h5>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Gérez les années scolaires pour les réinscriptions. L'année active détermine quels élèves sont affichés.
+                </div>
+                
+                <!-- 🔥 Liste des périodes avec activation 🔥 -->
+                <div class="row mb-4">
+                    {% set annees = parametres.get('annees_scolaires', '2024-2025,2025-2026,2026-2027').split(',') %}
+                    {% set active = parametres.get('annee_scolaire_active', '') %}
+                    
+                    {% for annee in annees %}
+                    {% set annee_clean = annee.strip() %}
+                    {% set est_active = (annee_clean == active) %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card {% if est_active %}border-success{% else %}border-secondary{% endif %}" 
+                            style="border-width: 2px;">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">{{ annee_clean }}</h5>
+                                
+                                {% if est_active %}
+                                <span class="badge bg-success mb-2">✅ Active</span>
+                                <br>
+                                <a href="{{ url_for('desactiver_periode') }}" 
+                                class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('Désactiver la période {{ annee_clean }} ?')">
+                                    <i class="fas fa-pause me-1"></i>Désactiver
+                                </a>
+                                {% else %}
+                                <span class="badge bg-secondary mb-2">⏸️ Inactive</span>
+                                <br>
+                                <a href="{{ url_for('activer_periode', annee=annee_clean) }}" 
+                                class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-play me-1"></i>Activer
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Formulaire de configuration -->
+                <form method="POST" action="{{ url_for('sauvegarder_parametres_periodes') }}">
+                    <h6 class="mb-3"><i class="fas fa-cog me-2"></i>Configuration des périodes</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Année scolaire active</label>
+                                <select name="annee_scolaire_active" class="form-select">
+                                    <option value="">-- Aucune --</option>
+                                    {% for annee in annees %}
+                                    <option value="{{ annee.strip() }}" {% if annee.strip() == active %}selected{% endif %}>
+                                        {{ annee.strip() }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Liste des années disponibles</label>
+                                <input type="text" name="annees_scolaires" class="form-control" 
+                                    value="{{ parametres.get('annees_scolaires', '2024-2025,2025-2026,2026-2027') }}">
+                                <small class="text-muted">Séparées par des virgules</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Frais de réinscription (FCFA)</label>
+                                <input type="number" name="frais_reinscription" class="form-control" 
+                                    value="{{ parametres.get('frais_reinscription', '0') }}" min="0" step="1000">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Date de début de la période</label>
+                                <input type="date" name="periode_debut" class="form-control" 
+                                    value="{{ parametres.get('periode_debut', '2025-09-01') }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Date de fin de la période</label>
+                                <input type="date" name="periode_fin" class="form-control" 
+                                    value="{{ parametres.get('periode_fin', '2026-07-31') }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Année scolaire affichée</label>
+                                <input type="text" name="annee_scolaire" class="form-control" 
+                                    value="{{ parametres.get('annee_scolaire', '2025-2026') }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end mt-3">
+                        <a href="{{ url_for('liste_reinscriptions') }}" class="btn btn-info me-2">
+                            <i class="fas fa-list me-1"></i>Réinscriptions
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- ========== ONGLET GROUPES ========== -->
+        <div class="tab-pane fade" id="groupes" role="tabpanel">
+            <div class="settings-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="section-title mb-0">
+                        <i class="fas fa-layer-group"></i>Groupes scolaires
+                    </h5>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterGroupeModal">
+                        <i class="fas fa-plus me-1"></i>Ajouter
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Ordre</th>
+                                <th>Nom</th>
+                                <th>Code</th>
+                                <th>Description</th>
+                                <th>Statut</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for groupe in groupes %}
+                            <tr>
+                                <td>{{ groupe.ordre }}</td>
+                                <td><strong>{{ groupe.nom }}</strong></td>
+                                <td><code>{{ groupe.code }}</code></td>
+                                <td>{{ groupe.description or '-' }}</td>
+                                <td>
+                                    {% if groupe.actif %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end table-actions">
+                                    <button class="btn btn-warning btn-sm" 
+                                            onclick="editerGroupe({{ groupe.id }}, '{{ groupe.nom }}', '{{ groupe.code }}', {{ groupe.ordre }}, '{{ groupe.description or '' }}', {{ 'true' if groupe.actif else 'false' }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="{{ url_for('param_supprimer_groupe', id=groupe.id) }}" 
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Supprimer le groupe {{ groupe.nom }} ?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ========== ONGLET SOUS-GROUPES ========== -->
+        <div class="tab-pane fade" id="sous-groupes" role="tabpanel">
+            <div class="settings-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="section-title mb-0">
+                        <i class="fas fa-folder-tree"></i>Sous-groupes (Niveaux)
+                    </h5>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterSousGroupeModal">
+                        <i class="fas fa-plus me-1"></i>Ajouter
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Groupe parent</th>
+                                <th>Ordre</th>
+                                <th>Nom</th>
+                                <th>Code</th>
+                                <th>Élèves</th>
+                                <th>Statut</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sg in sous_groupes %}
+                            <tr>
+                                <td>
+                                    <span class="badge" style="background: #667eea; color: white;">
+                                        {{ sg.groupe_parent.nom }}
+                                    </span>
+                                </td>
+                                <td>{{ sg.ordre }}</td>
+                                <td><strong>{{ sg.nom }}</strong></td>
+                                <td><code>{{ sg.code }}</code></td>
+                                <td>
+                                    <span class="badge bg-info">{{ sg.eleves|length }}</span>
+                                </td>
+                                <td>
+                                    {% if sg.actif %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end table-actions">
+                                    <button class="btn btn-warning btn-sm" 
+                                            onclick="editerSousGroupe({{ sg.id }}, '{{ sg.nom }}', '{{ sg.code }}', {{ sg.ordre }}, '{{ sg.description or '' }}', {{ sg.groupe_id }}, {{ 'true' if sg.actif else 'false' }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="{{ url_for('param_supprimer_sous_groupe', id=sg.id) }}" 
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Supprimer le sous-groupe {{ sg.nom }} ?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ========== ONGLET TARIFS ========== -->
+        <div class="tab-pane fade" id="tarifs" role="tabpanel">
+            <div class="settings-section">
+                <h5 class="section-title">
+                    <i class="fas fa-money-bill-wave"></i>Tarifs de scolarité
+                </h5>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Les tarifs sont définis par niveau et par type d'affectation (normal ou affecté par l'État).
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Niveau</th>
+                                <th class="text-center">Tarif Normal</th>
+                                <th class="text-center">Tarif Affecté</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sg in sous_groupes %}
+                            {% set tarif_normal = tarifs_affectes|selectattr('sous_groupe_id', 'equalto', sg.id)|selectattr('est_affecte', 'equalto', false)|first %}
+                            {% set tarif_affecte = tarifs_affectes|selectattr('sous_groupe_id', 'equalto', sg.id)|selectattr('est_affecte', 'equalto', true)|first %}
+                            <tr>
+                                <td><strong>{{ sg.nom }}</strong> ({{ sg.groupe_parent.nom }})</td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary">
+                                        {{ "{:,.0f}".format(tarif_normal.montant) if tarif_normal else '0' }} FCFA
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">
+                                        {{ "{:,.0f}".format(tarif_affecte.montant) if tarif_affecte else '0' }} FCFA
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-warning btn-sm" 
+                                            onclick="editerTarif({{ sg.id }}, '{{ sg.nom }}', {{ tarif_normal.montant if tarif_normal else 0 }}, {{ tarif_affecte.montant if tarif_affecte else 0 }}, {{ tarif_normal.id if tarif_normal else 0 }}, {{ tarif_affecte.id if tarif_affecte else 0 }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ========== ONGLET TRANSPORTS ========== -->
+        <div class="tab-pane fade" id="transports" role="tabpanel">
+            <div class="settings-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="section-title mb-0">
+                        <i class="fas fa-bus"></i>Options de transport
+                    </h5>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterTransportModal">
+                        <i class="fas fa-plus me-1"></i>Ajouter
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Ordre</th>
+                                <th>Nom</th>
+                                <th>Code</th>
+                                <th class="text-center">Montant supplément</th>
+                                <th>Statut</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transport in transports %}
+                            <tr>
+                                <td>{{ transport.ordre }}</td>
+                                <td><strong>{{ transport.nom }}</strong></td>
+                                <td><code>{{ transport.code }}</code></td>
+                                <td class="text-center">{{ "{:,.0f}".format(transport.montant_supplement) }} FCFA</td>
+                                <td>
+                                    {% if transport.actif %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-warning btn-sm" 
+                                            onclick="editerTransport({{ transport.id }}, '{{ transport.nom }}', '{{ transport.code }}', {{ transport.montant_supplement }}, {{ transport.ordre }}, '{{ transport.description or '' }}', {{ 'true' if transport.actif else 'false' }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ========== ONGLET CANTINES ========== -->
+        <div class="tab-pane fade" id="cantines" role="tabpanel">
+            <div class="settings-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="section-title mb-0">
+                        <i class="fas fa-utensils"></i>Options de cantine
+                    </h5>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterCantineModal">
+                        <i class="fas fa-plus me-1"></i>Ajouter
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Ordre</th>
+                                <th>Nom</th>
+                                <th>Code</th>
+                                <th class="text-center">Montant</th>
+                                <th>Statut</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cantine in cantines %}
+                            <tr>
+                                <td>{{ cantine.ordre }}</td>
+                                <td><strong>{{ cantine.nom }}</strong></td>
+                                <td><code>{{ cantine.code }}</code></td>
+                                <td class="text-center">{{ "{:,.0f}".format(cantine.montant) }} FCFA</td>
+                                <td>
+                                    {% if cantine.actif %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-warning btn-sm" 
+                                            onclick="editerCantine({{ cantine.id }}, '{{ cantine.nom }}', '{{ cantine.code }}', {{ cantine.montant }}, {{ cantine.ordre }}, '{{ cantine.description or '' }}', {{ 'true' if cantine.actif else 'false' }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODALS ========== -->
+
+<!-- Modal Ajouter Groupe -->
+<div class="modal fade" id="ajouterGroupeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('param_ajouter_groupe') }}">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-plus me-2"></i>Ajouter un groupe</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" class="form-check-input" id="actifGroupe" checked>
+                        <label class="form-check-label" for="actifGroupe">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier Groupe -->
+<div class="modal fade" id="modifierGroupeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="modifierGroupeForm" method="POST">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le groupe</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" id="editGroupeNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" id="editGroupeCode" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" id="editGroupeOrdre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="editGroupeDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" id="editGroupeActif" class="form-check-input">
+                        <label class="form-check-label" for="editGroupeActif">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajouter Sous-Groupe -->
+<div class="modal fade" id="ajouterSousGroupeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('param_ajouter_sous_groupe') }}">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-plus me-2"></i>Ajouter un sous-groupe</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Groupe parent *</label>
+                        <select name="groupe_id" class="form-select" required>
+                            <option value="">Sélectionner...</option>
+                            {% for groupe in groupes %}
+                            <option value="{{ groupe.id }}">{{ groupe.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" class="form-check-input" id="actifSousGroupe" checked>
+                        <label class="form-check-label" for="actifSousGroupe">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier Sous-Groupe -->
+<div class="modal fade" id="modifierSousGroupeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="modifierSousGroupeForm" method="POST">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le sous-groupe</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Groupe parent *</label>
+                        <select name="groupe_id" id="editSousGroupeParent" class="form-select" required>
+                            <option value="">Sélectionner...</option>
+                            {% for groupe in groupes %}
+                            <option value="{{ groupe.id }}">{{ groupe.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" id="editSousGroupeNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" id="editSousGroupeCode" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" id="editSousGroupeOrdre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="editSousGroupeDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" id="editSousGroupeActif" class="form-check-input">
+                        <label class="form-check-label" for="editSousGroupeActif">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier Tarif -->
+<div class="modal fade" id="modifierTarifModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="modifierTarifForm" method="POST">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier les tarifs - <span id="tarifNiveauNom"></span></h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="sous_groupe_id" id="tarifSousGroupeId">
+                    <input type="hidden" name="tarif_normal_id" id="tarifNormalId">
+                    <input type="hidden" name="tarif_affecte_id" id="tarifAffecteId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Tarif Normal (FCFA)</label>
+                        <input type="number" name="tarif_normal" id="editTarifNormal" class="form-control" step="500" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tarif Affecté (FCFA)</label>
+                        <input type="number" name="tarif_affecte" id="editTarifAffecte" class="form-control" step="500" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajouter Transport -->
+<div class="modal fade" id="ajouterTransportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('param_ajouter_transport') }}">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-bus me-2"></i>Ajouter un transport</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Montant supplément (FCFA)</label>
+                        <input type="number" name="montant_supplement" class="form-control" value="0" step="500">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" class="form-check-input" id="actifTransport" checked>
+                        <label class="form-check-label" for="actifTransport">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier Transport -->
+<div class="modal fade" id="modifierTransportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="modifierTransportForm" method="POST">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le transport</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" id="editTransportNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" id="editTransportCode" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Montant supplément (FCFA)</label>
+                        <input type="number" name="montant_supplement" id="editTransportMontant" class="form-control" step="500">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" id="editTransportOrdre" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="editTransportDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" id="editTransportActif" class="form-check-input">
+                        <label class="form-check-label" for="editTransportActif">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajouter Cantine -->
+<div class="modal fade" id="ajouterCantineModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('param_ajouter_cantine') }}">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-utensils me-2"></i>Ajouter une cantine</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Montant (FCFA)</label>
+                        <input type="number" name="montant" class="form-control" value="0" step="500">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" class="form-check-input" id="actifCantine" checked>
+                        <label class="form-check-label" for="actifCantine">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier Cantine -->
+<div class="modal fade" id="modifierCantineModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="modifierCantineForm" method="POST">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier la cantine</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" id="editCantineNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" id="editCantineCode" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Montant (FCFA)</label>
+                        <input type="number" name="montant" id="editCantineMontant" class="form-control" step="500">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" id="editCantineOrdre" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="editCantineDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" id="editCantineActif" class="form-check-input">
+                        <label class="form-check-label" for="editCantineActif">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // === FONCTIONS D'ÉDITION ===
+    
+    function editerGroupe(id, nom, code, ordre, description, actif) {
+        document.getElementById('editGroupeNom').value = nom;
+        document.getElementById('editGroupeCode').value = code;
+        document.getElementById('editGroupeOrdre').value = ordre;
+        document.getElementById('editGroupeDescription').value = description;
+        document.getElementById('editGroupeActif').checked = actif;
+        document.getElementById('modifierGroupeForm').action = "/parametres/groupes/" + id + "/modifier";
+        
+        var modal = new bootstrap.Modal(document.getElementById('modifierGroupeModal'));
+        modal.show();
+    }
+    
+    function editerSousGroupe(id, nom, code, ordre, description, groupe_id, actif) {
+        document.getElementById('editSousGroupeNom').value = nom;
+        document.getElementById('editSousGroupeCode').value = code;
+        document.getElementById('editSousGroupeOrdre').value = ordre;
+        document.getElementById('editSousGroupeDescription').value = description;
+        document.getElementById('editSousGroupeParent').value = groupe_id;
+        document.getElementById('editSousGroupeActif').checked = actif;
+        document.getElementById('modifierSousGroupeForm').action = "/parametres/sous-groupes/" + id + "/modifier";
+        
+        var modal = new bootstrap.Modal(document.getElementById('modifierSousGroupeModal'));
+        modal.show();
+    }
+    
+    function editerTarif(sgId, nom, normal, affecte, tarifNormalId, tarifAffecteId) {
+        document.getElementById('tarifNiveauNom').textContent = nom;
+        document.getElementById('tarifSousGroupeId').value = sgId;
+        document.getElementById('editTarifNormal').value = normal;
+        document.getElementById('editTarifAffecte').value = affecte;
+        document.getElementById('tarifNormalId').value = tarifNormalId;
+        document.getElementById('tarifAffecteId').value = tarifAffecteId;
+        document.getElementById('modifierTarifForm').action = "/parametres/tarifs-affectes/ajouter";
+        
+        var modal = new bootstrap.Modal(document.getElementById('modifierTarifModal'));
+        modal.show();
+    }
+    
+    function editerTransport(id, nom, code, montant_supplement, ordre, description, actif) {
+        document.getElementById('editTransportNom').value = nom;
+        document.getElementById('editTransportCode').value = code;
+        document.getElementById('editTransportMontant').value = montant_supplement;
+        document.getElementById('editTransportOrdre').value = ordre;
+        document.getElementById('editTransportDescription').value = description;
+        document.getElementById('editTransportActif').checked = actif;
+        // Route de modification du transport à créer
+        document.getElementById('modifierTransportForm').action = "/parametres/transports/" + id + "/modifier";
+        
+        var modal = new bootstrap.Modal(document.getElementById('modifierTransportModal'));
+        modal.show();
+    }
+    
+    function editerCantine(id, nom, code, montant, ordre, description, actif) {
+        document.getElementById('editCantineNom').value = nom;
+        document.getElementById('editCantineCode').value = code;
+        document.getElementById('editCantineMontant').value = montant;
+        document.getElementById('editCantineOrdre').value = ordre;
+        document.getElementById('editCantineDescription').value = description;
+        document.getElementById('editCantineActif').checked = actif;
+        // Route de modification de la cantine à créer
+        document.getElementById('modifierCantineForm').action = "/parametres/cantines/" + id + "/modifier";
+        
+        var modal = new bootstrap.Modal(document.getElementById('modifierCantineModal'));
+        modal.show();
+    }
+</script>
+{% endblock %}

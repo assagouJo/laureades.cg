@@ -1,0 +1,443 @@
+<!-- templates/utilisateurs/liste.html -->
+{% extends "base.html" %}
+
+{% block title %}Gestion des utilisateurs - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-users-cog me-2"></i>Gestion des utilisateurs</h2>
+    <a href="{{ url_for('ajouter_utilisateur') }}" class="btn btn-primary">
+        <i class="fas fa-plus-circle me-2"></i>Nouvel utilisateur
+    </a>
+</div>
+
+<!-- Filtres rapides -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-body py-2">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <select id="roleFilter" class="form-select form-select-sm">
+                            <option value="">Tous les rôles</option>
+                            <option value="admin">Administrateurs</option>
+                            <option value="comptable">Comptables</option>
+                            <option value="user">Opérateurs</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="statusFilter" class="form-select form-select-sm">
+                            <option value="">Tous les statuts</option>
+                            <option value="actif">Actifs</option>
+                            <option value="inactif">Inactifs</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="🔍 Rechercher par nom, prénom ou nom d'utilisateur...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="usersTable">
+                <thead class="table-primary">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom complet</th>
+                        <th>Nom d'utilisateur</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Dernière connexion</th>
+                        <th>Créé le</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in utilisateurs %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-2">
+                                    <span class="avatar-initials">{{ user.prenom[0] }}{{ user.nom[0] }}</span>
+                                </div>
+                                <div>
+                                    <strong>{{ user.nom_complet }}</strong>
+                                    {% if user.id == current_user.id %}
+                                        <span class="badge bg-info ms-1">Vous</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <i class="fas fa-user me-2 text-muted"></i>
+                            {{ user.username }}
+                        </td>
+                        <td>
+                            {% if user.role == 'admin' %}
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-crown me-1"></i>Administrateur
+                                </span>
+                            {% elif user.role == 'comptable' %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-calculator me-1"></i>Comptable
+                                </span>
+                            {% else %}
+                                <span class="badge bg-info">
+                                    <i class="fas fa-user me-1"></i>Opérateur
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.actif %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>Actif
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times-circle me-1"></i>Inactif
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.last_login %}
+                                <i class="fas fa-clock me-1 text-muted"></i>
+                                {{ user.last_login.strftime('%d/%m/%Y %H:%M') }}
+                            {% else %}
+                                <span class="text-muted">Jamais</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <i class="fas fa-calendar-alt me-1 text-muted"></i>
+                            {{ user.created_at.strftime('%d/%m/%Y') }}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{{ url_for('modifier_utilisateur', user_id=user.id) }}" 
+                                   class="btn btn-outline-primary" 
+                                   data-bs-toggle="tooltip" 
+                                   title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if user.id != current_user.id %}
+                                <button type="button" 
+                                        class="btn btn-outline-{{ 'success' if user.actif else 'secondary' }}"
+                                        onclick="toggleStatus({{ user.id }}, '{{ user.username }}', {{ user.actif|lower }})"
+                                        data-bs-toggle="tooltip" 
+                                        title="{{ 'Désactiver' if user.actif else 'Activer' }}">
+                                    <i class="fas fa-{{ 'toggle-on' if user.actif else 'toggle-off' }}"></i>
+                                </button>
+                                <button type="button" 
+                                        class="btn btn-outline-danger"
+                                        onclick="confirmDelete({{ user.id }}, '{{ user.username }}')"
+                                        data-bs-toggle="tooltip" 
+                                        title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="fas fa-users-slash fa-3x mb-3"></i><br>
+                            Aucun utilisateur trouvé<br>
+                            <a href="{{ url_for('ajouter_utilisateur') }}" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus-circle me-2"></i>Ajouter un utilisateur
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Cartes statistiques -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title text-white-50">Total utilisateurs</h6>
+                        <h2 class="mb-0">{{ utilisateurs|length }}</h2>
+                    </div>
+                    <i class="fas fa-users fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title text-white-50">Administrateurs</h6>
+                        <h2 class="mb-0">{{ utilisateurs|selectattr('role', 'equalto', 'admin')|list|length }}</h2>
+                    </div>
+                    <i class="fas fa-user-shield fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title text-white-50">Comptables</h6>
+                        <h2 class="mb-0">{{ utilisateurs|selectattr('role', 'equalto', 'comptable')|list|length }}</h2>
+                    </div>
+                    <i class="fas fa-calculator fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title text-white-50">Opérateurs</h6>
+                        <h2 class="mb-0">{{ utilisateurs|selectattr('role', 'equalto', 'user')|list|length }}</h2>
+                    </div>
+                    <i class="fas fa-user fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deuxième ligne de statistiques -->
+<div class="row mt-3">
+    <div class="col-md-4">
+        <div class="card border-success shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted">Comptes actifs</h6>
+                        <h3 class="text-success mb-0">{{ utilisateurs|selectattr('actif', 'equalto', true)|list|length }}</h3>
+                    </div>
+                    <i class="fas fa-user-check fa-2x text-success opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted">Comptes inactifs</h6>
+                        <h3 class="text-danger mb-0">{{ utilisateurs|selectattr('actif', 'equalto', false)|list|length }}</h3>
+                    </div>
+                    <i class="fas fa-user-slash fa-2x text-danger opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-info shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted">Connexions récentes</h6>
+                        <h3 class="text-info mb-0">{{ utilisateurs|selectattr('last_login', 'defined')|list|length }}</h3>
+                    </div>
+                    <i class="fas fa-sign-in-alt fa-2x text-info opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirmer la suppression
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Voulez-vous vraiment supprimer l'utilisateur :</p>
+                <p class="h5 text-center text-danger" id="userName"></p>
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Attention :</strong> Cette action est irréversible et supprimera définitivement le compte.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Annuler
+                </button>
+                <form id="deleteForm" method="POST">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation changement statut -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header" id="statusModalHeader">
+                <h5 class="modal-title" id="statusModalTitle">
+                    <i class="fas fa-toggle-on me-2"></i>
+                    Confirmer
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="statusModalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="statusForm" method="POST">
+                    <button type="submit" class="btn" id="statusModalBtn">Confirmer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-initials {
+    font-size: 12px;
+    color: white;
+    font-weight: bold;
+}
+
+.table td {
+    vertical-align: middle;
+}
+</style>
+
+<script>
+let dataTable;
+
+$(document).ready(function() {
+    // Initialiser DataTable
+    dataTable = $('#usersTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json',
+            search: "",
+            searchPlaceholder: "Rechercher...",
+            lengthMenu: "_MENU_ par page",
+            info: "Affichage de _START_ à _END_ sur _TOTAL_ utilisateurs",
+            infoEmpty: "Aucun utilisateur",
+            infoFiltered: "(filtré sur _MAX_ total)"
+        },
+        order: [[0, 'desc']],
+        pageLength: 25,
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
+        columnDefs: [
+            { orderable: false, targets: [7] }
+        ]
+    });
+    
+    // Filtres personnalisés
+    $('#roleFilter').on('change', function() {
+        applyFilters();
+    });
+    
+    $('#statusFilter').on('change', function() {
+        applyFilters();
+    });
+    
+    $('#searchInput').on('keyup', function() {
+        dataTable.search(this.value).draw();
+    });
+    
+    // Activer les tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+
+function applyFilters() {
+    const role = $('#roleFilter').val();
+    const status = $('#statusFilter').val();
+    
+    // Filtrer via DataTable
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const row = dataTable.row(dataIndex).node();
+        const roleCell = $(row).find('td:eq(3)').text().toLowerCase();
+        const statusCell = $(row).find('td:eq(4)').text().toLowerCase();
+        
+        let roleMatch = true;
+        let statusMatch = true;
+        
+        if (role) {
+            if (role === 'admin') roleMatch = roleCell.includes('administrateur');
+            else if (role === 'comptable') roleMatch = roleCell.includes('comptable');
+            else if (role === 'user') roleMatch = roleCell.includes('opérateur');
+        }
+        
+        if (status) {
+            statusMatch = statusCell.includes(status);
+        }
+        
+        return roleMatch && statusMatch;
+    });
+    
+    dataTable.draw();
+    $.fn.dataTable.ext.search.pop();
+}
+
+function confirmDelete(userId, username) {
+    document.getElementById('userName').textContent = username;
+    document.getElementById('deleteForm').action = '/utilisateurs/' + userId + '/supprimer';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+function toggleStatus(userId, username, isActive) {
+    const action = isActive ? 'désactiver' : 'activer';
+    const newStatus = !isActive;
+    
+    document.getElementById('statusModalMessage').innerHTML = `Voulez-vous vraiment ${action} l'utilisateur <strong>${username}</strong> ?`;
+    
+    const modalHeader = document.getElementById('statusModalHeader');
+    const modalBtn = document.getElementById('statusModalBtn');
+    
+    if (isActive) {
+        modalHeader.className = 'modal-header bg-warning text-dark';
+        modalBtn.className = 'btn btn-warning';
+        modalBtn.innerHTML = '<i class="fas fa-toggle-off me-1"></i>Désactiver';
+    } else {
+        modalHeader.className = 'modal-header bg-success text-white';
+        modalBtn.className = 'btn btn-success';
+        modalBtn.innerHTML = '<i class="fas fa-toggle-on me-1"></i>Activer';
+    }
+    
+    document.getElementById('statusForm').action = '/utilisateurs/' + userId + '/toggle';
+    new bootstrap.Modal(document.getElementById('statusModal')).show();
+}
+</script>
+{% endblock %}

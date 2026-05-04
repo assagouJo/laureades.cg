@@ -1,0 +1,372 @@
+<!-- templates/utilisateurs/ajouter.html -->
+{% extends "base.html" %}
+
+{% block title %}Ajouter un utilisateur - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+    <a href="{{ url_for('liste_utilisateurs') }}" class="btn btn-outline-secondary me-3">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h2 class="mb-0"><i class="fas fa-user-plus me-2"></i>Ajouter un utilisateur</h2>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <form method="POST" id="userForm">
+                    <!-- Identifiants de connexion -->
+                    <h5 class="mb-3"><i class="fas fa-key me-2"></i>Identifiants de connexion</h5>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user me-1"></i>Nom d'utilisateur
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="username" 
+                                   name="username" 
+                                   value="{{ form_data.username if form_data else '' }}"
+                                   required 
+                                   minlength="3"
+                                   autofocus>
+                            <div class="form-text">Minimum 3 caractères (lettres et chiffres uniquement)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Mot de passe
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password" 
+                                       name="password" 
+                                       required 
+                                       minlength="4">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Minimum 4 caractères</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="password_confirm" class="form-label">
+                                <i class="fas fa-check-circle me-1"></i>Confirmer le mot de passe
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password_confirm" 
+                                       name="password_confirm" 
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password_confirm')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Informations personnelles -->
+                    <h5 class="mb-3"><i class="fas fa-id-card me-2"></i>Informations personnelles</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nom" class="form-label">
+                                <i class="fas fa-user-tag me-1"></i>Nom
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="nom" 
+                                   name="nom" 
+                                   value="{{ form_data.nom if form_data else '' }}"
+                                   required 
+                                   minlength="2">
+                            <div class="form-text">Nom de famille</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="prenom" class="form-label">
+                                <i class="fas fa-user-astronaut me-1"></i>Prénom
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="prenom" 
+                                   name="prenom" 
+                                   value="{{ form_data.prenom if form_data else '' }}"
+                                   required 
+                                   minlength="2">
+                            <div class="form-text">Prénom</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Rôle et statut -->
+                    <hr class="my-4">
+                    <h5 class="mb-3"><i class="fas fa-tag me-2"></i>Rôle et permissions</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="role" class="form-label">
+                                <i class="fas fa-shield-alt me-1"></i>Rôle
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="role" name="role">
+                                <option value="user" {% if form_data and form_data.role == 'user' %}selected{% endif %}>
+                                    👤 Opérateur
+                                </option>
+                                <option value="comptable" {% if form_data and form_data.role == 'comptable' %}selected{% endif %}>
+                                    🧮 Comptable
+                                </option>
+                                <option value="admin" {% if form_data and form_data.role == 'admin' %}selected{% endif %}>
+                                    👑 Administrateur
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-toggle-on me-1"></i>Statut du compte
+                            </label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="actif" name="actif" checked>
+                                <label class="form-check-label" for="actif">
+                                    <span id="statutLabel">Compte actif</span>
+                                </label>
+                            </div>
+                            <div class="form-text">Désactiver pour bloquer temporairement l'accès</div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('liste_utilisateurs') }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Créer l'utilisateur
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Carte d'information sur les rôles -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Rôles disponibles</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="badge bg-info me-2">👤</span>
+                    <strong>Opérateur</strong>
+                    <p class="small text-muted mt-1 mb-0">
+                        Accès limité : consultation des élèves, recherche, visualisation des paiements.
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <span class="badge bg-warning text-dark me-2">🧮</span>
+                    <strong>Comptable</strong>
+                    <p class="small text-muted mt-1 mb-0">
+                        Peut enregistrer des paiements, générer des reçus, voir les rapports financiers.
+                    </p>
+                </div>
+                <div class="mb-0">
+                    <span class="badge bg-danger me-2">👑</span>
+                    <strong>Administrateur</strong>
+                    <p class="small text-muted mt-1 mb-0">
+                        Accès complet : gestion des utilisateurs, configuration, suppression de données.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Carte d'information -->
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Conseils</h6>
+            </div>
+            <div class="card-body">
+                <ul class="small mb-0">
+                    <li class="mb-2">Le nom d'utilisateur est unique dans le système</li>
+                    <li class="mb-2">Le mot de passe doit contenir au moins 4 caractères</li>
+                    <li class="mb-2">L'utilisateur pourra modifier son mot de passe après connexion</li>
+                    <li class="mb-2">Un compte désactivé ne peut pas se connecter</li>
+                    <li>Seul un administrateur peut créer/modifier des utilisateurs</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Aperçu -->
+        <div class="card shadow mt-4" id="previewCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Aperçu</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <div class="avatar-preview mb-2">
+                        <span id="previewInitials">??</span>
+                    </div>
+                    <h6 id="previewNomComplet">Nom complet</h6>
+                    <span id="previewRole" class="badge">Rôle</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Toggle password visibility
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const button = field.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Validation de la confirmation du mot de passe
+document.getElementById('password_confirm').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirm = this.value;
+    
+    if (password !== confirm) {
+        this.setCustomValidity('Les mots de passe ne correspondent pas');
+        this.classList.add('is-invalid');
+    } else {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+});
+
+// Validation du mot de passe
+document.getElementById('password').addEventListener('input', function() {
+    if (this.value.length < 4) {
+        this.setCustomValidity('Le mot de passe doit contenir au moins 4 caractères');
+        this.classList.add('is-invalid');
+    } else {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+    
+    // Revalider la confirmation
+    const confirm = document.getElementById('password_confirm');
+    if (confirm.value) {
+        confirm.dispatchEvent(new Event('input'));
+    }
+});
+
+// Validation du nom d'utilisateur
+document.getElementById('username').addEventListener('input', function() {
+    const value = this.value;
+    if (value.length < 3) {
+        this.setCustomValidity('Le nom d\'utilisateur doit contenir au moins 3 caractères');
+        this.classList.add('is-invalid');
+    } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+        this.setCustomValidity('Utilisez uniquement des lettres, chiffres et underscores');
+        this.classList.add('is-invalid');
+    } else {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+});
+
+// Aperçu en temps réel
+function updatePreview() {
+    const nom = document.getElementById('nom').value;
+    const prenom = document.getElementById('prenom').value;
+    const role = document.getElementById('role').value;
+    
+    if (nom && prenom) {
+        document.getElementById('previewCard').style.display = 'block';
+        
+        // Initiales
+        const initiales = (prenom.charAt(0) + nom.charAt(0)).toUpperCase();
+        document.getElementById('previewInitials').textContent = initiales;
+        
+        // Nom complet
+        document.getElementById('previewNomComplet').textContent = `${prenom} ${nom}`;
+        
+        // Rôle
+        const roleElement = document.getElementById('previewRole');
+        switch(role) {
+            case 'admin':
+                roleElement.textContent = 'Administrateur';
+                roleElement.className = 'badge bg-danger';
+                break;
+            case 'comptable':
+                roleElement.textContent = 'Comptable';
+                roleElement.className = 'badge bg-warning text-dark';
+                break;
+            default:
+                roleElement.textContent = 'Opérateur';
+                roleElement.className = 'badge bg-info';
+        }
+    } else {
+        document.getElementById('previewCard').style.display = 'none';
+    }
+}
+
+// Écouteurs pour l'aperçu
+document.getElementById('nom').addEventListener('input', updatePreview);
+document.getElementById('prenom').addEventListener('input', updatePreview);
+document.getElementById('role').addEventListener('change', updatePreview);
+
+// Gestion du statut
+document.getElementById('actif').addEventListener('change', function() {
+    const label = document.getElementById('statutLabel');
+    if (this.checked) {
+        label.textContent = 'Compte actif';
+        label.classList.remove('text-danger');
+        label.classList.add('text-success');
+    } else {
+        label.textContent = 'Compte désactivé';
+        label.classList.remove('text-success');
+        label.classList.add('text-danger');
+    }
+});
+
+// Style pour l'avatar
+const style = document.createElement('style');
+style.textContent = `
+    .avatar-preview {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    .avatar-preview span {
+        font-size: 24px;
+        color: white;
+        font-weight: bold;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

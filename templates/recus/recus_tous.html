@@ -1,0 +1,155 @@
+<!-- templates/recus/recus_tous.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tous les reçus - {{ eleve.prenom }} {{ eleve.nom }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .recu { 
+            max-width: 800px; 
+            margin: 0 auto 30px; 
+            border: 1px solid #ddd; 
+            padding: 25px; 
+            page-break-after: always; 
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid #28a745; 
+            padding-bottom: 12px; 
+        }
+        .header .logo { font-size: 36px; color: #28a745; }
+        .header h1 { margin: 0 0 5px 0; color: #28a745; font-size: 22px; }
+        .header .school-info { font-size: 12px; color: #666; margin: 3px 0; }
+        .header h3 { 
+            background: #f0f8ff; 
+            padding: 6px; 
+            border-radius: 5px; 
+            font-size: 15px; 
+        }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 8px; border: 1px solid #ddd; }
+        th { background: #f5f5f5; }
+        .total-rec { 
+            background: #f0f8ff; 
+            padding: 10px; 
+            border-radius: 5px; 
+            text-align: right; 
+            font-weight: bold; 
+        }
+        .footer { 
+            margin-top: 25px; 
+            padding-top: 15px; 
+            border-top: 1px dashed #ddd;
+            font-size: 11px; 
+            color: #666; 
+        }
+        .resume-global { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f0f8ff; 
+            border-radius: 10px; 
+            page-break-before: always; 
+        }
+        .total-general { 
+            margin-top: 20px; 
+            padding: 15px; 
+            background: #28a745; 
+            color: white; 
+            border-radius: 8px; 
+            text-align: center; 
+            font-size: 18px; 
+        }
+        @media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 🟢 Page de résumé global -->
+    <div class="resume-global">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #28a745;">{{ parametres_ecole.get('nom_ecole', 'ÉCOLE GESTSCOLAIRE') }}</h2>
+            <h3>RÉSUMÉ DES PAIEMENTS</h3>
+        </div>
+        
+        <p><strong>Élève :</strong> {{ eleve.prenom }} {{ eleve.nom }}</p>
+        <p><strong>Matricule :</strong> {{ eleve.matricule }}</p>
+        <p><strong>Classe :</strong> {{ eleve.classe }}</p>
+        {% if eleve.sous_groupe %}
+        <p><strong>Niveau :</strong> {{ eleve.sous_groupe.nom }}</p>
+        {% endif %}
+        <p><strong>Nombre de paiements :</strong> {{ paiements|length }}</p>
+        <p><strong>Période :</strong> {{ paiements[-1].date_paiement.strftime('%d/%m/%Y') if paiements else 'N/A' }} - {{ paiements[0].date_paiement.strftime('%d/%m/%Y') if paiements else 'N/A' }}</p>
+        
+        <div class="total-general">
+            <div>Total général payé</div>
+            <div style="font-size: 24px; margin-top: 5px;">
+                {{ "{:,.0f}".format(paiements|sum(attribute='montant')) }} {{ parametres_ecole.get('devise', 'FCFA') }}
+            </div>
+        </div>
+        
+        <div class="footer" style="text-align: center; margin-top: 20px;">
+            <p>Document généré le {{ date_edition.strftime('%d/%m/%Y à %H:%M') }}</p>
+        </div>
+    </div>
+    
+    <!-- 🟢 Reçus individuels -->
+    {% for paiement in paiements %}
+    <div class="recu">
+        <div class="header">
+            <div class="logo">🏫</div>
+            <h1>{{ parametres_ecole.get('nom_ecole', 'ÉCOLE GESTSCOLAIRE') }}</h1>
+            <div class="school-info">
+                {% if parametres_ecole.get('adresse_ecole') %}
+                📍 {{ parametres_ecole.get('adresse_ecole') }}
+                {% endif %}
+                {% if parametres_ecole.get('telephone_ecole') %}
+                | 📞 {{ parametres_ecole.get('telephone_ecole') }}
+                {% endif %}
+            </div>
+            <h3>REÇU N° {{ paiement.recu }}</h3>
+        </div>
+        
+        <div class="info">
+            <p><strong>Élève :</strong> {{ eleve.prenom }} {{ eleve.nom }} | <strong>Matricule :</strong> {{ eleve.matricule }}</p>
+            <p><strong>Date :</strong> {{ date_edition.strftime('%d/%m/%Y à %H:%M') }}</p>
+        </div>
+        
+        <table>
+            <tr><th>Désignation</th><th style="text-align: right">Montant</th></tr>
+            <tr>
+                <td>Paiement des frais de scolarité</td>
+                <td style="text-align: right">{{ "{:,.0f}".format(paiement.montant) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+            </tr>
+        </table>
+        
+        <div class="total-rec">
+            TOTAL PAYÉ : {{ "{:,.0f}".format(paiement.montant) }} {{ parametres_ecole.get('devise', 'FCFA') }}
+        </div>
+        
+        <p><strong>Date de paiement :</strong> {{ paiement.date_paiement.strftime('%d/%m/%Y') }}</p>
+        <p><strong>Mode :</strong> {{ paiement.type_paiement|capitalize }}</p>
+        {% if paiement.reference %}
+        <p><strong>Référence :</strong> {{ paiement.reference }}</p>
+        {% endif %}
+        
+        <div class="footer">
+            {{ parametres_ecole.get('nom_ecole', 'ÉCOLE GESTSCOLAIRE') }} - Merci de votre confiance !
+        </div>
+    </div>
+    {% endfor %}
+    
+    <div class="no-print" style="text-align: center; position: fixed; bottom: 20px; left: 0; right: 0;">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+            🖨️ Imprimer tout
+        </button>
+        <button onclick="window.close()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+            ❌ Fermer
+        </button>
+    </div>
+</body>
+</html>

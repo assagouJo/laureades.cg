@@ -1,0 +1,426 @@
+<!-- templates/recus/recu_unique.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reçu de paiement - {{ eleve.prenom }} {{ eleve.nom }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: #f5f7fa; 
+            padding: 30px 15px; 
+        }
+        
+        .recu { 
+            max-width: 750px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+            overflow: hidden;
+        }
+        
+        /* EN-TÊTE */
+        .recu-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        .recu-header .logo {
+            width: 55px;
+            height: 55px;
+            background: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+        
+        .recu-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .recu-header .subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            margin: 2px 0;
+        }
+        
+        .recu-header .recu-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 6px 18px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        /* CORPS */
+        .recu-body {
+            padding: 25px 30px;
+        }
+        
+        /* TABLEAU INFOS ÉLÈVE */
+        .table-infos {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table-infos th {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e0e0e0;
+            width: 35%;
+        }
+        
+        .table-infos td {
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .table-infos tr:last-child th,
+        .table-infos tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* MONTANT */
+        .montant-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .montant-section .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.9;
+        }
+        
+        .montant-section .valeur {
+            font-size: 34px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+        
+        /* TABLEAU PAIEMENT */
+        .table-paiement {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table-paiement thead th {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .table-paiement thead th:first-child {
+            text-align: left;
+        }
+        
+        .table-paiement thead th:last-child {
+            text-align: right;
+        }
+        
+        .table-paiement tbody td {
+            padding: 12px 15px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .table-paiement tbody td:first-child {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .table-paiement tbody td:last-child {
+            text-align: right;
+            font-weight: 700;
+            color: #28a745;
+        }
+        
+        .table-paiement tfoot td {
+            padding: 12px 15px;
+            font-weight: 700;
+            background: #f0fff4;
+        }
+        
+        .table-paiement tfoot td:first-child {
+            color: #28a745;
+            font-size: 15px;
+        }
+        
+        .table-paiement tfoot td:last-child {
+            text-align: right;
+            color: #28a745;
+            font-size: 16px;
+        }
+        
+        /* PIED */
+        .recu-footer {
+            border-top: 2px dashed #e0e0e0;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            background: #fafafa;
+        }
+        
+        .recu-footer .ecole-info {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.6;
+        }
+        
+        .recu-footer .ecole-info strong {
+            color: #555;
+            font-size: 13px;
+        }
+        
+        .signature-box {
+            text-align: center;
+        }
+        
+        .signature-box .line {
+            width: 140px;
+            border-top: 1px solid #999;
+            margin: 25px auto 5px;
+        }
+        
+        .signature-box span {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        /* BOUTONS */
+        .no-print {
+            text-align: center;
+            margin-top: 25px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-print {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-print:hover { background: #218838; transform: translateY(-1px); }
+        
+        .btn-close-recu {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-close-recu:hover { background: #5a6268; transform: translateY(-1px); }
+        
+        @media print {
+            body { 
+                background: white; 
+                padding: 0; 
+            }
+            .recu { 
+                box-shadow: none; 
+                border-radius: 0; 
+                max-width: 100%; 
+            }
+            .no-print { display: none; }
+            .montant-section { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .recu-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="recu">
+        
+        <!-- ========== EN-TÊTE ========== -->
+        <div class="recu-header">
+            <div class="logo">🏫</div>
+            <h1>{{ parametres_ecole.get('nom_ecole', 'GS LAUREADES') }}</h1>
+            <div class="subtitle">
+                {% if parametres_ecole.get('adresse_ecole') %}
+                    📍 {{ parametres_ecole.get('adresse_ecole') }}
+                {% endif %}
+                {% if parametres_ecole.get('telephone_ecole') %}
+                    | 📞 {{ parametres_ecole.get('telephone_ecole') }}
+                {% endif %}
+            </div>
+            <div class="subtitle">
+                📅 Année scolaire : {{ parametres_ecole.get('annee_scolaire_active') }}
+            </div>
+            <div class="recu-badge">
+                REÇU N° {{ paiement.recu or '---' }}
+            </div>
+        </div>
+        
+        <!-- ========== CORPS ========== -->
+        <div class="recu-body">
+            
+            <!-- TABLEAU INFORMATIONS ÉLÈVE -->
+            <table class="table-infos">
+                <tr>
+                    <th>👤 Élève</th>
+                    <td>{{ eleve.prenom }} {{ eleve.nom }}</td>
+                </tr>
+                <tr>
+                    <th>🔢 Matricule</th>
+                    <td>{{ eleve.matricule }}</td>
+                </tr>
+                <tr>
+                    <th>📚 Classe</th>
+                    <td>{{ eleve.classe or '-' }}</td>
+                </tr>
+                {% if eleve.sous_groupe %}
+                <tr>
+                    <th>📊 Niveau</th>
+                    <td>{{ eleve.sous_groupe.nom }}</td>
+                </tr>
+                {% endif %}
+                {% if eleve.est_affecte_etat %}
+                <tr>
+                    <th>🏛️ Statut</th>
+                    <td style="color: #28a745; font-weight: 700;">Affecté par l'État</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>🕐 Date d'édition</th>
+                    <td>{{ date_edition.strftime('%d/%m/%Y à %H:%M') }}</td>
+                </tr>
+            </table>
+            
+            <!-- MONTANT PAYÉ -->
+            <div class="montant-section">
+                <div class="label">Montant payé</div>
+                <div class="valeur">{{ "{:,.0f}".format(paiement.montant) }} {{ parametres_ecole.get('devise', 'FCFA') }}</div>
+            </div>
+            
+            <!-- TABLEAU DÉTAILS PAIEMENT -->
+            <table class="table-paiement">
+                <thead>
+                    <tr>
+                        <th>Désignation</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Frais de scolarité - {{ eleve.prenom }} {{ eleve.nom }}</td>
+                        <td>{{ "{:,.0f}".format(paiement.montant) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td>TOTAL PAYÉ</td>
+                        <td>{{ "{:,.0f}".format(paiement.montant) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <!-- TABLEAU AUTRES DÉTAILS -->
+            <table class="table-infos" style="margin-top: 25px;">
+                <tr>
+                    <th>📅 Date de paiement</th>
+                    <td>{{ paiement.date_paiement.strftime('%d/%m/%Y') }}</td>
+                </tr>
+                <tr>
+                    <th>💳 Mode de paiement</th>
+                    <td>{{ paiement.type_paiement|capitalize }}</td>
+                </tr>
+                {% if paiement.reference %}
+                <tr>
+                    <th>🔖 Référence</th>
+                    <td>{{ paiement.reference }}</td>
+                </tr>
+                {% endif %}
+                {% if paiement.description %}
+                <tr>
+                    <th>📝 Observations</th>
+                    <td>{{ paiement.description }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>👨‍💼 Encaissé par</th>
+                    <td>{{ paiement.encaisse_par or current_user.username }}</td>
+                </tr>
+            </table>
+            
+        </div>
+        
+        <!-- ========== PIED DE PAGE ========== -->
+        <div class="recu-footer">
+            <div class="ecole-info">
+                <strong>{{ parametres_ecole.get('nom_ecole', 'GS LAUREADES') }}</strong><br>
+                {% if parametres_ecole.get('adresse_ecole') %}
+                    {{ parametres_ecole.get('adresse_ecole') }}<br>
+                {% endif %}
+                {% if parametres_ecole.get('telephone_ecole') %}
+                    Tél: {{ parametres_ecole.get('telephone_ecole') }}<br>
+                {% endif %}
+                <em>Merci pour votre confiance !</em>
+            </div>
+            <div class="signature-box">
+                <div class="line"></div>
+                <span>Cachet & Signature</span>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- ========== BOUTONS ========== -->
+    <div class="no-print">
+        <button onclick="window.print()" class="btn btn-print">
+            🖨️ Imprimer le reçu
+        </button>
+        <button onclick="window.close()" class="btn btn-close-recu">
+            ❌ Fermer
+        </button>
+    </div>
+    
+</body>
+</html>

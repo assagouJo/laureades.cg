@@ -1,0 +1,340 @@
+<!-- templates/utilisateurs/profil.html -->
+{% extends "base.html" %}
+
+{% block title %}Mon profil - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary me-3">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h2 class="mb-0"><i class="fas fa-user-circle me-2"></i>Mon profil</h2>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <form method="POST" id="profileForm">
+                    <!-- Informations personnelles -->
+                    <h5 class="mb-3"><i class="fas fa-id-card me-2"></i>Informations personnelles</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nom" class="form-label">
+                                <i class="fas fa-user-tag me-1"></i>Nom
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="nom" 
+                                   name="nom" 
+                                   value="{{ current_user.nom }}"
+                                   required 
+                                   minlength="2">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="prenom" class="form-label">
+                                <i class="fas fa-user-astronaut me-1"></i>Prénom
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="prenom" 
+                                   name="prenom" 
+                                   value="{{ current_user.prenom }}"
+                                   required 
+                                   minlength="2">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-user me-1"></i>Nom d'utilisateur
+                        </label>
+                        <input type="text" class="form-control" value="{{ current_user.username }}" disabled>
+                        <div class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Le nom d'utilisateur ne peut pas être modifié
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Changement de mot de passe -->
+                    <h5 class="mb-3"><i class="fas fa-key me-2"></i>Changer le mot de passe</h5>
+                    
+                    <div class="alert alert-info small">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Laissez vide si vous ne souhaitez pas modifier le mot de passe.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="mot_de_passe_actuel" class="form-label">
+                            <i class="fas fa-lock me-1"></i>Mot de passe actuel
+                        </label>
+                        <div class="input-group">
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="mot_de_passe_actuel" 
+                                   name="mot_de_passe_actuel">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('mot_de_passe_actuel')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nouveau_password" class="form-label">
+                                <i class="fas fa-key me-1"></i>Nouveau mot de passe
+                            </label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="nouveau_password" 
+                                       name="nouveau_password" 
+                                       minlength="4"
+                                       placeholder="••••••">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('nouveau_password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Minimum 4 caractères</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="confirm_password" class="form-label">
+                                <i class="fas fa-check-circle me-1"></i>Confirmer le mot de passe
+                            </label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="confirm_password" 
+                                       name="confirm_password"
+                                       placeholder="••••••">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm_password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Mettre à jour
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Carte d'information utilisateur -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations du compte</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="avatar-lg mx-auto mb-2">
+                        <span class="avatar-initials">{{ current_user.username[0] }}</span>
+                    </div>
+                    <h5 class="mb-1">{{ current_user.username }}</h5>
+                    <span class="badge {% if current_user.role == 'admin' %}bg-danger{% elif current_user.role == 'comptable' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                        {% if current_user.role == 'admin' %}
+                            <i class="fas fa-crown me-1"></i>Administrateur
+                        {% elif current_user.role == 'comptable' %}
+                            <i class="fas fa-calculator me-1"></i>Comptable
+                        {% else %}
+                            <i class="fas fa-user me-1"></i>Opérateur
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <hr>
+                
+                <ul class="list-unstyled small">
+                    <li class="mb-3">
+                        <i class="fas fa-calendar-alt me-2 text-muted"></i>
+                        <strong>Compte créé le :</strong><br>
+                        {{ current_user.created_at.strftime('%d/%m/%Y à %H:%M') if current_user.created_at else 'N/A' }}
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-clock me-2 text-muted"></i>
+                        <strong>Dernière connexion :</strong><br>
+                        {{ current_user.last_login.strftime('%d/%m/%Y à %H:%M') if current_user.last_login else 'Première connexion' }}
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-id-card me-2 text-muted"></i>
+                        <strong>ID utilisateur :</strong> {{ current_user.id }}
+                    </li>
+                    <li>
+                        <i class="fas fa-user-tag me-2 text-muted"></i>
+                        <strong>Nom d'utilisateur :</strong> {{ current_user.username }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Carte de sécurité -->
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Conseils de sécurité</h6>
+            </div>
+            <div class="card-body">
+                <ul class="small mb-0">
+                    <li class="mb-2">✓ Utilisez un mot de passe unique</li>
+                    <li class="mb-2">✓ Minimum 4 caractères</li>
+                    <li class="mb-2">✓ Ne partagez jamais votre mot de passe</li>
+                    <li class="mb-2">✓ Changez régulièrement votre mot de passe</li>
+                    <li>✓ Déconnectez-vous après chaque session</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Carte d'activité récente -->
+        <div class="card shadow mt-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Statistiques</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h4 class="text-primary mb-0">{{ total_eleves_inscrits|default(0) }}</h4>
+                        <small class="text-muted">Élèves inscrits</small>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-success mb-0">{{ total_paiements_effectues|default(0) }}</h4>
+                        <small class="text-muted">Paiements</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-lg {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-initials {
+    font-size: 32px;
+    color: white;
+    font-weight: bold;
+}
+</style>
+
+<script>
+// Toggle password visibility
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const button = field.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Validation de la confirmation du mot de passe
+const nouveauPassword = document.getElementById('nouveau_password');
+const confirmPassword = document.getElementById('confirm_password');
+const currentPassword = document.getElementById('mot_de_passe_actuel');
+
+function validatePasswordMatch() {
+    if (nouveauPassword.value || confirmPassword.value) {
+        if (nouveauPassword.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Les mots de passe ne correspondent pas');
+            confirmPassword.classList.add('is-invalid');
+            return false;
+        } else if (nouveauPassword.value.length > 0 && nouveauPassword.value.length < 4) {
+            nouveauPassword.setCustomValidity('Le mot de passe doit contenir au moins 4 caractères');
+            nouveauPassword.classList.add('is-invalid');
+            return false;
+        } else {
+            nouveauPassword.setCustomValidity('');
+            confirmPassword.setCustomValidity('');
+            nouveauPassword.classList.remove('is-invalid');
+            confirmPassword.classList.remove('is-invalid');
+            nouveauPassword.classList.add('is-valid');
+            confirmPassword.classList.add('is-valid');
+            return true;
+        }
+    }
+    return true;
+}
+
+function validateCurrentPassword() {
+    if (nouveauPassword.value && !currentPassword.value) {
+        currentPassword.setCustomValidity('Veuillez entrer votre mot de passe actuel');
+        currentPassword.classList.add('is-invalid');
+        return false;
+    } else {
+        currentPassword.setCustomValidity('');
+        currentPassword.classList.remove('is-invalid');
+        return true;
+    }
+}
+
+nouveauPassword.addEventListener('input', function() {
+    validatePasswordMatch();
+    validateCurrentPassword();
+});
+
+confirmPassword.addEventListener('input', validatePasswordMatch);
+currentPassword.addEventListener('input', validateCurrentPassword);
+
+// Validation du nom
+document.getElementById('nom').addEventListener('input', function() {
+    if (this.value.length < 2) {
+        this.setCustomValidity('Le nom doit contenir au moins 2 caractères');
+        this.classList.add('is-invalid');
+    } else {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+});
+
+// Validation du prénom
+document.getElementById('prenom').addEventListener('input', function() {
+    if (this.value.length < 2) {
+        this.setCustomValidity('Le prénom doit contenir au moins 2 caractères');
+        this.classList.add('is-invalid');
+    } else {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+});
+
+// Validation avant soumission
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    if (!validatePasswordMatch() || !validateCurrentPassword()) {
+        e.preventDefault();
+        alert('Veuillez corriger les erreurs dans le formulaire');
+    }
+});
+</script>
+{% endblock %}

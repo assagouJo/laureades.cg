@@ -1,0 +1,131 @@
+<!-- templates/reinscriptions/liste.html -->
+{% extends "base.html" %}
+
+{% block title %}Réinscriptions - GestScolaire{% endblock %}
+
+{% block page_title %}
+<i class="fas fa-redo me-2" style="color: #667eea;"></i>Réinscriptions - {{ annee_active }}
+{% endblock %}
+
+{% block styles %}
+<style>
+    .stat-card {
+        border-radius: 10px;
+        padding: 20px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .stat-card h3 { margin: 0; font-size: 1.8rem; font-weight: 700; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    
+    <!-- Stats -->
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                <h3>{{ total }}</h3><small>Total</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                <h3>{{ reinscrits }}</h3><small>Réinscrits</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+                <h3>{{ non_reinscrits }}</h3><small>Non réinscrits</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #17a2b8, #6f42c1);">
+                <h3>{{ "{:.0f}".format((reinscrits / total * 100) if total > 0 else 0) }}%</h3><small>Taux</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('reinscrire_anciens') }}" class="btn btn-success">
+            <i class="fas fa-user-plus me-1"></i>Réinscrire des élèves
+        </a>
+    </div>
+    
+    <!-- Tableau -->
+    <div class="card">
+        <div class="card-body p-0">
+            {% if eleves_reinscrits|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="reinscriptionsTable">
+                    <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Élève</th>
+                            <th>Classe</th>
+                            <th>Date réinscription</th>
+                            <th>Par</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eleve in eleves_reinscrits %}
+                        <tr id="reinsRow{{ eleve.id }}">
+                            <td><code>{{ eleve.matricule }}</code></td>
+                            <td><strong>{{ eleve.nom_complet }}</strong></td>
+                            <td><span class="badge bg-primary">{{ eleve.classe }}</span></td>
+                            <td>{{ eleve.date_reinscription.strftime('%d/%m/%Y %H:%M') if eleve.date_reinscription else '-' }}</td>
+                            <td>{{ eleve.reinscrit_par or '-' }}</td>
+                            <td class="text-center">
+                                <!-- 🔥 BOUTON REVERSER 🔥 -->
+                                <button class="btn btn-warning btn-sm" 
+                                        onclick="reverserReinscription({{ eleve.id }}, '{{ eleve.nom_complet }}')"
+                                        title="Annuler la réinscription">
+                                    <i class="fas fa-undo me-1"></i>Reverser
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted">Aucun élève réinscrit</p>
+                <a href="{{ url_for('reinscrire_anciens') }}" class="btn btn-success">
+                    Réinscrire les anciens élèves
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('#reinscriptionsTable').DataTable({
+        language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json' },
+        pageLength: 25,
+        order: [[3, 'desc']]
+    });
+});
+
+function reverserReinscription(eleveId, nom) {
+    if (!confirm('Annuler la réinscription de ' + nom + ' ?\nL\'élève redeviendra non réinscrit.')) return;
+    
+    fetch('/reinscriptions/reverser/' + eleveId, { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success) {
+            alert(result.message);
+            $('#reinsRow' + eleveId).fadeOut(500, function() { location.reload(); });
+        } else {
+            alert('Erreur : ' + result.message);
+        }
+    });
+}
+</script>
+{% endblock %}

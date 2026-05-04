@@ -1,0 +1,422 @@
+<!-- templates/dashboard/admin.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard - GestScolaire{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block styles %}
+<style>
+    .stat-card {
+        border-radius: 12px;
+        border: none;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+    .stat-icon {
+        opacity: 0.7;
+    }
+    
+    /* Filtres discrets en haut */
+    .filters-bar {
+        background: white;
+        border-radius: 10px;
+        padding: 8px 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .filters-bar .btn-filter-toggle {
+        background: #f0f2f5;
+        border: 1px solid #e0e0e0;
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 0.8rem;
+        color: #555;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+    
+    .filters-bar .btn-filter-toggle:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+    
+    .filters-bar .btn-filter-toggle.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+    
+    .filters-bar .form-select-sm,
+    .filters-bar .form-control-sm {
+        border-radius: 20px;
+        font-size: 0.8rem;
+        padding: 6px 30px 6px 12px;
+        border: 1px solid #e0e0e0;
+        max-width: 140px;
+    }
+    
+    .filters-bar .separator {
+        color: #ddd;
+        margin: 0 2px;
+    }
+    
+    .filters-bar .badge-filter {
+        background: #667eea;
+        color: white;
+        border-radius: 20px;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+        cursor: pointer;
+    }
+    
+    .filters-bar .badge-filter:hover {
+        background: #dc3545;
+    }
+    
+    /* Bouton reset discret */
+    .btn-reset-filters {
+        color: #999;
+        font-size: 0.8rem;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 15px;
+        transition: all 0.2s;
+    }
+    
+    .btn-reset-filters:hover {
+        color: #dc3545;
+        background: #fff5f5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- ========== BARRE DE FILTRES DISCRÈTE ========== -->
+    <div class="filters-bar" id="filtersBar">
+        <i class="fas fa-filter text-muted me-1"></i>
+        
+        <!-- Toggle filtres rapides -->
+        <button class="btn-filter-toggle {% if not filtres_actifs %}active{% endif %}" 
+                onclick="quickFilter('')">
+            Tout
+        </button>
+        <button class="btn-filter-toggle {% if filters.statut == 'Impayé' %}active{% endif %}" 
+                onclick="quickFilter('?statut=Impayé')">
+            Impayés
+        </button>
+        <button class="btn-filter-toggle {% if filters.statut == 'Partiel' %}active{% endif %}" 
+                onclick="quickFilter('?statut=Partiel')">
+            Partiels
+        </button>
+        <button class="btn-filter-toggle {% if filters.affecte == '1' %}active{% endif %}" 
+                onclick="quickFilter('?affecte=1')">
+            Affectés
+        </button>
+        
+        <span class="separator">|</span>
+        
+        <!-- Genre -->
+        <select name="genre" class="form-select-sm" onchange="applyFilter('genre', this.value)">
+            <option value="">🚻 Genre</option>
+            <option value="M" {% if filters.genre == 'M' %}selected{% endif %}>👦 M</option>
+            <option value="F" {% if filters.genre == 'F' %}selected{% endif %}>👧 F</option>
+        </select>
+        
+        <!-- Classe -->
+        <select name="classe" class="form-select-sm" onchange="applyFilter('classe', this.value)">
+            <option value="">📚 Classe</option>
+            {% for c in classes %}
+            <option value="{{ c }}" {% if filters.classe == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+        </select>
+        
+        <!-- Mois -->
+        <select name="mois" class="form-select-sm" onchange="applyFilter('mois', this.value)">
+            <option value="">📅 Mois</option>
+            <option value="1" {% if filters.mois == '1' %}selected{% endif %}>Janvier</option>
+            <option value="2" {% if filters.mois == '2' %}selected{% endif %}>Février</option>
+            <option value="3" {% if filters.mois == '3' %}selected{% endif %}>Mars</option>
+            <option value="4" {% if filters.mois == '4' %}selected{% endif %}>Avril</option>
+            <option value="5" {% if filters.mois == '5' %}selected{% endif %}>Mai</option>
+            <option value="6" {% if filters.mois == '6' %}selected{% endif %}>Juin</option>
+            <option value="7" {% if filters.mois == '7' %}selected{% endif %}>Juillet</option>
+            <option value="8" {% if filters.mois == '8' %}selected{% endif %}>Août</option>
+            <option value="9" {% if filters.mois == '9' %}selected{% endif %}>Septembre</option>
+            <option value="10" {% if filters.mois == '10' %}selected{% endif %}>Octobre</option>
+            <option value="11" {% if filters.mois == '11' %}selected{% endif %}>Novembre</option>
+            <option value="12" {% if filters.mois == '12' %}selected{% endif %}>Décembre</option>
+        </select>
+        
+        <!-- Periode -->
+        <select name="periode" class="form-select-sm" onchange="applyFilter('periode', this.value)">
+            <option value="">📅 Période</option>
+            {% for annee in annees_disponibles %}
+            <option value="{{ annee }}" {% if filters.periode == annee %}selected{% endif %}>
+                {{ annee }}
+                {% if annee == annee_active %}✓{% endif %}
+            </option>
+            {% endfor %}
+        </select>
+        
+        {% if filtres_actifs %}
+        <span class="btn-reset-filters" onclick="window.location='{{ url_for('dashboard') }}'" title="Réinitialiser">
+            <i class="fas fa-times-circle me-1"></i>Effacer
+        </span>
+        {% endif %}
+    </div>
+    
+    <!-- ========== CARTES STATISTIQUES ========== -->
+    <div class="row mb-3">
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Total Élèves</small>
+                            <h4 class="mb-0 text-primary">{{ total_eleves }}</h4>
+                        </div>
+                        <i class="fas fa-users fa-2x stat-icon text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Total Encaissé</small>
+                            <h4 class="mb-0 text-success">{{ "{:,.0f}".format(total_encaisse) }} F</h4>
+                        </div>
+                        <i class="fas fa-money-bill-wave fa-2x stat-icon text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Aujourd'hui</small>
+                            <h4 class="mb-0 text-info">{{ "{:,.0f}".format(total_jour) }} F</h4>
+                            <small class="text-muted">{{ nb_paiements_jour }} paiements</small>
+                        </div>
+                        <i class="fas fa-calendar-day fa-2x stat-icon text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Recouvrement</small>
+                            <h4 class="mb-0 text-warning">{{ taux_recouvrement }}%</h4>
+                        </div>
+                        <i class="fas fa-chart-pie fa-2x stat-icon text-warning"></i>
+                    </div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-success" style="width: {{ taux_recouvrement }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== STATUT PAIEMENTS & AFFECTATION ========== -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-2">
+                    <h6 class="mb-0"><i class="fas fa-chart-simple me-2"></i>Statut des paiements</h6>
+                </div>
+                <div class="card-body py-2">
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small><i class="fas fa-check-circle text-success me-1"></i> Payé</small>
+                            <small class="fw-bold">{{ eleves_payes }}</small>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: {{ (eleves_payes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small><i class="fas fa-clock text-warning me-1"></i> Partiel</small>
+                            <small class="fw-bold">{{ eleves_partiels }}</small>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: {{ (eleves_partiels/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <small><i class="fas fa-times-circle text-danger me-1"></i> Impayé</small>
+                            <small class="fw-bold">{{ eleves_impayes }}</small>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-danger" style="width: {{ (eleves_impayes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-2">
+                    <h6 class="mb-0"><i class="fas fa-building me-2"></i>Affectation État</h6>
+                </div>
+                <div class="card-body py-2">
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small><i class="fas fa-hand-holding-heart text-success me-1"></i> Affectés</small>
+                            <small class="fw-bold">{{ eleves_affectes }}</small>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: {{ (eleves_affectes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <small><i class="fas fa-user text-secondary me-1"></i> Non affectés</small>
+                            <small class="fw-bold">{{ eleves_non_affectes }}</small>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-secondary" style="width: {{ (eleves_non_affectes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== TOP 5 ========== -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-2">
+                    <h6 class="mb-0"><i class="fas fa-trophy text-warning me-2"></i>Top 5 payeurs</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for eleve in top_payeurs %}
+                        <div class="list-group-item py-2 px-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ eleve.prenom }} {{ eleve.nom }}</strong>
+                                    <small class="text-muted d-block">{{ eleve.classe }}</small>
+                                </div>
+                                <span class="text-success fw-bold">{{ "{:,.0f}".format(eleve.montant_paye) }} F</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted py-3">Aucun paiement</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-2">
+                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Top 5 débiteurs</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for eleve in top_dette %}
+                        <div class="list-group-item py-2 px-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ eleve.prenom }} {{ eleve.nom }}</strong>
+                                    <small class="text-muted d-block">{{ eleve.classe }}</small>
+                                </div>
+                                <span class="text-danger fw-bold">{{ "{:,.0f}".format(eleve.solde) }} F</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted py-3">Aucun débiteur</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== DERNIERS PAIEMENTS ========== -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-history me-2"></i>Derniers paiements</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>N° Reçu</th>
+                                    <th>Élève</th>
+                                    <th>Classe</th>
+                                    <th class="text-end">Montant</th>
+                                    <th>Date</th>
+                                    <th>Encaissé par</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in paiements_recents %}
+                                <tr>
+                                    <td><code>{{ p.recu }}</code></td>
+                                    <td>{{ p.eleve.prenom }} {{ p.eleve.nom }}</td>
+                                    <td>{{ p.eleve.classe }}</td>
+                                    <td class="text-end text-success fw-bold">{{ "{:,.0f}".format(p.montant) }} F</td>
+                                    <td>{{ p.date_paiement.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>{{ p.encaisse_par or '-' }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-3">Aucun paiement récent</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Appliquer un filtre individuel
+    function applyFilter(param, value) {
+        var url = new URL(window.location.href);
+        if (value) {
+            url.searchParams.set(param, value);
+        } else {
+            url.searchParams.delete(param);
+        }
+        window.location.href = url.toString();
+    }
+    
+    // Filtre rapide (remplace tous les paramètres)
+    function quickFilter(queryString) {
+        window.location.href = '{{ url_for("dashboard") }}' + queryString;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,300 @@
+<!-- templates/reinscriptions/anciens.html -->
+{% extends "base.html" %}
+
+{% block title %}Réinscrire les anciens élèves - GestScolaire{% endblock %}
+
+{% block page_title %}
+<i class="fas fa-user-graduate me-2" style="color: #667eea;"></i>Réinscrire les anciens élèves
+{% endblock %}
+
+{% block styles %}
+<style>
+    .periode-badge {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 1rem;
+        display: inline-block;
+    }
+    .counter-badge {
+        background: #667eea;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+    .table tr.bloque {
+        background-color: #fff5f5;
+        opacity: 0.7;
+    }
+    .alert-periode {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="periode-badge">
+            <i class="fas fa-calendar-alt me-2"></i>
+            <strong>Année en cours : {{ annee_active }}</strong>
+        </div>
+        <div>
+            <span class="counter-badge me-2" id="compteurSelection">0 sélectionné(s)</span>
+            <a href="{{ url_for('liste_reinscriptions') }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-list me-1"></i>Liste des réinscriptions
+            </a>
+        </div>
+    </div>
+    
+    <!-- 🔥 ALERTE PÉRIODE DE RÉINSCRIPTION 🔥 -->
+    <div class="alert alert-periode mb-3">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <i class="fas fa-arrow-right me-2"></i>
+                <strong>Réinscription pour la période suivante</strong>
+                <br><small>Les élèves seront inscrits pour l'année scolaire sélectionnée ci-dessous.</small>
+            </div>
+            <div class="col-md-4 text-end">
+                <i class="fas fa-calendar-check fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>{{ eleves|length }}</strong> élève(s) à réinscrire.
+        <span class="text-danger ms-2"><i class="fas fa-lock me-1"></i>Solde impayé = bloqué</span>
+    </div>
+    
+    {% if eleves|length > 0 %}
+    
+    <!-- 🔥 BARRE D'ACTIONS AVEC SÉLECTEUR DE PÉRIODE 🔥 -->
+    <div class="card mb-3 border-primary">
+        <div class="card-header bg-light">
+            <strong><i class="fas fa-sliders-h me-2"></i>Paramètres de réinscription</strong>
+        </div>
+        <div class="card-body py-2">
+            <div class="row align-items-end">
+                <!-- Tout sélectionner -->
+                <div class="col-md-1">
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleAll()">
+                        <label class="form-check-label fw-bold" for="selectAll">Tous</label>
+                    </div>
+                </div>
+                
+                <!-- 🔥 PÉRIODE : Liste depuis les paramètres, période suivante par défaut 🔥 -->
+                <div class="col-md-3">
+                    <label class="form-label mb-0 small">
+                        <i class="fas fa-calendar-alt me-1"></i>Période <span class="text-danger">*</span>
+                    </label>
+                    <select id="periodeReinscription" class="form-select form-select-sm" required>
+                        {% for annee in annees_disponibles %}
+                        <option value="{{ annee }}" {% if annee == periode_suivante %}selected{% endif %}>
+                            📅 {{ annee }}
+                            {% if annee == annee_active %}{% endif %}
+                            {% if annee == periode_suivante %}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Nouvelle classe -->
+                <div class="col-md-3">
+                    <label class="form-label mb-0 small">Nouvelle classe</label>
+                    <input type="text" id="nouvelleClasseGlobale" class="form-control form-control-sm" 
+                           placeholder="Ex: CM2, 6ème...">
+                </div>
+                
+                <!-- Nouveau niveau -->
+                <div class="col-md-3">
+                    <label class="form-label mb-0 small">Nouveau niveau</label>
+                    <select id="nouveauSousGroupeGlobal" class="form-select form-select-sm">
+                        <option value="">Garder le même niveau</option>
+                        {% for sg in sous_groupes %}
+                        <option value="{{ sg.id }}">{{ sg.groupe_parent.nom }} → {{ sg.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Bouton -->
+                <div class="col-md-2">
+                    <button class="btn btn-success btn-sm w-100" onclick="reinscrireSelection()" id="btnReinscrireSelection">
+                        <i class="fas fa-check me-1"></i>Réinscrire
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recherche -->
+    <div class="mb-3">
+        <input type="text" id="searchEleve" class="form-control" placeholder="🔍 Rechercher un élève...">
+    </div>
+    
+    <!-- Tableau -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="elevesTable">
+                    <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <tr>
+                            <th width="40">☐</th>
+                            <th>Matricule</th>
+                            <th>Élève</th>
+                            <th>Classe</th>
+                            <th class="text-center">Payé</th>
+                            <th class="text-center">Solde</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eleve in eleves %}
+                        <tr class="{% if eleve.solde > 0 %}bloque{% endif %}" id="row{{ eleve.id }}">
+                            <td>
+                                {% if eleve.solde <= 0 %}
+                                <input class="form-check-input eleve-checkbox" type="checkbox" 
+                                       value="{{ eleve.id }}" 
+                                       data-nom="{{ eleve.nom_complet }}"
+                                       data-classe="{{ eleve.classe }}"
+                                       data-sousgroupe="{{ eleve.sous_groupe_id or '' }}"
+                                       onchange="updateCounter()">
+                                {% else %}
+                                <i class="fas fa-lock text-danger" title="Solde : {{ '{:,.0f}'.format(eleve.solde) }} FCFA"></i>
+                                {% endif %}
+                            </td>
+                            <td><code>{{ eleve.matricule }}</code></td>
+                            <td><strong>{{ eleve.nom_complet }}</strong></td>
+                            <td><span class="badge bg-secondary">{{ eleve.classe }}</span></td>
+                            <td class="text-center text-success">{{ "{:,.0f}".format(eleve.montant_paye) }}</td>
+                            <td class="text-center {% if eleve.solde > 0 %}text-danger fw-bold{% else %}text-success{% endif %}">
+                                {{ "{:,.0f}".format(eleve.solde) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+        <h4>Tous les élèves sont déjà réinscrits ! 🎉</h4>
+        <a href="{{ url_for('liste_reinscriptions') }}" class="btn btn-primary mt-3">Voir les réinscriptions</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateCounter() {
+    var count = $('.eleve-checkbox:checked').length;
+    $('#compteurSelection').text(count + ' sélectionné(s)');
+    $('#selectAll').prop('checked', count === $('.eleve-checkbox').length && count > 0);
+}
+
+function toggleAll() {
+    var isChecked = $('#selectAll').prop('checked');
+    $('.eleve-checkbox:not(:disabled)').prop('checked', isChecked);
+    updateCounter();
+}
+
+$('#searchEleve').on('keyup', function() {
+    var query = $(this).val().toLowerCase();
+    $('#elevesTable tbody tr').each(function() {
+        $(this).toggle($(this).text().toLowerCase().includes(query));
+    });
+});
+
+function reinscrireSelection() {
+    var selected = [];
+    $('.eleve-checkbox:checked').each(function() {
+        selected.push({
+            id: $(this).val(),
+            nom: $(this).data('nom'),
+            classe: $(this).data('classe'),
+            sousgroupe: $(this).data('sousgroupe')
+        });
+    });
+    
+    if (selected.length === 0) {
+        alert('⚠️ Veuillez sélectionner au moins un élève.');
+        return;
+    }
+    
+    // 🔥 Récupérer la période choisie 🔥
+    var periode = $('#periodeReinscription').val();
+    var nouvelleClasse = $('#nouvelleClasseGlobale').val().trim();
+    var nouveauSousGroupe = $('#nouveauSousGroupeGlobal').val();
+    
+    if (!periode) {
+        alert('⚠️ Veuillez sélectionner une période.');
+        return;
+    }
+    
+    var message = '📅 Réinscrire ' + selected.length + ' élève(s) pour ' + periode + ' ?';
+    if (nouvelleClasse) message += '\n📚 Nouvelle classe : ' + nouvelleClasse;
+    
+    if (!confirm(message)) return;
+    
+    var btn = $('#btnReinscrireSelection');
+    var texteOriginal = btn.html();
+    btn.prop('disabled', true);
+    btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Réinscription...');
+    
+    var completed = 0;
+    var errors = 0;
+    var total = selected.length;
+    
+    function traiterSuivant(index) {
+        if (index >= total) {
+            btn.prop('disabled', false);
+            btn.html(texteOriginal);
+            var msg = '✅ ' + completed + ' réinscrit(s) pour ' + periode;
+            if (errors > 0) msg += '\n❌ ' + errors + ' erreur(s)';
+            alert(msg);
+            if (completed > 0) location.reload();
+            return;
+        }
+        
+        var formData = new FormData();
+        formData.append('nouvelle_classe', nouvelleClasse || selected[index].classe);
+        formData.append('nouveau_sous_groupe_id', nouveauSousGroupe || selected[index].sousgroupe);
+        formData.append('annee_scolaire', periode);  // 🔥 Période choisie 🔥
+        
+        fetch('/reinscriptions/inscrire/' + selected[index].id, {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(result) {
+            if (result.success) {
+                completed++;
+                $('#row' + selected[index].id).fadeOut(300);
+            } else {
+                errors++;
+                alert('❌ ' + selected[index].nom + ' : ' + result.message);
+            }
+            traiterSuivant(index + 1);
+        })
+        .catch(function(err) {
+            errors++;
+            traiterSuivant(index + 1);
+        });
+    }
+    
+    traiterSuivant(0);
+}
+
+updateCounter();
+</script>
+{% endblock %}

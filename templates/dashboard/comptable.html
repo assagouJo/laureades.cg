@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Comptable - GestScolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-chart-line me-2"></i>Tableau de bord - Comptable</h2>
+            <p class="text-muted">Bienvenue, {{ current_user.username }} !</p>
+        </div>
+    </div>
+
+    <!-- Cartes statistiques comptable -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Encaissé</h6>
+                            <h3 class="text-success mb-0">{{ "{:,.0f}".format(total_encaisse) }} F</h3>
+                            <small class="text-muted">tous paiements confondus</small>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-money-bill-wave fa-2x text-success"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Reste à recouvrer</h6>
+                            <h3 class="text-danger mb-0">{{ "{:,.0f}".format(reste_a_recouvrer) }} F</h3>
+                            <small class="text-muted">sur {{ "{:,.0f}".format(total_frais) }} F attendus</small>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-exclamation-triangle fa-2x text-danger"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Taux de recouvrement</h6>
+                            <h3 class="text-info mb-0">{{ taux_recouvrement }}%</h3>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-chart-pie fa-2x text-info"></i></div>
+                    </div>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar bg-success" style="width: {{ taux_recouvrement }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques paiements -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-simple me-2"></i>Statut des paiements</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-check-circle text-success me-1"></i> Payé</span>
+                            <span class="fw-bold">{{ eleves_payes }} élèves</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: {{ (eleves_payes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-clock text-warning me-1"></i> Partiel</span>
+                            <span class="fw-bold">{{ eleves_partiels }} élèves</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: {{ (eleves_partiels/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-times-circle text-danger me-1"></i> Impayé</span>
+                            <span class="fw-bold">{{ eleves_impayes }} élèves</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-danger" style="width: {{ (eleves_impayes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Répartition par mode de paiement</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="modeChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paiements du jour et débiteurs -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-calendar-day me-2"></i>Paiements du jour</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% if paiements_jour %}
+                            {% for p in paiements_jour %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-user-graduate text-primary me-2"></i>
+                                        <strong>{{ p.eleve.prenom }} {{ p.eleve.nom }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>{{ p.date_paiement.strftime('%H:%M') }}
+                                            <i class="fas fa-tag ms-2 me-1"></i>{{ p.type_paiement }}
+                                            {% if p.reference %}- {{ p.reference }}{% endif %}
+                                        </small>
+                                    </div>
+                                    <span class="text-success fw-bold">{{ "{:,.0f}".format(p.montant) }} F</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="list-group-item text-center text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Aucun paiement aujourd'hui
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <div class="d-flex justify-content-between">
+                        <span>Total du jour</span>
+                        <strong class="text-success">{{ "{:,.0f}".format(total_jour) }} F</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Élèves avec solde (Top 10)</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for eleve in eleves_avec_solde %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-user-graduate text-danger me-2"></i>
+                                    <strong>{{ eleve.prenom }} {{ eleve.nom }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ eleve.classe }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-danger fw-bold">{{ "{:,.0f}".format(eleve.solde) }} F</span>
+                                    <div class="progress mt-1" style="width: 100px; height: 3px;">
+                                        <div class="progress-bar bg-danger" style="width: {{ (eleve.solde/eleve.frais_scolarite_total*100) if eleve.frais_scolarite_total > 0 else 0 }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">
+                            <i class="fas fa-check-circle text-success me-1"></i>Tous les élèves sont à jour
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Derniers paiements -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-history me-2"></i>Derniers paiements enregistrés</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>N° Reçu</th>
+                                    <th>Élève</th>
+                                    <th>Classe</th>
+                                    <th>Montant</th>
+                                    <th>Mode</th>
+                                    <th>Date</th>
+                                    <th>Encaissé par</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in paiements_recents %}
+                                <tr>
+                                    <td><code>{{ p.recu }}</code></td>
+                                    <td>{{ p.eleve.prenom }} {{ p.eleve.nom }}</td>
+                                    <td>{{ p.eleve.classe }}</td>
+                                    <td class="text-success">{{ "{:,.0f}".format(p.montant) }} F</td>
+                                    <td>
+                                        {% if p.type_paiement == 'especes' %}
+                                            <span class="badge bg-success">💵 Espèces</span>
+                                        {% elif p.type_paiement == 'cheque' %}
+                                            <span class="badge bg-info">📝 Chèque</span>
+                                        {% elif p.type_paiement == 'virement' %}
+                                            <span class="badge bg-primary">🏦 Virement</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">📱 Mobile Money</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ p.date_paiement.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>{{ p.encaisse_par or '-' }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">Aucun paiement enregistré</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Graphique des modes de paiement
+    const modeCtx = document.getElementById('modeChart').getContext('2d');
+    const modeLabels = [
+        {% for mode in stats_modes %}
+            '{{ mode.type_paiement }}',
+        {% endfor %}
+    ];
+    const modeData = [
+        {% for mode in stats_modes %}
+            {{ mode.total }},
+        {% endfor %}
+    ];
+    
+    if (modeLabels.length > 0) {
+        new Chart(modeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: modeLabels,
+                datasets: [{
+                    data: modeData,
+                    backgroundColor: ['#28a745', '#17a2b8', '#007bff', '#ffc107'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw.toLocaleString() + ' FCFA';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

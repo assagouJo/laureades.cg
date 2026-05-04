@@ -1,0 +1,516 @@
+{% extends "base.html" %}
+
+{% block title %}Élèves - Maternelle{% endblock %}
+
+{% block styles %}
+<style>
+    /* Réduction de la police et des marges */
+    .container-fluid {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+    
+    h2 {
+        font-size: 1.5rem !important;
+        margin-bottom: 10px !important;
+        color: #ff9a9e;
+    }
+    
+    .row.mb-4 {
+        margin-bottom: 10px !important;
+    }
+    
+    .card-body {
+        padding: 10px !important;
+    }
+    
+    .table {
+        font-size: 0.85rem !important;
+    }
+    
+    .table td, .table th {
+        padding: 8px 6px !important;
+        vertical-align: middle;
+    }
+    
+    .btn-sm {
+        padding: 3px 6px !important;
+        font-size: 0.75rem !important;
+    }
+    
+    .badge {
+        font-size: 0.75rem !important;
+        padding: 4px 6px !important;
+    }
+    
+    .form-select, .form-control {
+        font-size: 0.85rem !important;
+        padding: 6px 10px !important;
+    }
+    
+    /* Modal */
+    .modal-body {
+        padding: 15px !important;
+    }
+    
+    .modal-body p {
+        margin-bottom: 8px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Stats rapides */
+    .stat-badge {
+        background: #f8f9fa;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+    
+    /* Style maternelle */
+    .maternelle-header {
+        background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    
+    .maternelle-header h2 {
+        color: #333 !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .table thead {
+        background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="maternelle-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2><i class="fas fa-baby me-2"></i>Gestion des Élèves - Maternelle</h2>
+                <p class="mb-0 text-muted">
+                    <i class="fas fa-calendar-alt me-1"></i>Petite Section, Moyenne Section, Grande Section
+                </p>
+            </div>
+            <div class="col text-end">
+                {% if current_user.role in ['admin', 'comptable'] %}
+                <a href="{{ url_for('ajouter_eleve') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>Nouvel Élève
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="row mb-3 g-2 filters-row">
+        <div class="col-md-3">
+            <select class="form-select form-select-sm" id="niveauFilter">
+                <option value="">📚 Tous les niveaux</option>
+                <option value="PS">🧸 Petite Section</option>
+                <option value="MS">🎨 Moyenne Section</option>
+                <option value="GS">📝 Grande Section</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select form-select-sm" id="classeFilter">
+                <option value="">📖 Toutes les classes</option>
+                {% for classe in classes %}
+                    <option value="{{ classe }}">{{ classe }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select form-select-sm" id="affectationFilter">
+                <option value="">🏛️ Tous</option>
+                <option value="affecte">✅ Affectés État</option>
+                <option value="non_affecte">👨‍👩‍👧 Non affectés</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select form-select-sm" id="statutFilter">
+                <option value="">📊 Tous les statuts</option>
+                <option value="paye">✅ Payé</option>
+                <option value="partiel">⚠️ Partiel</option>
+                <option value="impaye">❌ Impayé</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <a href="{{ url_for('eleves_maternelle') }}" class="btn btn-outline-secondary btn-sm w-100">
+                <i class="fas fa-undo-alt me-1"></i>Reset
+            </a>
+        </div>
+    </div>
+    
+    <!-- Barre de recherche et stats -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="d-flex gap-2 flex-wrap">
+                <span class="stat-badge">
+                    <i class="fas fa-users text-primary me-1"></i>
+                    Total: <strong>{{ eleves|length }}</strong>
+                </span>
+                <span class="stat-badge">
+                    <i class="fas fa-chart-line text-success me-1"></i>
+                    Payés: <strong>{{ eleves|selectattr('statut_paiement', 'equalto', 'Payé')|list|length }}</strong>
+                </span>
+                <span class="stat-badge">
+                    <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                    Partiels: <strong>{{ eleves|selectattr('statut_paiement', 'equalto', 'Partiel')|list|length }}</strong>
+                </span>
+                <span class="stat-badge">
+                    <i class="fas fa-times-circle text-danger me-1"></i>
+                    Impayés: <strong>{{ eleves|selectattr('statut_paiement', 'equalto', 'Impayé')|list|length }}</strong>
+                </span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="🔍 Rechercher par nom, prénom, matricule ou classe...">
+        </div>
+    </div>
+
+    <!-- Tableau des élèves -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0" id="elevesTable">
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Nom & Prénom</th>
+                            <th>Niveau</th>
+                            <th>Classe</th>
+                            <th>Âge</th>
+                            <th>Affectation</th>
+                            <th class="text-center">Frais</th>
+                            <th class="text-center">Payé</th>
+                            <th class="text-center">Solde</th>
+                            <th>Statut</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eleve in eleves %}
+                        <tr>
+                            <td><span class="fw-bold">{{ eleve.matricule }}</span></td>
+                            <td>
+                                <i class="fas fa-baby text-muted me-1"></i>
+                                {{ eleve.prenom }} {{ eleve.nom }}
+                            </td>
+                            <td>
+                                {% if eleve.sous_groupe %}
+                                    {% if 'PS' in eleve.sous_groupe.nom %}
+                                        <span class="badge" style="background: #ffd1dc;">🧸 {{ eleve.sous_groupe.nom }}</span>
+                                    {% elif 'MS' in eleve.sous_groupe.nom %}
+                                        <span class="badge" style="background: #b4e7ff;">🎨 {{ eleve.sous_groupe.nom }}</span>
+                                    {% elif 'GS' in eleve.sous_groupe.nom %}
+                                        <span class="badge" style="background: #c3e6cb;">📝 {{ eleve.sous_groupe.nom }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ eleve.sous_groupe.nom }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-light text-dark">-</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-light text-dark">{{ eleve.classe }}</span></td>
+                            <td>
+                                {% if eleve.date_naissance %}
+                                    {% set age = ((now - eleve.date_naissance).days / 365.25)|int %}
+                                    <span class="badge bg-info">{{ age }} ans</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if eleve.est_affecte_etat %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-hand-holding-heart me-1"></i>Affecté
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Non affecté</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">{{ "{:,.0f}".format(eleve.frais_scolarite_total) }} FCFA</td>
+                            <td class="text-center text-success">{{ "{:,.0f}".format(eleve.montant_paye) }} FCFA</td>
+                            <td class="text-center {% if eleve.solde > 0 %}text-danger fw-bold{% else %}text-success{% endif %}">
+                                {{ "{:,.0f}".format(eleve.solde) }} FCFA
+                            </td>
+                            <td>
+                                {% if eleve.statut_paiement == 'Payé' %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Payé</span>
+                                {% elif eleve.statut_paiement == 'Partiel' %}
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Partiel</span>
+                                {% else %}
+                                    <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Impayé</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group" style="gap: 4px;">
+                                    {% if current_user.role in ['admin', 'comptable'] %}
+                                    <button type="button" 
+                                            class="btn btn-success btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#paiementModal{{ eleve.id }}"
+                                            title="Enregistrer un paiement">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </button>
+                                    {% endif %}
+                                    
+                                    <button type="button" 
+                                            class="btn btn-info btn-sm" 
+                                            onclick="voirPaiements({{ eleve.id }})"
+                                            title="Historique des paiements">
+                                        <i class="fas fa-receipt"></i>
+                                    </button>
+                                    
+                                    {% if current_user.role in ['admin', 'comptable'] %}
+                                    <a href="{{ url_for('modifier_eleve', id=eleve.id) }}" 
+                                       class="btn btn-warning btn-sm"
+                                       title="Modifier l'élève">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    {% if current_user.role == 'admin' %}
+                                    <a href="{{ url_for('supprimer_eleve', id=eleve.id) }}" 
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Supprimer {{ eleve.prenom }} {{ eleve.nom }} ?\\n\\n⚠️ Cette action est irréversible.')"
+                                       title="Supprimer l'élève">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Modal Paiement -->
+                        <div class="modal fade" id="paiementModal{{ eleve.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <form method="POST" action="{{ url_for('ajouter_paiement', eleve_id=eleve.id) }}">
+                                        <div class="modal-header bg-success text-white py-2">
+                                            <h6 class="modal-title">
+                                                <i class="fas fa-money-bill-wave me-1"></i>Paiement - {{ eleve.prenom }}
+                                            </h6>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-2 p-2 bg-light rounded">
+                                                <p class="mb-1 small">💰 Frais total: <strong>{{ "{:,.0f}".format(eleve.frais_scolarite_total) }} FCFA</strong></p>
+                                                <p class="mb-1 small">✅ Déjà payé: <strong class="text-success">{{ "{:,.0f}".format(eleve.montant_paye) }} FCFA</strong></p>
+                                                <p class="mb-0 small">⚠️ Reste dû: <strong class="text-danger">{{ "{:,.0f}".format(eleve.solde) }} FCFA</strong></p>
+                                            </div>
+                                            
+                                            <div class="mb-2">
+                                                <label class="form-label small">Montant à payer</label>
+                                                <input type="number" name="montant" class="form-control form-control-sm" step="500" min="500" max="{{ eleve.solde }}" required>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="form-label small">Mode de paiement</label>
+                                                <select name="type_paiement" class="form-select form-select-sm" required>
+                                                    <option value="especes">💵 Espèces</option>
+                                                    <option value="cheque">📝 Chèque</option>
+                                                    <option value="virement">🏦 Virement</option>
+                                                    <option value="mobile_money">📱 Mobile Money</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer py-2">
+                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+                                            <button type="submit" class="btn btn-success btn-sm">Enregistrer</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reçus -->
+<div class="modal fade" id="recusModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header py-2" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #333;">
+                <h6 class="modal-title">
+                    <i class="fas fa-history me-1"></i>Historique des paiements
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-3" id="recusModalBody">
+                <div class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                    <p class="mt-2 small">Chargement des paiements...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let table;
+    
+    $(document).ready(function() {
+        table = $('#elevesTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json',
+                search: "",
+                searchPlaceholder: "Recherche rapide...",
+                lengthMenu: "_MENU_",
+                info: "_START_-_END_ sur _TOTAL_ élèves",
+                infoEmpty: "Aucun élève",
+                infoFiltered: "(filtré sur _MAX_ total)"
+            },
+            pageLength: 25,
+            order: [[1, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: [10] }
+            ],
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip'
+        });
+
+        $('#searchInput').on('keyup', function() {
+            table.search(this.value).draw();
+        });
+        
+        // Filtres personnalisés
+        $('#niveauFilter, #classeFilter, #affectationFilter, #statutFilter').on('change', function() {
+            filtrerTableau();
+        });
+    });
+
+    function filtrerTableau() {
+        const niveau = $('#niveauFilter').val();
+        const classe = $('#classeFilter').val();
+        const affectation = $('#affectationFilter').val();
+        const statut = $('#statutFilter').val();
+        
+        // Appliquer les filtres via DataTables
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                const row = $(table.row(dataIndex).node());
+                let show = true;
+                
+                // Filtre par niveau (colonne 2)
+                if (niveau && !data[2].includes(niveau)) show = false;
+                
+                // Filtre par classe (colonne 3)
+                if (classe && !data[3].includes(classe)) show = false;
+                
+                // Filtre par affectation (colonne 5)
+                if (affectation === 'affecte' && !data[5].includes('Affecté')) show = false;
+                if (affectation === 'non_affecte' && !data[5].includes('Non affecté')) show = false;
+                
+                // Filtre par statut (colonne 9)
+                if (statut === 'paye' && !data[9].includes('Payé')) show = false;
+                if (statut === 'partiel' && !data[9].includes('Partiel')) show = false;
+                if (statut === 'impaye' && !data[9].includes('Impayé')) show = false;
+                
+                return show;
+            }
+        );
+        
+        table.draw();
+        $.fn.dataTable.ext.search.pop();
+    }
+
+    function voirPaiements(eleveId) {
+        const modal = new bootstrap.Modal(document.getElementById('recusModal'));
+        modal.show();
+        
+        fetch(`/api/eleve/${eleveId}/paiements`)
+            .then(response => response.json())
+            .then(data => {
+                let html = `
+                    <div class="text-center mb-3 p-2 rounded" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #333;">
+                        <h6 class="mb-0">${escapeHtml(data.eleve.prenom)} ${escapeHtml(data.eleve.nom)}</h6>
+                        <small>${escapeHtml(data.eleve.classe)} - ${escapeHtml(data.eleve.matricule)}</small>
+                    </div>
+                    
+                    <div class="row text-center mb-3 small">
+                        <div class="col-3">
+                            <span class="text-muted">Frais total</span><br>
+                            <strong>${formatMontant(data.eleve.frais_scolarite_total)}</strong>
+                        </div>
+                        <div class="col-3">
+                            <span class="text-muted">Payé</span><br>
+                            <strong class="text-success">${formatMontant(data.eleve.montant_paye)}</strong>
+                        </div>
+                        <div class="col-3">
+                            <span class="text-muted">Solde</span><br>
+                            <strong class="${data.eleve.solde > 0 ? 'text-danger' : 'text-success'}">${formatMontant(data.eleve.solde)}</strong>
+                        </div>
+                        <div class="col-3">
+                            <span class="text-muted">Taux</span><br>
+                            <strong>${data.eleve.taux_paiement || 0}%</strong>
+                        </div>
+                    </div>
+                `;
+                
+                if (data.paiements.length === 0) {
+                    html += `<div class="alert alert-info text-center py-2 small">Aucun paiement enregistré</div>`;
+                } else {
+                    html += `
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover small">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>N° Reçu</th>
+                                        <th>Date</th>
+                                        <th>Montant</th>
+                                        <th>Mode</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    data.paiements.forEach(p => {
+                        html += `
+                            <tr>
+                                <td><code>${escapeHtml(p.recu || '-')}</code></td>
+                                <td>${formatDateTime(p.date_paiement)}</td>
+                                <td class="text-success fw-bold">${formatMontant(p.montant)}</td>
+                                <td>${escapeHtml(p.type_paiement || '-')}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `</tbody></table></div>`;
+                }
+                
+                document.getElementById('recusModalBody').innerHTML = html;
+            });
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatMontant(montant) {
+        return new Intl.NumberFormat('fr-FR').format(montant || 0) + ' FCFA';
+    }
+
+    function formatDateTime(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    }
+</script>
+{% endblock %}

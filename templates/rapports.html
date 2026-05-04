@@ -1,0 +1,536 @@
+{% extends "base.html" %}
+
+{% block title %}Rapports financiers - GestScolaire{% endblock %}
+
+{% block styles %}
+<style>
+    .stat-card {
+        transition: transform 0.2s;
+        border-radius: 12px;
+        border: none;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(102, 126, 234, 0.1);
+    }
+    .badge-mode {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
+    .table th {
+        font-weight: 600;
+    }
+    .period-selector {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 10px 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-chart-line me-2"></i>Rapports financiers</h2>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Période: <strong>{{ debut_mois.strftime('%d/%m/%Y') }}</strong> - <strong>{{ fin_mois.strftime('%d/%m/%Y') }}</strong>
+                    </p>
+                </div>
+                <div class="period-selector">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-primary" onclick="changerPeriode('mois')">
+                            <i class="fas fa-calendar-month me-1"></i>Ce mois
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="changerPeriode('trimestre')">
+                            <i class="fas fa-calendar-week me-1"></i>Ce trimestre
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="changerPeriode('annee')">
+                            <i class="fas fa-calendar-year me-1"></i>Cette année
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cartes statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Encaissé (Mois)</h6>
+                            <h4 class="text-success mb-0">{{ "{:,.0f}".format(total_mois) }} F</h4>
+                            <small class="text-muted">{{ nb_paiements_mois }} transactions</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Élèves</h6>
+                            <h4 class="mb-0">{{ stats.total_eleves }}</h4>
+                            <small class="text-muted">
+                                <span class="text-success">{{ stats.eleves_payes }} payés</span> /
+                                <span class="text-warning">{{ stats.eleves_partiels }} partiels</span> /
+                                <span class="text-danger">{{ stats.eleves_impayes }} impayés</span>
+                            </small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Encaissé Global</h6>
+                            <h4 class="mb-0">{{ "{:,.0f}".format(stats.total_encaisse) }} F</h4>
+                            <small class="text-muted">sur {{ "{:,.0f}".format(stats.total_frais_attendus) }} F attendus</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Taux de Paiement</h6>
+                            <h4 class="mb-0">{{ "%.1f"|format(stats.taux_global_paiement) }}%</h4>
+                            <small class="text-muted">objectif annuel</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-pie fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar bg-success" style="width: {{ stats.taux_global_paiement }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Graphique paiements par classe -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Paiements par classe</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="classeChart" height="200"></canvas>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Classe</th>
+                                    <th class="text-end">Montant total</th>
+                                    <th class="text-center">Nb paiements</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for classe in paiements_par_classe %}
+                                <tr>
+                                    <td><strong>{{ classe.classe }}</strong></td>
+                                    <td class="text-end text-success">{{ "{:,.0f}".format(classe.total) }} F</td>
+                                    <td class="text-center">{{ classe.nombre }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Aucune donnée</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphique paiements par mode -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Répartition par mode de paiement</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="modeChart" height="200"></canvas>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Mode</th>
+                                    <th class="text-end">Montant total</th>
+                                    <th class="text-center">Nb paiements</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mode in paiements_par_mode %}
+                                <tr>
+                                    <td>
+                                        {% if mode.type_paiement == 'especes' %}
+                                            <i class="fas fa-money-bill text-success me-1"></i> Espèces
+                                        {% elif mode.type_paiement == 'cheque' %}
+                                            <i class="fas fa-money-check text-info me-1"></i> Chèque
+                                        {% elif mode.type_paiement == 'virement' %}
+                                            <i class="fas fa-university text-primary me-1"></i> Virement
+                                        {% elif mode.type_paiement == 'mobile_money' %}
+                                            <i class="fas fa-mobile-alt text-warning me-1"></i> Mobile Money
+                                        {% else %}
+                                            {{ mode.type_paiement }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end text-success">{{ "{:,.0f}".format(mode.total) }} F</td>
+                                    <td class="text-center">{{ mode.nombre }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Aucune donnée</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Top payeurs -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-trophy me-2"></i>Top 10 des meilleurs payeurs</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Élève</th>
+                                    <th>Classe</th>
+                                    <th class="text-end">Montant payé</th>
+                                    <th class="text-center">Taux</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for eleve in top_payeurs %}
+                                <tr>
+                                    <td class="text-center">{{ loop.index }}</td>
+                                    <td>
+                                        <i class="fas fa-user-graduate text-primary me-1"></i>
+                                        {{ eleve.prenom }} {{ eleve.nom }}
+                                    </td>
+                                    <td>{{ eleve.classe }}</td>
+                                    <td class="text-end text-success">{{ "{:,.0f}".format(eleve.montant_paye) }} F</td>
+                                    <td class="text-center">
+                                        <div class="progress" style="height: 4px; width: 80px;">
+                                            <div class="progress-bar bg-success" style="width: {{ eleve.taux_paiement }}%"></div>
+                                        </div>
+                                        <small>{{ eleve.taux_paiement }}%</small>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Aucune donnée</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top débiteurs -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Top 10 des plus gros débiteurs</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Élève</th>
+                                    <th>Classe</th>
+                                    <th class="text-end">Solde restant</th>
+                                    <th class="text-center">Affectation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for eleve in top_debiteurs %}
+                                <tr>
+                                    <td class="text-center">{{ loop.index }}</td>
+                                    <td>
+                                        <i class="fas fa-user-graduate text-danger me-1"></i>
+                                        {{ eleve.prenom }} {{ eleve.nom }}
+                                    </td>
+                                    <td>{{ eleve.classe }}</td>
+                                    <td class="text-end text-danger">{{ "{:,.0f}".format(eleve.solde) }} F</td>
+                                    <td class="text-center">
+                                        {% if eleve.est_affecte_etat %}
+                                            <span class="badge bg-success">Affecté</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Non affecté</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Aucun débiteur</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Derniers paiements -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-history me-2"></i>Derniers paiements enregistrés</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>N° Reçu</th>
+                                    <th>Élève</th>
+                                    <th>Classe</th>
+                                    <th>Montant</th>
+                                    <th>Mode</th>
+                                    <th>Date</th>
+                                    <th>Encaissé par</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for paiement in top_paiements %}
+                                <tr>
+                                    <td><code>{{ paiement.recu }}</code></td>
+                                    <td>{{ paiement.eleve.prenom }} {{ paiement.eleve.nom }}</td>
+                                    <td>{{ paiement.eleve.classe }}</td>
+                                    <td class="text-success">{{ "{:,.0f}".format(paiement.montant) }} F</td>
+                                    <td>
+                                        {% if paiement.type_paiement == 'especes' %}
+                                            <span class="badge bg-success">💵 Espèces</span>
+                                        {% elif paiement.type_paiement == 'cheque' %}
+                                            <span class="badge bg-info">📝 Chèque</span>
+                                        {% elif paiement.type_paiement == 'virement' %}
+                                            <span class="badge bg-primary">🏦 Virement</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">📱 Mobile Money</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ paiement.date_paiement.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>{{ paiement.encaisse_par or '-' }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">Aucun paiement</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export des rapports -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="fas fa-download me-2"></i>Exporter les rapports</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-success w-100" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>Imprimer
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" onclick="exporterExcel()">
+                                <i class="fas fa-file-excel me-2"></i>Excel
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-danger w-100" onclick="exporterPDF()">
+                                <i class="fas fa-file-pdf me-2"></i>PDF
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-info w-100" onclick="exporterCSV()">
+                                <i class="fas fa-file-csv me-2"></i>CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Graphique des paiements par classe
+    const classeCtx = document.getElementById('classeChart').getContext('2d');
+    const classeLabels = [{% for classe in paiements_par_classe %}'{{ classe.classe }}',{% endfor %}];
+    const classeData = [{% for classe in paiements_par_classe %}{{ classe.total }},{% endfor %}];
+    
+    if (classeLabels.length > 0) {
+        new Chart(classeCtx, {
+            type: 'bar',
+            data: {
+                labels: classeLabels,
+                datasets: [{
+                    label: 'Montant encaissé (FCFA)',
+                    data: classeData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw.toLocaleString() + ' FCFA';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' F';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Graphique des paiements par mode
+    const modeCtx = document.getElementById('modeChart').getContext('2d');
+    const modeLabels = [
+        {% for mode in paiements_par_mode %}
+            {% if mode.type_paiement == 'especes' %}
+                'Espèces',
+            {% elif mode.type_paiement == 'cheque' %}
+                'Chèque',
+            {% elif mode.type_paiement == 'virement' %}
+                'Virement',
+            {% elif mode.type_paiement == 'mobile_money' %}
+                'Mobile Money',
+            {% endif %}
+        {% endfor %}
+    ];
+    const modeData = [{% for mode in paiements_par_mode %}{{ mode.total }},{% endfor %}];
+    const modeColors = ['#28a745', '#17a2b8', '#007bff', '#ffc107'];
+    
+    if (modeLabels.length > 0) {
+        new Chart(modeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: modeLabels,
+                datasets: [{
+                    data: modeData,
+                    backgroundColor: modeColors.slice(0, modeLabels.length),
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.raw / total) * 100).toFixed(1);
+                                return `${context.label}: ${context.raw.toLocaleString()} FCFA (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Fonctions d'export
+    function exporterExcel() {
+        alert('📊 Export Excel - Fonctionnalité à implémenter');
+        // window.location.href = '/rapports/export/excel';
+    }
+
+    function exporterPDF() {
+        alert('📄 Export PDF - Fonctionnalité à implémenter');
+        // window.location.href = '/rapports/export/pdf';
+    }
+    
+    function exporterCSV() {
+        alert('📋 Export CSV - Fonctionnalité à implémenter');
+        // window.location.href = '/rapports/export/csv';
+    }
+    
+    function changerPeriode(periode) {
+        window.location.href = `/rapports?periode=${periode}`;
+    }
+</script>
+{% endblock %}

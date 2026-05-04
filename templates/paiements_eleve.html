@@ -1,0 +1,432 @@
+<!-- templates/paiements_eleve.html -->
+{% extends "base.html" %}
+
+{% block title %}Paiements - {{ eleve.prenom }} {{ eleve.nom }}{% endblock %}
+
+{% block page_title %}
+<i class="fas fa-history me-2" style="color: #667eea;"></i>Historique des paiements
+{% endblock %}
+
+{% block styles %}
+<style>
+    .info-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .info-card h5 { margin-bottom: 15px; }
+    .info-card p { margin-bottom: 3px; font-size: 0.9rem; }
+    
+    .stat-badge {
+        background: rgba(255,255,255,0.2);
+        border-radius: 10px;
+        padding: 10px;
+        text-align: center;
+    }
+    .stat-badge .label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; }
+    .stat-badge .value { font-size: 1.1rem; font-weight: bold; }
+    
+    .payment-row { transition: all 0.2s; }
+    .payment-row:hover { background-color: #f8f9fa; transform: translateX(3px); }
+    
+    .recu-code {
+        font-family: 'Courier New', monospace;
+        background: #f0f0f0;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .table td, .table th { vertical-align: middle; padding: 10px 8px !important; }
+    .modal-header { padding: 12px 15px !important; }
+    .modal-body { padding: 15px !important; }
+    .modal-footer { padding: 10px 15px !important; }
+    
+    /* Correction clignotement modal */
+    .modal { background-color: rgba(0, 0, 0, 0.5) !important; }
+    .modal-backdrop { opacity: 0.5 !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    
+    <!-- En-tête avec retour -->
+    <div class="row mb-3 align-items-center">
+        <div class="col">
+            <div class="d-flex align-items-center">
+                <a href="{{ url_for('liste_eleves') }}" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="mb-0"><i class="fas fa-history me-2" style="color: #667eea;"></i>Historique des paiements</h2>
+            </div>
+        </div>
+        <div class="col text-end">
+            {% if current_user.role in ['admin', 'comptable'] %}
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ajoutPaiementModal">
+                <i class="fas fa-plus me-1"></i>Nouveau paiement
+            </button>
+            {% endif %}
+            <a href="{{ url_for('imprimer_tous_recus', id=eleve.id) }}" class="btn btn-outline-primary ms-2" target="_blank">
+                <i class="fas fa-print me-1"></i>Tous les reçus
+            </a>
+        </div>
+    </div>
+
+    <!-- Informations élève -->
+    <div class="info-card">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5>{{ eleve.genre_icon if eleve.genre else '👤' }} {{ eleve.prenom }} {{ eleve.nom }}</h5>
+                <p><i class="fas fa-id-card me-2"></i>Matricule : <strong>{{ eleve.matricule }}</strong></p>
+                <p><i class="fas fa-graduation-cap me-2"></i>Classe : <strong>{{ eleve.classe }}</strong></p>
+                {% if eleve.sous_groupe %}
+                <p><i class="fas fa-layer-group me-2"></i>Niveau : <strong>{{ eleve.sous_groupe.nom }}</strong></p>
+                {% endif %}
+                {% if eleve.est_affecte_etat %}
+                <p><i class="fas fa-hand-holding-heart me-2"></i>Affecté par l'État{% if eleve.reference_affectation %} ({{ eleve.reference_affectation }}){% endif %}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="stat-badge">
+                            <div class="label">Frais total</div>
+                            <div class="value">{{ "{:,.0f}".format(eleve.frais_scolarite_total) }}</div>
+                            <small>FCFA / an</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-badge">
+                            <div class="label">Déjà payé</div>
+                            <div class="value" style="color: #38ef7d;">{{ "{:,.0f}".format(eleve.montant_paye) }}</div>
+                            <small>{{ eleve.taux_paiement }}%</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-badge">
+                            <div class="label">Reste dû</div>
+                            <div class="value" style="color: {% if eleve.solde > 0 %}#ffd700{% else %}#38ef7d{% endif %};">
+                                {{ "{:,.0f}".format(eleve.solde) }}
+                            </div>
+                            <small>{% if eleve.solde <= 0 %}✅ Soldé{% else %}FCFA{% endif %}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Détail des frais -->
+    {% if eleve.transport_option or eleve.cantine_option or eleve.renforcement_inscrit %}
+    <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-light py-2">
+            <h6 class="mb-0"><i class="fas fa-receipt me-2"></i>Détail des frais</h6>
+        </div>
+        <div class="card-body py-2">
+            <div class="row small">
+                <div class="col-md-3 mb-1">
+                    <span class="text-muted">Scolarité de base :</span>
+                    <strong>{{ "{:,.0f}".format(eleve.frais_scolarite_base) }} FCFA</strong>
+                </div>
+                {% if eleve.transport_option %}
+                <div class="col-md-3 mb-1">
+                    <span class="text-muted">Transport ({{ eleve.transport_option.nom }}) :</span>
+                    <strong>{{ "{:,.0f}".format(eleve.frais_transport) }} FCFA</strong>
+                </div>
+                {% endif %}
+                {% if eleve.cantine_option %}
+                <div class="col-md-3 mb-1">
+                    <span class="text-muted">Cantine ({{ eleve.cantine_option.nom }}) :</span>
+                    <strong>{{ "{:,.0f}".format(eleve.frais_cantine) }} FCFA</strong>
+                </div>
+                {% endif %}
+                {% if eleve.renforcement_inscrit %}
+                <div class="col-md-3 mb-1">
+                    <span class="text-muted">Renforcement :</span>
+                    <strong>{{ "{:,.0f}".format(eleve.frais_renforcement) }} FCFA</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Liste des paiements -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-2">
+            <h6 class="mb-0"><i class="fas fa-list me-2"></i>Historique des transactions</h6>
+        </div>
+        <div class="card-body p-0">
+            {% if paiements %}
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0" id="paiementsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>N° Reçu</th>
+                            <th>Date</th>
+                            <th>Montant</th>
+                            <th>Mode</th>
+                            <th>Référence</th>
+                            <th>Encaissé par</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in paiements %}
+                        <tr class="payment-row">
+                            <td><span class="recu-code"><i class="fas fa-receipt me-1"></i>{{ p.recu }}</span></td>
+                            <td>
+                                <i class="far fa-calendar-alt me-1 text-muted"></i>
+                                {{ p.date_paiement.strftime('%d/%m/%Y') }}
+                                <small class="text-muted d-block">{{ p.date_paiement.strftime('%H:%M') }}</small>
+                            </td>
+                            <td class="text-success fw-bold">{{ "{:,.0f}".format(p.montant) }} FCFA</td>
+                            <td>
+                                {% if p.type_paiement == 'especes' %}
+                                    <span class="badge bg-success">💵 Espèces</span>
+                                {% elif p.type_paiement == 'cheque' %}
+                                    <span class="badge bg-info">📝 Chèque</span>
+                                {% elif p.type_paiement == 'virement' %}
+                                    <span class="badge bg-primary">🏦 Virement</span>
+                                {% elif p.type_paiement == 'mobile_money' %}
+                                    <span class="badge bg-warning text-dark">📱 Mobile Money</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ p.type_paiement }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{% if p.reference %}<code>{{ p.reference }}</code>{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                            <td><i class="fas fa-user-circle me-1 text-muted"></i>{{ p.encaisse_par or 'N/A' }}</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('imprimer_recu', id=p.id) }}" class="btn btn-outline-primary" target="_blank" title="Imprimer le reçu">
+                                        <i class="fas fa-print"></i>
+                                    </a>
+                                    {% if current_user.role in ['admin', 'comptable'] %}
+                                    <button type="button" class="btn btn-outline-danger" 
+                                            onclick="confirmAnnulation({{ p.id }}, '{{ "{:,.0f}".format(p.montant) }}')"
+                                            title="Annuler le paiement">
+                                        <i class="fas fa-undo-alt"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-receipt fa-4x text-muted mb-3"></i>
+                <p class="text-muted mb-0">Aucun paiement enregistré pour cet élève</p>
+                {% if current_user.role in ['admin', 'comptable'] %}
+                <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#ajoutPaiementModal">
+                    <i class="fas fa-plus me-1"></i>Enregistrer le premier paiement
+                </button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% if paiements %}
+        <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted"><i class="fas fa-chart-line me-1"></i>Taux de paiement : <strong>{{ eleve.taux_paiement }}%</strong></small>
+                <small class="text-muted">Total des paiements : <strong>{{ paiements|length }}</strong></small>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ========== MODAL AJOUT PAIEMENT (AJAX) ========== -->
+<div class="modal fade" id="ajoutPaiementModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="paiementFormAjax" onsubmit="soumettrePaiementAjax(event, {{ eleve.id }})">
+                <div class="modal-header bg-success text-white py-2">
+                    <h6 class="modal-title"><i class="fas fa-money-bill-wave me-2"></i>Nouveau paiement</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="bg-light p-3 rounded mb-3">
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">Frais total</small>
+                                <h6>{{ "{:,.0f}".format(eleve.frais_scolarite_total) }} FCFA</h6>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Déjà payé</small>
+                                <h6 class="text-success" id="modalPayeAjax">{{ "{:,.0f}".format(eleve.montant_paye) }} FCFA</h6>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">Reste à payer</small>
+                            <h5 class="text-danger" id="modalSoldeAjax">{{ "{:,.0f}".format(eleve.solde) }} FCFA</h5>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-danger py-2 d-none" id="erreurAjax"></div>
+                    <div class="alert alert-success py-2 d-none" id="succesAjax"></div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Montant à payer <span class="text-danger">*</span></label>
+                        <input type="number" name="montant" class="form-control" step="500" min="500" max="{{ eleve.solde }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mode de paiement <span class="text-danger">*</span></label>
+                        <select name="type_paiement" class="form-select" required>
+                            <option value="especes">💵 Espèces</option>
+                            <option value="cheque">📝 Chèque</option>
+                            <option value="virement">🏦 Virement bancaire</option>
+                            <option value="mobile_money">📱 Mobile Money</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Référence (optionnel)</label>
+                        <input type="text" name="reference" class="form-control" placeholder="N° chèque, référence transaction...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description (optionnel)</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="Note éventuelle..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success" id="btnSubmitAjax">
+                        <i class="fas fa-save me-1"></i>Enregistrer le paiement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL CONFIRMATION ANNULATION ========== -->
+<div class="modal fade" id="annulationModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white py-2">
+                <h6 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Confirmer l'annulation</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Voulez-vous vraiment annuler ce paiement de <strong id="montantAnnulation"></strong> ?</p>
+                <div class="alert alert-warning small mb-0">
+                    <i class="fas fa-info-circle me-1"></i>Cette action est irréversible.
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Non, conserver</button>
+                <form id="annulationForm" method="POST">
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-check me-1"></i>Oui, annuler</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ========== CORRECTION CLIGNOTEMENT MODAL ==========
+    $(document).on('show.bs.modal', '.modal', function() {
+        $('.modal-backdrop').remove();
+        $('body').css('overflow', 'hidden');
+    });
+    
+    $(document).on('hidden.bs.modal', '.modal', function() {
+        $('.modal-backdrop').remove();
+        $('body').css('overflow', '');
+        $('body').css('padding-right', '');
+    });
+    
+    // ========== DATATABLE ==========
+    $(document).ready(function() {
+        $('#paiementsTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json',
+                search: "",
+                searchPlaceholder: "Rechercher un reçu...",
+                lengthMenu: "_MENU_ par page",
+                info: "_START_-_END_ sur _TOTAL_ paiements",
+                infoEmpty: "Aucun paiement",
+                infoFiltered: "(filtré sur _MAX_ total)"
+            },
+            order: [[1, 'desc']],
+            pageLength: 25,
+            columnDefs: [
+                { orderable: false, targets: [6] }
+            ]
+        });
+    });
+    
+    // ========== CONFIRMATION ANNULATION ==========
+    function confirmAnnulation(paiementId, montant) {
+        document.getElementById('montantAnnulation').textContent = montant + ' FCFA';
+        document.getElementById('annulationForm').action = '/paiement/' + paiementId + '/annuler';
+        new bootstrap.Modal(document.getElementById('annulationModal')).show();
+    }
+    
+    // ========== SOUMETTRE UN PAIEMENT (AJAX) ==========
+    function soumettrePaiementAjax(event, eleveId) {
+        event.preventDefault();
+        
+        const form = document.getElementById('paiementFormAjax');
+        const formData = new FormData(form);
+        const btnSubmit = document.getElementById('btnSubmitAjax');
+        const erreurDiv = document.getElementById('erreurAjax');
+        const succesDiv = document.getElementById('succesAjax');
+        
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enregistrement...';
+        erreurDiv.classList.add('d-none');
+        succesDiv.classList.add('d-none');
+        
+        fetch(`/paiement/ajouter/${eleveId}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                succesDiv.textContent = '✅ ' + data.message;
+                succesDiv.classList.remove('d-none');
+                
+                document.getElementById('modalSoldeAjax').textContent = formatMontant(data.nouveau_solde);
+                document.getElementById('modalPayeAjax').textContent = formatMontant(data.nouveau_montant_paye);
+                form.querySelector('input[name="montant"]').max = data.nouveau_solde;
+                if (data.nouveau_solde < 500) {
+                    form.querySelector('input[name="montant"]').min = data.nouveau_solde;
+                }
+                
+                setTimeout(() => {
+                    form.reset();
+                    succesDiv.classList.add('d-none');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('ajoutPaiementModal'));
+                    modal.hide();
+                    location.reload();
+                }, 1500);
+            } else {
+                erreurDiv.textContent = '❌ ' + data.message;
+                erreurDiv.classList.remove('d-none');
+            }
+        })
+        .catch(error => {
+            erreurDiv.textContent = '❌ Erreur réseau : ' + error.message;
+            erreurDiv.classList.remove('d-none');
+        })
+        .finally(() => {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = '<i class="fas fa-save me-1"></i>Enregistrer le paiement';
+        });
+    }
+    
+    function formatMontant(montant) {
+        return new Intl.NumberFormat('fr-FR').format(montant || 0) + ' FCFA';
+    }
+</script>
+{% endblock %}

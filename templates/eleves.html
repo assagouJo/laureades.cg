@@ -1,0 +1,715 @@
+<!-- templates/eleves.html -->
+{% extends "base.html" %}
+
+{% block title %}
+    {% if dossier_actif == 'maternelle' %}🧸 Élèves - Maternelle
+    {% elif dossier_actif == 'primaire' %}📚 Élèves - Primaire
+    {% elif dossier_actif == 'secondaire' %}🎓 Élèves - Secondaire
+    {% else %}👥 Tous les Élèves{% endif %} - GestScolaire
+{% endblock %}
+
+{% block page_title %}
+<i class="fas fa-users me-2" style="color: #667eea;"></i>
+{% if dossier_actif == 'maternelle' %}🧸 Élèves de Maternelle
+{% elif dossier_actif == 'primaire' %}📚 Élèves de Primaire
+{% elif dossier_actif == 'secondaire' %}🎓 Élèves du Secondaire
+{% else %}👥 Tous les Élèves{% endif %}
+{% endblock %}
+
+{% block styles %}
+<style>
+    .container-fluid { padding-left: 10px !important; padding-right: 10px !important; }
+    
+    .stats-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 10px 18px;
+        border-radius: 10px;
+        display: inline-block;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
+    }
+    .stats-badge i { margin-right: 8px; }
+    .stats-badge small { font-size: 0.7rem; opacity: 0.8; display: block; }
+    
+    .table { font-size: 0.85rem !important; }
+    .table td, .table th { padding: 8px 6px !important; vertical-align: middle; }
+    .table thead { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .table thead th { border-bottom: none; font-weight: 500; }
+    
+    .btn-sm { padding: 4px 8px !important; font-size: 0.75rem !important; }
+    .badge { font-size: 0.7rem !important; padding: 4px 7px !important; }
+    
+    .badge-paye { background: #28a745; color: white; }
+    .badge-partiel { background: #ffc107; color: #333; }
+    .badge-impaye { background: #dc3545; color: white; }
+    .badge-avoir { background: #ff9800; color: white; font-size: 0.65rem !important; }
+    .badge-annule { background: #dc3545; color: white; font-size: 0.65rem !important; }
+    
+    .modal { background-color: rgba(0,0,0,0.5) !important; }
+    .modal-backdrop { opacity: 0.5 !important; pointer-events: none !important; }
+    body.modal-open { overflow: hidden !important; padding-right: 0 !important; }
+    
+    .notification-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        animation: slideInRight 0.3s ease-out;
+    }
+    
+    .table-avoir { background-color: #fff8e1 !important; }
+    .table-avoir td { font-style: italic; }
+    
+    .table-annule { background-color: #f5f5f5 !important; opacity: 0.75; }
+    .table-annule td { text-decoration: line-through; }
+    
+    .text-avoir { color: #e65100 !important; }
+    
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    
+    <!-- STATISTIQUES JOURNALIÈRES -->
+    <div class="row mb-3 mt-3">
+        <div class="col-12">                        
+            <div class="stats-badge" style="background: linear-gradient(135deg, #606b36 0%, #d0bee3 100%);">
+                <strong id="dateAujourdhui">{{ date_aujourdhui }}</strong>
+                <small>aujourd'hui</small>
+            </div>
+            <div class="stats-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <i class="fas fa-user-plus"></i>
+                <strong id="elevesInscrits">{{ eleves_inscrits_aujourdhui }}</strong> Élèves
+                <small>Inscrits aujourd'hui</small>
+            </div>
+            
+            <div class="stats-badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <i class="fas fa-money-bill-wave"></i>
+                <strong id="montantTotalPaye">{{ "{:,.0f}".format(montant_total_paye_aujourdhui) }}</strong>
+                <small>Total payé aujourd'hui</small>
+            </div>
+            
+            <div class="stats-badge" style="background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);">
+                <i class="fas fa-receipt"></i>
+                <strong id="nombrePaiements">{{ nombre_paiements_aujourdhui }}</strong> Paiements
+                <small>Effectués aujourd'hui</small>
+            </div>
+            
+        </div>
+        {% if current_user.role in ['admin', 'comptable'] %}
+        <div>
+            <a href="{{ url_for('ajouter_eleve') }}" class="btn btn-primary float-end">
+                <i class="fas fa-plus me-1"></i>Nouvel Élève
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- TABLEAU DES ÉLÈVES -->
+    <div class="card shadow-sm p-2">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 p-2" id="elevesTable">
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Nom & Prénom</th>
+                            <th>Classe</th>
+                            <th>Niveau</th>
+                            <th>Affectation</th>
+                            <th class="text-center">Frais</th>
+                            <th class="text-center">Payé</th>
+                            <th class="text-center">Solde</th>
+                            <th>Statut</th>
+                            <th>Réinscrit</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eleve in eleves %}
+                        <tr id="row{{ eleve.id }}">
+                            <td><span class="fw-bold">{{ eleve.matricule }}</span></td>
+                            <td>{{ eleve.genre_icon if eleve.genre else '👤' }} {{ eleve.prenom }} {{ eleve.nom }}</td>
+                            <td>{{ eleve.classe }}</td>
+                            <td>{% if eleve.sous_groupe %}<span class="badge bg-secondary">{{ eleve.sous_groupe.nom }}</span>{% else %}-{% endif %}</td>
+                            <td>{% if eleve.est_affecte_etat %}<span class="badge bg-success">Affecté</span>{% else %}<span class="badge bg-light text-dark">Non affecté</span>{% endif %}</td>
+                            <td class="text-center">{{ "{:,.0f}".format(eleve.frais_scolarite_total) }}</td>
+                            <td class="text-center text-success fw-bold" id="paye{{ eleve.id }}">{{ "{:,.0f}".format(eleve.montant_paye) }}</td>
+                            <td class="text-center fw-bold" id="solde{{ eleve.id }}" style="color: {% if eleve.solde > 0 %}#dc3545{% else %}#28a745{% endif %};">{{ "{:,.0f}".format(eleve.solde) }}</td>
+                            <td>
+                                {% if eleve.statut_paiement == 'Payé' %}
+                                    <span class="badge badge-paye" id="statut{{ eleve.id }}">Payé</span>
+                                {% elif eleve.statut_paiement == 'Partiel' %}
+                                    <span class="badge badge-partiel" id="statut{{ eleve.id }}">Partiel</span>
+                                {% else %}
+                                    <span class="badge badge-impaye" id="statut{{ eleve.id }}">Impayé</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if eleve.reinscrit %}
+                                    <span class="badge bg-success" title="Réinscrit le {{ eleve.date_reinscription.strftime('%d/%m/%Y') if eleve.date_reinscription else '-' }}">
+                                        ✅ {{ eleve.annee_scolaire }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Non</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    {% if current_user.role in ['admin', 'comptable'] %}
+                                    <button type="button" class="btn btn-success btn-sm btn-paiement" 
+                                            data-eleve-id="{{ eleve.id }}"
+                                            title="Enregistrer un paiement">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </button>
+                                    {% endif %}
+                                    <button type="button" class="btn btn-info btn-sm" onclick="voirPaiements({{ eleve.id }})" title="Historique">
+                                        <i class="fas fa-history"></i>
+                                    </button>
+                                    {% if current_user.role in ['admin', 'comptable'] %}
+                                    <a href="{{ url_for('modifier_eleve', id=eleve.id) }}" class="btn btn-warning btn-sm" title="Modifier"><i class="fas fa-edit"></i></a>
+                                    {% endif %}
+                                    {% if current_user.role == 'admin' %}
+                                    <a href="{{ url_for('supprimer_eleve', id=eleve.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer {{ eleve.prenom }} {{ eleve.nom }} ?')" title="Supprimer"><i class="fas fa-trash-alt"></i></a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL PAIEMENT ========== -->
+{% for eleve in eleves %}
+<div class="modal fade" id="paiementModal{{ eleve.id }}" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="paiementForm{{ eleve.id }}" class="paiement-ajax-form" data-eleve-id="{{ eleve.id }}">
+                <div class="modal-header bg-success text-white py-2">
+                    <h6 class="modal-title"><i class="fas fa-money-bill-wave me-2"></i>Paiement - {{ eleve.prenom }} {{ eleve.nom }}</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="bg-light p-3 rounded mb-3">
+                        <div class="row">
+                            <div class="col-6"><small class="text-muted">Frais total</small><h6>{{ "{:,.0f}".format(eleve.frais_scolarite_total) }}</h6></div>
+                            <div class="col-6"><small class="text-muted">Déjà payé</small><h6 class="text-success" id="modalPaye{{ eleve.id }}">{{ "{:,.0f}".format(eleve.montant_paye) }}</h6></div>
+                        </div>
+                        <div class="mt-2"><small class="text-muted">Reste à payer</small><h5 class="text-danger" id="modalSolde{{ eleve.id }}">{{ "{:,.0f}".format(eleve.solde) }}</h5></div>
+                    </div>
+                    
+                    <div class="alert alert-danger py-2 d-none" id="erreur{{ eleve.id }}"></div>
+                    <div class="alert alert-success py-2 d-none" id="succes{{ eleve.id }}"></div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Montant à payer <span class="text-danger">*</span></label>
+                        <input type="number" name="montant" class="form-control" step="500" min="500" max="{{ eleve.solde }}" value="{{ eleve.solde if eleve.solde < 50000 else 50000 }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mode de paiement <span class="text-danger">*</span></label>
+                        <select name="type_paiement" class="form-select" required>
+                            <option value="especes">💵 Espèces</option>
+                            <option value="cheque">📝 Chèque</option>
+                            <option value="virement">🏦 Virement</option>
+                            <option value="mobile_money">📱 Mobile Money</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Référence</label>
+                        <input type="text" name="reference" class="form-control" placeholder="N° chèque, transaction...">
+                    </div>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success btn-sm btn-submit-paiement" id="btnSubmit{{ eleve.id }}">
+                        <i class="fas fa-save me-1"></i>Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- ========== MODAL HISTORIQUE ========== -->
+<div class="modal fade" id="recusModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h6 class="modal-title"><i class="fas fa-history me-2"></i>Historique des paiements</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="recusModalBody">
+                <div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2">Chargement...</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL MODIFIER PAIEMENT ========== -->
+<div class="modal fade" id="modifierPaiementModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le paiement</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modifierPaiementBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL ANNULER PAIEMENT ========== -->
+<div class="modal fade" id="annulerPaiementModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h6 class="modal-title"><i class="fas fa-ban me-2"></i>Annuler le paiement</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="annulerPaiementBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL APERÇU REÇU ========== -->
+<div class="modal fade" id="recuModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+                <h6 class="modal-title"><i class="fas fa-receipt me-2"></i>Reçu de paiement</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0" id="recuModalBody">
+                <div class="text-center py-4"><div class="spinner-border text-success"></div><p class="mt-2">Chargement du reçu...</p></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary" onclick="imprimerRecuDepuisModal()">
+                    <i class="fas fa-print me-2"></i>Imprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ========== FONCTIONS UTILITAIRES ==========
+function formatMontant(m) { 
+    return new Intl.NumberFormat('fr-FR').format(Math.abs(m||0)); 
+}
+
+function formatDate(d) { 
+    if(!d) return '-'; 
+    return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}); 
+}
+
+function formatDateTime(d) {
+    if(!d) return '-';
+    return new Date(d).toLocaleString('fr-FR');
+}
+
+function showNotification(type, message) {
+    var alertClass = type === 'success' ? 'alert-success' : (type === 'warning' ? 'alert-warning' : 'alert-danger');
+    var icon = type === 'success' ? 'fa-check-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : 'fa-times-circle');
+    var html = '<div class="notification-toast alert ' + alertClass + ' alert-dismissible fade show shadow">';
+    html += '<i class="fas ' + icon + ' me-2"></i>';
+    html += message;
+    html += '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    html += '</div>';
+    $('body').append(html);
+    setTimeout(function() {
+        $('.notification-toast').fadeOut('slow', function() { $(this).remove(); });
+    }, 4000);
+}
+
+// ========== SUPPRIMER LE BACKDROP ==========
+function nettoyerBackdrop() {
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    var backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(function(backdrop) { backdrop.remove(); });
+}
+
+// ========== METTRE À JOUR UNE LIGNE ÉLÈVE ==========
+function mettreAJourLigneEleve(eleveId) {
+    fetch('/api/eleve/' + eleveId + '/paiements')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var e = data.eleve;
+        $('#paye' + eleveId).text(formatMontant(e.montant_paye));
+        $('#solde' + eleveId).text(formatMontant(e.solde));
+        $('#solde' + eleveId).css('color', e.solde > 0 ? '#dc3545' : '#28a745');
+        
+        var statut = $('#statut' + eleveId);
+        var nouveauStatut = e.solde <= 0 ? 'Payé' : (e.montant_paye > 0 ? 'Partiel' : 'Impayé');
+        statut.text(nouveauStatut);
+        statut.removeClass('badge-paye badge-partiel badge-impaye');
+        if (nouveauStatut === 'Payé') statut.addClass('badge-paye');
+        else if (nouveauStatut === 'Partiel') statut.addClass('badge-partiel');
+        else statut.addClass('badge-impaye');
+    });
+}
+
+// ========== METTRE À JOUR STATISTIQUES ==========
+function mettreAJourStats() {
+    fetch('/api/stats-journalieres')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            $('#dateAujourdhui').html('<i class="fas fa-calendar-day me-1"></i>' + data.date);
+            $('#elevesInscrits').text(data.eleves_inscrits);
+            $('#montantTotalPaye').text(new Intl.NumberFormat('fr-FR').format(data.montant_total_paye));
+            $('#nombrePaiements').text(data.nombre_paiements);
+        }
+    })
+    .catch(function(error) {
+        console.error('Erreur mise à jour stats:', error);
+    });
+}
+
+// ========== INITIALISATION DATATABLE ==========
+$(document).ready(function() {
+    $('#elevesTable').DataTable({
+        language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json' },
+        pageLength: 25,
+        order: [[1, 'asc']],
+        columnDefs: [{ orderable: false, targets: [9] }]
+    });
+    
+    // Ouvrir modal paiement
+    $(document).on('click', '.btn-paiement', function() {
+        var eleveId = $(this).data('eleve-id');
+        var form = $('#paiementForm' + eleveId);
+        form[0].reset();
+        form.find('input, select, textarea').prop('disabled', false);
+        $('#erreur' + eleveId).addClass('d-none');
+        $('#succes' + eleveId).addClass('d-none');
+        $('#btnSubmit' + eleveId).prop('disabled', false).html('<i class="fas fa-save me-1"></i>Enregistrer');
+        
+        var modal = new bootstrap.Modal(document.getElementById('paiementModal' + eleveId));
+        modal.show();
+    });
+    
+    // Soumission paiement
+    $(document).on('submit', '.paiement-ajax-form', function(e) {
+        e.preventDefault();
+        
+        var form = $(this);
+        var eleveId = form.data('eleve-id');
+        var btn = $('#btnSubmit' + eleveId);
+        var erreur = $('#erreur' + eleveId);
+        var succes = $('#succes' + eleveId);
+        var formData = new FormData(this);
+        
+        btn.prop('disabled', true);
+        btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Traitement...');
+        erreur.addClass('d-none');
+        succes.addClass('d-none');
+        form.find('input, select, textarea').prop('disabled', true);
+        
+        fetch('/paiement/ajouter/' + eleveId, {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                // 🔥 Mettre à jour la ligne de l'élève 🔥
+                mettreAJourLigneEleve(eleveId);
+                mettreAJourStats();
+                
+                succes.html('<i class="fas fa-check-circle me-2"></i>' + data.message);
+                succes.removeClass('d-none');
+                
+                setTimeout(function() {
+                    var modalEl = document.getElementById('paiementModal' + eleveId);
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }, 1500);
+            } else {
+                erreur.html('<i class="fas fa-exclamation-triangle me-2"></i>' + data.message);
+                erreur.removeClass('d-none');
+                form.find('input, select, textarea').prop('disabled', false);
+                btn.prop('disabled', false);
+                btn.html('<i class="fas fa-save me-1"></i>Enregistrer');
+            }
+        })
+        .catch(function(err) {
+            erreur.html('<i class="fas fa-times-circle me-2"></i>Erreur réseau');
+            erreur.removeClass('d-none');
+            form.find('input, select, textarea').prop('disabled', false);
+            btn.prop('disabled', false);
+            btn.html('<i class="fas fa-save me-1"></i>Enregistrer');
+        });
+    });
+});
+
+
+// ========== VOIR PAIEMENTS ==========
+function voirPaiements(eleveId) {
+    var modal = new bootstrap.Modal(document.getElementById('recusModal'));
+    modal.show();
+    
+    fetch('/api/eleve/' + eleveId + '/paiements')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var html = '';
+        
+        html += '<div class="text-center mb-3 p-3 rounded" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;">';
+        html += '<h5>' + data.eleve.prenom + ' ' + data.eleve.nom + '</h5>';
+        html += '<small>' + (data.eleve.classe || '-') + ' - ' + data.eleve.matricule + '</small>';
+        html += '</div>';
+        
+        html += '<div class="row text-center mb-3">';
+        html += '<div class="col-3"><small>Frais</small><h6>' + formatMontant(data.eleve.frais_scolarite_total) + '</h6></div>';
+        html += '<div class="col-3"><small>Payé</small><h6 class="text-success">' + formatMontant(data.eleve.montant_paye) + '</h6></div>';
+        html += '<div class="col-3"><small>Solde</small><h6 class="' + (data.eleve.solde > 0 ? 'text-danger' : 'text-success') + '">' + formatMontant(data.eleve.solde) + '</h6></div>';
+        html += '<div class="col-3"><small>Taux</small><h6>' + data.eleve.taux_paiement + '%</h6></div>';
+        html += '</div>';
+        
+        if (data.paiements.length === 0) {
+            html += '<div class="alert alert-info text-center">Aucun paiement enregistré</div>';
+        } else {
+            html += '<div class="table-responsive">';
+            html += '<table class="table table-sm table-hover">';
+            html += '<thead class="table-light">';
+            html += '<tr>';
+            html += '<th>N° Reçu</th><th>Date</th><th class="text-end">Montant</th><th>Mode</th><th>Référence</th><th class="text-center">Actions</th>';
+            html += '</tr>';
+            html += '</thead><tbody>';
+            
+            data.paiements.forEach(function(p) {
+                var estAvoir = p.montant < 0;
+                var estAnnule = p.statut === 'annule';
+                
+                var rowClass = '';
+                if (estAvoir) rowClass = 'table-avoir';
+                else if (estAnnule) rowClass = 'table-annule';
+                
+                html += '<tr class="' + rowClass + '">';
+                
+                html += '<td>';
+                if (estAvoir) html += '<span class="badge badge-avoir me-1">AVOIR</span>';
+                else if (estAnnule) html += '<span class="badge badge-annule me-1">ANNULÉ</span>';
+                html += '<code>' + (p.recu || '-') + '</code>';
+                if (estAnnule && p.motif_annulation) html += '<br><small class="text-muted">Motif: ' + p.motif_annulation + '</small>';
+                if (estAvoir && p.description) html += '<br><small class="text-muted">' + p.description + '</small>';
+                html += '</td>';
+                
+                html += '<td>' + formatDate(p.date_paiement) + '</td>';
+                
+                if (estAvoir) {
+                    html += '<td class="text-end fw-bold text-avoir"><i class="fas fa-undo me-1"></i>-' + formatMontant(Math.abs(p.montant)) + '</td>';
+                } else if (estAnnule) {
+                    html += '<td class="text-end text-muted" style="text-decoration: line-through;">' + formatMontant(p.montant) + '</td>';
+                } else {
+                    html += '<td class="text-end fw-bold text-success">' + formatMontant(p.montant) + '</td>';
+                }
+                
+                var mode = p.type_paiement || p.mode_paiement || '';
+                if (mode === 'especes') html += '<td>💵 Espèces</td>';
+                else if (mode === 'cheque') html += '<td>📝 Chèque</td>';
+                else if (mode === 'virement') html += '<td>🏦 Virement</td>';
+                else if (mode === 'mobile_money') html += '<td>📱 Mobile Money</td>';
+                else html += '<td>' + (mode || '-') + '</td>';
+                
+                html += '<td><small>' + (p.reference || '-') + '</small></td>';
+                
+                html += '<td class="text-center"><div class="btn-group btn-group-sm">';
+                html += '<button class="btn btn-info btn-sm" onclick="voirRecu(' + p.id + ')" title="Voir"><i class="fas fa-receipt"></i></button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="imprimerRecu(' + p.id + ')" title="Imprimer"><i class="fas fa-print"></i></button>';
+                if (!estAvoir && !estAnnule) {
+                    {% if current_user.role in ['admin', 'comptable'] %}
+                    html += '<button class="btn btn-warning btn-sm" onclick="modifierPaiement(' + p.id + ')" title="Modifier"><i class="fas fa-edit"></i></button>';
+                    html += '<button class="btn btn-danger btn-sm" onclick="annulerPaiement(' + p.id + ')" title="Annuler"><i class="fas fa-ban"></i></button>';
+                    {% endif %}
+                }
+                html += '</div></td></tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            
+            html += '<div class="mt-2">';
+            html += '<small class="text-muted me-3"><span class="badge badge-avoir">AVOIR</span> = Avoir</small>';
+            html += '<small class="text-muted me-3"><span class="badge badge-annule">ANNULÉ</span> = Annulé</small>';
+            html += '<small class="text-muted"><i class="fas fa-undo text-avoir"></i> = Montant annulé</small>';
+            html += '</div>';
+        }
+        
+        html += '<div class="mt-3 text-center">';
+        html += '<button class="btn btn-primary" onclick="imprimerTousRecus(' + data.eleve.id + ')"><i class="fas fa-print me-2"></i>Imprimer tous les reçus</button>';
+        html += '</div>';
+        
+        $('#recusModalBody').html(html);
+    })
+    .catch(function(err) {
+        console.error('Erreur:', err);
+        $('#recusModalBody').html('<div class="alert alert-danger">Erreur lors du chargement des paiements</div>');
+    });
+}
+
+// ========== VOIR / IMPRIMER REÇU ==========
+function voirRecu(paiementId) {
+    $('#recuModalBody').html('<iframe src="/paiement/' + paiementId + '/recu" style="width:100%;height:550px;border:none;"></iframe>');
+    new bootstrap.Modal(document.getElementById('recuModal')).show();
+}
+
+function imprimerRecuDepuisModal() {
+    var iframe = document.querySelector('#recuModalBody iframe');
+    if (iframe) iframe.contentWindow.print();
+}
+
+function imprimerRecu(paiementId) {
+    window.open('/paiement/' + paiementId + '/recu', '_blank');
+}
+
+function imprimerTousRecus(eleveId) {
+    window.open('/eleve/' + eleveId + '/recus', '_blank');
+}
+
+// ========== MODIFIER PAIEMENT ==========
+function modifierPaiement(paiementId) {
+    var modal = new bootstrap.Modal(document.getElementById('modifierPaiementModal'));
+    modal.show();
+    
+    fetch('/api/paiement/' + paiementId)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var html = '';
+        html += '<form id="formModifierPaiement">';
+        html += '<input type="hidden" name="paiement_id" value="' + data.paiement.id + '">';
+        html += '<div class="mb-3"><label class="form-label">Montant (FCFA)</label>';
+        html += '<input type="number" name="montant" class="form-control" value="' + Math.abs(data.paiement.montant) + '" required min="500" step="500"></div>';
+        html += '<div class="mb-3"><label class="form-label">Date de paiement</label>';
+        html += '<input type="date" name="date_paiement" class="form-control" value="' + data.paiement.date_paiement + '" required></div>';
+        html += '<div class="mb-3"><label class="form-label">Mode</label><select name="mode_paiement" class="form-select" required>';
+        html += '<option value="especes" ' + (data.paiement.mode_paiement == 'especes' ? 'selected' : '') + '>💵 Espèces</option>';
+        html += '<option value="cheque" ' + (data.paiement.mode_paiement == 'cheque' ? 'selected' : '') + '>📝 Chèque</option>';
+        html += '<option value="virement" ' + (data.paiement.mode_paiement == 'virement' ? 'selected' : '') + '>🏦 Virement</option>';
+        html += '<option value="mobile_money" ' + (data.paiement.mode_paiement == 'mobile_money' ? 'selected' : '') + '>📱 Mobile Money</option>';
+        html += '</select></div>';
+        html += '<div class="mb-3"><label class="form-label">Référence</label><input type="text" name="reference" class="form-control" value="' + (data.paiement.reference || '') + '"></div>';
+        html += '<div class="mb-3"><label class="form-label">Observations</label><textarea name="observations" class="form-control" rows="2">' + (data.paiement.observations || '') + '</textarea></div>';
+        html += '<div id="modifierErreur" class="alert alert-danger d-none"></div>';
+        html += '<div id="modifierSucces" class="alert alert-success d-none"></div>';
+        html += '<button type="submit" class="btn btn-warning w-100"><i class="fas fa-save me-2"></i>Enregistrer</button></form>';
+        
+        $('#modifierPaiementBody').html(html);
+        
+        $('#formModifierPaiement').on('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            fetch('/paiement/' + paiementId + '/modifier', { method: 'POST', body: formData })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.success) {
+                    $('#modifierSucces').html('<i class="fas fa-check-circle me-2"></i>' + result.message).removeClass('d-none');
+                    setTimeout(function() {
+                        var modalEl = document.getElementById('modifierPaiementModal');
+                        bootstrap.Modal.getInstance(modalEl).hide();
+                        nettoyerBackdrop();
+                        mettreAJourLigneEleve(result.eleve_id);
+                        voirPaiements(result.eleve_id);
+                        mettreAJourStats();
+                        showNotification('success', result.message);
+                    }, 1500);
+                } else {
+                    $('#modifierErreur').html('<i class="fas fa-exclamation-triangle me-2"></i>' + result.message).removeClass('d-none');
+                }
+            });
+        });
+    });
+}
+
+// ========== ANNULER PAIEMENT ==========
+function annulerPaiement(paiementId) {
+    var modal = new bootstrap.Modal(document.getElementById('annulerPaiementModal'));
+    modal.show();
+    
+    $('#annulerPaiementBody').html(
+        '<div class="text-center py-4"><div class="spinner-border text-danger mb-3"></div><p class="text-muted">Chargement...</p></div>'
+    );
+    
+    fetch('/api/paiement/' + paiementId)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var html = '';
+        html += '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>Attention !</strong> Cette action annulera le paiement et créera un avoir.</div>';
+        html += '<ul class="list-group mb-3">';
+        html += '<li class="list-group-item d-flex justify-content-between"><span>N° Reçu :</span><strong>' + (data.paiement.recu || '-') + '</strong></li>';
+        html += '<li class="list-group-item d-flex justify-content-between"><span>Montant :</span><strong class="text-danger">' + formatMontant(data.paiement.montant) + '</strong></li>';
+        html += '<li class="list-group-item d-flex justify-content-between"><span>Date :</span><strong>' + formatDate(data.paiement.date_paiement) + '</strong></li>';
+        html += '</ul>';
+        html += '<form id="formAnnulerPaiement">';
+        html += '<div class="mb-3"><label class="form-label">Raison</label><textarea name="raison" class="form-control" rows="2" placeholder="Optionnel..."></textarea></div>';
+        html += '<div class="mb-3"><label>Tapez "CONFIRMER" pour valider</label><input type="text" name="confirmation" class="form-control" placeholder="CONFIRMER" required></div>';
+        html += '<div id="annulerErreur" class="alert alert-danger d-none"></div>';
+        html += '<button type="submit" class="btn btn-danger w-100" id="btnAnnulerSubmit"><i class="fas fa-ban me-2"></i>Annuler ce paiement</button></form>';
+        
+        $('#annulerPaiementBody').html(html);
+        
+        $('#formAnnulerPaiement').on('submit', function(e) {
+            e.preventDefault();
+            var btn = $('#btnAnnulerSubmit');
+            btn.prop('disabled', true);
+            btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Annulation en cours...');
+            
+            var formData = new FormData(this);
+            fetch('/paiement/' + paiementId + '/annuler', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.success) {
+                    // Fermer le modal
+                    var modalEl = document.getElementById('annulerPaiementModal');
+                    bootstrap.Modal.getInstance(modalEl).hide();
+                    
+                    // 🔥 Nettoyer le backdrop 🔥
+                    nettoyerBackdrop();
+                    
+                    // 🔥 Mettre à jour la ligne de l'élève + stats 🔥
+                    mettreAJourLigneEleve(result.eleve_id);
+                    mettreAJourStats();
+                    
+                    // Rafraîchir l'historique
+                    setTimeout(function() {
+                        voirPaiements(result.eleve_id);
+                    }, 300);
+                    
+                    showNotification('warning', result.message);
+                } else {
+                    $('#annulerErreur').html('<i class="fas fa-exclamation-triangle me-2"></i>' + result.message).removeClass('d-none');
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-ban me-2"></i>Annuler ce paiement');
+                }
+            })
+            .catch(function(err) {
+                console.error('Erreur:', err);
+                $('#annulerErreur').html('<i class="fas fa-times-circle me-2"></i>Erreur réseau').removeClass('d-none');
+                btn.prop('disabled', false);
+                btn.html('<i class="fas fa-ban me-2"></i>Annuler ce paiement');
+            });
+        });
+    });
+}
+</script>
+{% endblock %}

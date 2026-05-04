@@ -1,0 +1,604 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier l'Élève - {{ eleve.prenom }} {{ eleve.nom }}{% endblock %}
+
+{% block styles %}
+<style>
+    .option-card {
+        border-left: 4px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+    .option-card:hover {
+        background-color: #f8f9fa;
+    }
+    .option-selected {
+        border-left-color: #28a745;
+        background-color: #f0fff4;
+    }
+    .price-tag {
+        font-size: 0.85rem;
+        color: #28a745;
+        font-weight: bold;
+    }
+    .info-badge {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
+    .current-value {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <div class="d-flex align-items-center">
+                <a href="{{ url_for('liste_eleves') }}" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="mb-0"><i class="fas fa-edit me-2"></i>Modifier l'élève</h2>
+            </div>
+            <p class="text-muted mt-2">
+                <i class="fas fa-user-graduate me-1"></i>
+                {{ eleve.prenom }} {{ eleve.nom }} - Matricule: {{ eleve.matricule }}
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Formulaire de modification</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="eleveForm">
+                        <!-- Section 1: Informations personnelles -->
+                        <h6 class="mb-3"><i class="fas fa-user me-2"></i>Informations personnelles</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nom <span class="text-danger">*</span></label>
+                                <input type="text" name="nom" class="form-control" value="{{ eleve.nom }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                                <input type="text" name="prenom" class="form-control" value="{{ eleve.prenom }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date de naissance</label>
+                                <input type="date" name="date_naissance" class="form-control" 
+                                       value="{{ eleve.date_naissance.strftime('%Y-%m-%d') if eleve.date_naissance else '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Lieu de naissance</label>
+                                <input type="text" name="lieu_naissance" class="form-control" value="{{ eleve.lieu_naissance or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Téléphone élève</label>
+                                <input type="tel" name="telephone" class="form-control" value="{{ eleve.telephone or '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email des parents</label>
+                                <input type="email" name="email_parent" class="form-control" value="{{ eleve.email_parent or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Adresse</label>
+                                <textarea name="adresse" class="form-control" rows="2">{{ eleve.adresse or '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Section 2: Niveau scolaire -->
+                        <h6 class="mb-3"><i class="fas fa-graduation-cap me-2"></i>Niveau scolaire</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Groupe <span class="text-danger">*</span></label>
+                                <select class="form-select" id="groupe_id" name="groupe_id" required>
+                                    <option value="">Sélectionner un groupe</option>
+                                    {% for groupe in groupes %}
+                                        <option value="{{ groupe.id }}" 
+                                            {% if eleve.sous_groupe and eleve.sous_groupe.groupe_parent.id == groupe.id %}selected{% endif %}>
+                                            {{ groupe.nom }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Niveau <span class="text-danger">*</span></label>
+                                <select class="form-select" id="sous_groupe_id" name="sous_groupe_id" required>
+                                    <option value="">Sélectionner d'abord un groupe</option>
+                                    {% for sg in sous_groupes %}
+                                        <option value="{{ sg.id }}" {% if eleve.sous_groupe_id == sg.id %}selected{% endif %}>
+                                            {{ sg.nom }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Classe <span class="text-danger">*</span></label>
+                                <input type="text" name="classe" class="form-control" value="{{ eleve.classe }}" required>
+                                <div class="form-text">Précisez la classe (ex: 6ème A, CM2 B, etc.)</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Matricule <span class="text-danger">*</span></label>
+                                <input type="text" name="matricule" class="form-control" value="{{ eleve.matricule }}" required>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Section 3: Affectation État -->
+                        <h6 class="mb-3"><i class="fas fa-hand-holding-heart me-2"></i>Affectation par l'État</h6>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="estAffecteEtat" name="est_affecte_etat"
+                                           {% if eleve.est_affecte_etat %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="estAffecteEtat">
+                                        Élève affecté par l'État
+                                    </label>
+                                    <div class="form-text">Les élèves affectés bénéficient d'un tarif de scolarité réduit</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="affectationDetails" style="display: {% if eleve.est_affecte_etat %}block{% else %}none{% endif %};">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">N° dossier d'affectation</label>
+                                    <input type="text" name="reference_affectation" class="form-control" 
+                                           value="{{ eleve.reference_affectation or '' }}"
+                                           placeholder="Ex: AFF-2024-001">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Organisme</label>
+                                    <select name="organisme_affectation" class="form-select">
+                                        <option value="État" {% if eleve.organisme_affectation == 'État' %}selected{% endif %}>État</option>
+                                        <option value="Bourse nationale" {% if eleve.organisme_affectation == 'Bourse nationale' %}selected{% endif %}>Bourse nationale</option>
+                                        <option value="ONG" {% if eleve.organisme_affectation == 'ONG' %}selected{% endif %}>ONG</option>
+                                        <option value="Mairie" {% if eleve.organisme_affectation == 'Mairie' %}selected{% endif %}>Mairie</option>
+                                        <option value="Entreprise" {% if eleve.organisme_affectation == 'Entreprise' %}selected{% endif %}>Entreprise</option>
+                                        <option value="Autre" {% if eleve.organisme_affectation == 'Autre' %}selected{% endif %}>Autre</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Section 4: Options supplémentaires -->
+                        <h6 class="mb-3"><i class="fas fa-bus me-2"></i>Options supplémentaires</h6>
+                        
+                        <!-- Transport -->
+                        <div class="card mb-3 option-card" id="transportCard">
+                            <div class="card-body py-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="transportCheckbox"
+                                           {% if eleve.transport_option_id %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="transportCheckbox">
+                                        Transport scolaire
+                                    </label>
+                                </div>
+                                <div id="transportOptions" style="display: {% if eleve.transport_option_id %}block{% else %}none{% endif %};" class="mt-2">
+                                    <select class="form-select" id="transport_option" name="transport_option_id">
+                                        <option value="">Choisir un circuit</option>
+                                        {% for transport in transports %}
+                                            <option value="{{ transport.id }}" 
+                                                    data-montant="{{ transport.montant_supplement }}"
+                                                    {% if eleve.transport_option_id == transport.id %}selected{% endif %}>
+                                                {{ transport.nom }} - {{ "{:,.0f}".format(transport.montant_supplement) }} FCFA
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cantine -->
+                        <div class="card mb-3 option-card" id="cantineCard">
+                            <div class="card-body py-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="cantineCheckbox"
+                                           {% if eleve.cantine_option_id %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="cantineCheckbox">
+                                        Cantine scolaire
+                                    </label>
+                                </div>
+                                <div id="cantineOptions" style="display: {% if eleve.cantine_option_id %}block{% else %}none{% endif %};" class="mt-2">
+                                    <select class="form-select" id="cantine_option" name="cantine_option_id">
+                                        <option value="">Choisir une formule</option>
+                                        {% for cantine in cantines %}
+                                            <option value="{{ cantine.id }}" 
+                                                    data-montant="{{ cantine.montant }}"
+                                                    {% if eleve.cantine_option_id == cantine.id %}selected{% endif %}>
+                                                {{ cantine.nom }} - {{ "{:,.0f}".format(cantine.montant) }} FCFA
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Renforcement -->
+                        <div class="card mb-3 option-card" id="renforcementCard" style="display: none;">
+                            <div class="card-body py-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="renforcementCheckbox" name="renforcement_inscrit"
+                                           {% if eleve.renforcement_inscrit %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="renforcementCheckbox">
+                                        Cours de renforcement
+                                    </label>
+                                </div>
+                                <div id="renforcementInfo" class="mt-2 small text-muted"></div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Section 5: Récapitulatif des frais -->
+                        <div id="fraisResume">
+                            <h6 class="mb-3"><i class="fas fa-calculator me-2"></i>Récapitulatif des frais</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <td width="60%">Scolarité de base</td>
+                                            <td class="text-end"><strong id="scolariteBase">0</strong> FCFA</td>
+                                        </tr>
+                                        <tr id="transportRow" style="display: none;">
+                                            <td>Transport scolaire</td>
+                                            <td class="text-end"><strong id="transportMontant">0</strong> FCFA</td>
+                                        </tr>
+                                        <tr id="cantineRow" style="display: none;">
+                                            <td>Cantine scolaire</td>
+                                            <td class="text-end"><strong id="cantineMontant">0</strong> FCFA</td>
+                                        </tr>
+                                        <tr id="renforcementRow" style="display: none;">
+                                            <td>Cours de renforcement</td>
+                                            <td class="text-end"><strong id="renforcementMontant">0</strong> FCFA</td>
+                                        </tr>
+                                        <tr class="table-primary">
+                                            <td><strong>TOTAL ANNUEL</strong></td>
+                                            <td class="text-end"><strong><span id="totalFrais">0</span> FCFA</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Montant déjà payé: <strong>{{ "{:,.0f}".format(eleve.montant_paye) }} FCFA</strong>
+                                {% if eleve.solde > 0 %}
+                                    <br><small class="text-danger">Reste à payer: {{ "{:,.0f}".format(eleve.solde) }} FCFA</small>
+                                {% else %}
+                                    <br><small class="text-success">✅ Compte soldé</small>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="alert alert-info small">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Ce montant représente le total annuel des frais de scolarité incluant les options sélectionnées.
+                                La modification des options recalculera automatiquement le total.
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <a href="{{ url_for('liste_eleves') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Mettre à jour
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Carte d'information élève -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="avatar-lg mx-auto mb-2">
+                            <span class="avatar-initials">{{ eleve.prenom[0]|upper }}{{ eleve.nom[0]|upper }}</span>
+                        </div>
+                        <h6 class="mb-1">{{ eleve.prenom }} {{ eleve.nom }}</h6>
+                        <small class="text-muted">{{ eleve.matricule }}</small>
+                    </div>
+                    <hr>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="fas fa-calendar-alt me-2 text-muted"></i>
+                            <strong>Inscrit le :</strong><br>
+                            {{ eleve.date_inscription.strftime('%d/%m/%Y') if eleve.date_inscription else 'N/A' }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-chart-line me-2 text-muted"></i>
+                            <strong>Taux de paiement :</strong><br>
+                            <div class="progress mt-1" style="height: 5px;">
+                                <div class="progress-bar bg-success" style="width: {{ eleve.taux_paiement }}%"></div>
+                            </div>
+                            <span class="small">{{ eleve.taux_paiement }}%</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Aperçu des tarifs -->
+            <div class="card shadow" id="tarifsPreview" style="display: none;">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-simple me-2"></i>Tarifs du niveau</h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tarif normal:</span>
+                            <strong id="tarifNormal">0 FCFA</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tarif affecté État:</span>
+                            <strong id="tarifAffecte" class="text-success">0 FCFA</strong>
+                        </div>
+                        <div class="d-flex justify-content-between text-info">
+                            <span>Économie possible:</span>
+                            <strong id="economiePossible">0 FCFA</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-lg {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.avatar-initials {
+    font-size: 28px;
+    color: white;
+    font-weight: bold;
+}
+</style>
+
+<script>
+// Variables globales
+let tarifNormalMontant = 0;
+let tarifAffecteMontant = 0;
+let tarifRenforcement = 0;
+let renforcementObligatoire = false;
+
+// Valeurs actuelles de l'élève
+let currentTransportId = {{ eleve.transport_option_id or 'null' }};
+let currentCantineId = {{ eleve.cantine_option_id or 'null' }};
+let currentRenforcement = {{ eleve.renforcement_inscrit|lower }};
+
+// Gestion du groupe -> sous-groupe
+$('#groupe_id').on('change', function() {
+    const groupeId = $(this).val();
+    const $sousGroupeSelect = $('#sous_groupe_id');
+    
+    if (groupeId) {
+        $.ajax({
+            url: `/api/groupes/${groupeId}/sous-groupes`,
+            method: 'GET',
+            success: function(data) {
+                $sousGroupeSelect.prop('disabled', false);
+                $sousGroupeSelect.html('<option value="">Sélectionner un niveau</option>');
+                data.forEach(sg => {
+                    let selected = (currentSousGroupeId == sg.id) ? 'selected' : '';
+                    $sousGroupeSelect.append(`<option value="${sg.id}" ${selected}>${sg.nom}</option>`);
+                });
+                if (currentSousGroupeId) {
+                    chargerTarifs(currentSousGroupeId);
+                }
+            }
+        });
+    } else {
+        $sousGroupeSelect.prop('disabled', true);
+        $sousGroupeSelect.html('<option value="">Sélectionner d\'abord un groupe</option>');
+    }
+});
+
+let currentSousGroupeId = {{ eleve.sous_groupe_id or 'null' }};
+if (currentSousGroupeId) {
+    $('#sous_groupe_id').val(currentSousGroupeId);
+    chargerTarifs(currentSousGroupeId);
+}
+
+function chargerTarifs(sousGroupeId) {
+    // Charger les tarifs différenciés
+    $.ajax({
+        url: `/api/sous-groupe/${sousGroupeId}/tarifs-affectation`,
+        method: 'GET',
+        success: function(data) {
+            tarifNormalMontant = data.tarif_normal || 0;
+            tarifAffecteMontant = data.tarif_affecte || 0;
+            
+            $('#tarifNormal').text(formatMontant(tarifNormalMontant));
+            $('#tarifAffecte').text(formatMontant(tarifAffecteMontant));
+            const economie = tarifNormalMontant - tarifAffecteMontant;
+            $('#economiePossible').text(formatMontant(economie));
+            $('#tarifsPreview').show();
+            
+            updateScolariteAffichage();
+        }
+    });
+    
+    // Charger les tarifs de renforcement
+    $.ajax({
+        url: `/api/sous-groupe/${sousGroupeId}/tarifs`,
+        method: 'GET',
+        success: function(data) {
+            const renforcement = data.find(t => t.type_frais_nom === 'Renforcement');
+            if (renforcement) {
+                tarifRenforcement = renforcement.montant;
+                renforcementObligatoire = renforcement.est_obligatoire;
+                
+                if (renforcementObligatoire) {
+                    $('#renforcementCheckbox').prop('checked', true).prop('disabled', true);
+                    $('#renforcementInfo').html('<i class="fas fa-exclamation-circle text-warning me-1"></i>Ce cours est obligatoire pour ce niveau');
+                    $('#renforcementCard').show();
+                    $('#renforcementRow').show();
+                    $('#renforcementMontant').text(formatMontant(tarifRenforcement));
+                } else {
+                    $('#renforcementCheckbox').prop('disabled', false);
+                    $('#renforcementInfo').html('<i class="fas fa-info-circle me-1"></i>Optionnel - Recommandé pour ce niveau');
+                    $('#renforcementCard').show();
+                    if (!currentRenforcement) {
+                        $('#renforcementRow').hide();
+                    }
+                }
+            } else {
+                $('#renforcementCard').hide();
+                $('#renforcementRow').hide();
+            }
+            updateTotal();
+        }
+    });
+}
+
+// Gestion affectation État
+$('#estAffecteEtat').on('change', function() {
+    if ($(this).is(':checked')) {
+        $('#affectationDetails').slideDown();
+    } else {
+        $('#affectationDetails').slideUp();
+    }
+    updateScolariteAffichage();
+});
+
+function updateScolariteAffichage() {
+    const estAffecte = $('#estAffecteEtat').is(':checked');
+    const montantScolarite = estAffecte ? tarifAffecteMontant : tarifNormalMontant;
+    $('#scolariteBase').text(formatMontant(montantScolarite));
+    updateTotal();
+}
+
+// Gestion des options
+$('#transportCheckbox').on('change', function() {
+    if ($(this).is(':checked')) {
+        $('#transportOptions').slideDown();
+    } else {
+        $('#transportOptions').slideUp();
+        $('#transport_option').val('');
+        $('#transportRow').hide();
+        updateTotal();
+    }
+});
+
+$('#transport_option').on('change', function() {
+    if ($(this).val()) {
+        const montant = $(this).find(':selected').data('montant');
+        $('#transportMontant').text(formatMontant(montant));
+        $('#transportRow').show();
+    } else {
+        $('#transportRow').hide();
+    }
+    updateTotal();
+});
+
+$('#cantineCheckbox').on('change', function() {
+    if ($(this).is(':checked')) {
+        $('#cantineOptions').slideDown();
+    } else {
+        $('#cantineOptions').slideUp();
+        $('#cantine_option').val('');
+        $('#cantineRow').hide();
+        updateTotal();
+    }
+});
+
+$('#cantine_option').on('change', function() {
+    if ($(this).val()) {
+        const montant = $(this).find(':selected').data('montant');
+        $('#cantineMontant').text(formatMontant(montant));
+        $('#cantineRow').show();
+    } else {
+        $('#cantineRow').hide();
+    }
+    updateTotal();
+});
+
+$('#renforcementCheckbox').on('change', function() {
+    if ($(this).is(':checked')) {
+        $('#renforcementMontant').text(formatMontant(tarifRenforcement));
+        $('#renforcementRow').show();
+    } else {
+        $('#renforcementRow').hide();
+    }
+    updateTotal();
+});
+
+function updateTotal() {
+    let total = $('#estAffecteEtat').is(':checked') ? tarifAffecteMontant : tarifNormalMontant;
+    
+    if ($('#transport_option').val()) {
+        total += $('#transport_option').find(':selected').data('montant');
+    }
+    if ($('#cantine_option').val()) {
+        total += $('#cantine_option').find(':selected').data('montant');
+    }
+    if ($('#renforcementCheckbox').is(':checked')) {
+        total += tarifRenforcement;
+    }
+    
+    $('#totalFrais').text(formatMontant(total));
+}
+
+function formatMontant(montant) {
+    return new Intl.NumberFormat('fr-FR').format(montant || 0) + ' FCFA';
+}
+
+// Initialiser les options existantes
+$(document).ready(function() {
+    if (currentTransportId) {
+        $('#transportCheckbox').prop('checked', true);
+        $('#transportOptions').show();
+        $('#transportRow').show();
+        const montant = $('#transport_option option:selected').data('montant');
+        $('#transportMontant').text(formatMontant(montant));
+    }
+    
+    if (currentCantineId) {
+        $('#cantineCheckbox').prop('checked', true);
+        $('#cantineOptions').show();
+        $('#cantineRow').show();
+        const montant = $('#cantine_option option:selected').data('montant');
+        $('#cantineMontant').text(formatMontant(montant));
+    }
+    
+    if (currentRenforcement) {
+        $('#renforcementRow').show();
+    }
+    
+    updateTotal();
+});
+</script>
+{% endblock %}

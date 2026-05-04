@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+
+{% block title %}Bank - Dépôts bancaires{% endblock %}
+
+{% block page_title %}
+<i class="fas fa-university me-2" style="color: #667eea;"></i>
+Gestion des dépôts bancaires
+{% endblock %}
+
+{% block styles %}
+<style>
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    .stat-card h3 { font-size: 2rem; margin: 0; }
+    .nav-tabs .nav-link { color: #495057; }
+    .nav-tabs .nav-link.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; }
+    .badge-en_attente { background: #ffc107; color: #333; }
+    .badge-valide { background: #28a745; color: white; }
+    .badge-annule { background: #dc3545; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mb-4">
+    <!-- Statistiques -->
+    <div class="row mb-3 mt-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <small><i class="fas fa-clock me-1"></i> En attente</small>
+                <h5>{{ depots|selectattr('statut', 'equalto', 'en_attente')|list|length }}</h5>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <small><i class="fas fa-check-circle me-1"></i> Validés</small>
+                <h5>{{ depots|selectattr('statut', 'equalto', 'valide')|list|length }}</h5>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);">
+                <small><i class="fas fa-money-bill-wave me-1"></i> Montant total</small>
+                <h5>FCFA {{ "{:,.0f}".format(depots|sum(attribute='montant_total')) }}</h5>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                <small><i class="fas fa-file-invoice me-1"></i> Paiements non déposés</small>
+                <h5>{{ paiements_non_deposes|length }}</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3" id="bankTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="new-depot-tab" data-bs-toggle="tab" data-bs-target="#new-depot" type="button" role="tab">
+                <i class="fas fa-plus me-1"></i> Nouveau dépôt
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="depots-tab" data-bs-toggle="tab" data-bs-target="#depots" type="button" role="tab">
+                <i class="fas fa-history me-1"></i> Historique des dépôts
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="bankTabsContent">
+        <!-- Onglet Nouveau dépôt -->
+        <div class="tab-pane fade show active" id="new-depot" role="tabpanel">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Sélectionner les paiements à déposer</h6>
+                </div>
+                <div class="card-body">
+                    {% if paiements_non_deposes %}
+                    <form id="formGenererDepot">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover" id="paiementsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th><input type="checkbox" id="selectAll"></th>
+                                        <th>Reçu</th>
+                                        <th>Date</th>
+                                        <th>Élève</th>
+                                        <th>Classe</th>
+                                        <th class="text-end">Montant</th>
+                                        <th>Mode</th>
+                                        <th>Encaissé par</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in paiements_non_deposes %}
+                                    <tr>
+                                        <!-- CORRECTION ICI : name="paiements_ids" (pluriel) -->
+                                        <td><input type="checkbox" name="paiements_ids" value="{{ p.id }}" class="paiement-checkbox"></td>
+                                        <td><code>{{ p.recu }}</code></td>
+                                        <td>{{ p.date_paiement.strftime('%d/%m/%Y') }}</td>
+                                        <td>{{ p.eleve.prenom }} {{ p.eleve.nom }}</td>
+                                        <td>{{ p.eleve.classe }}</td>
+                                        <td class="text-end text-success fw-bold">{{ "{:,.0f}".format(p.montant) }} F</td>
+                                        <td>{{ p.type_paiement|capitalize }}</td>
+                                        <td>{{ p.encaisse_par or '-' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <th colspan="5" class="text-end">Total sélectionné :</th>
+                                        <th class="text-end" id="totalSelectionne">0 F</th>
+                                        <th colspan="2"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Banque</label>
+                                    <select name="banque" class="form-select" required>
+                                        <option value="Banque Atlantique">🏦 Banque Atlantique</option>
+                                        <option value="BICEC">🏦 BICEC</option>
+                                        <option value="SCB Cameroun">🏦 SCB Cameroun</option>
+                                        <option value="Afriland First Bank">🏦 Afriland First Bank</option>
+                                        <option value="Autre">🏦 Autre</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Observations</label>
+                                    <textarea name="observations" class="form-control" rows="2" placeholder="Notes concernant ce dépôt..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Les paiements sélectionnés seront marqués comme "déposés" et un numéro de dépôt unique sera généré.
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success" id="btnGenererDepot">
+                            <i class="fas fa-university me-2"></i>Générer le dépôt bancaire
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-success text-center">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Tous les paiements ont déjà été déposés à la banque !
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet Historique des dépôts -->
+        <div class="tab-pane fade" id="depots" role="tabpanel">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="depotsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>N° Dépôt</th>
+                                    <th>Date</th>
+                                    <th>Nombre paiements</th>
+                                    <th class="text-end">Montant total</th>
+                                    <th>Banque</th>
+                                    <th>Statut</th>
+                                    <th>Effectué par</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for depot in depots %}
+                                <tr id="depotRow{{ depot.id }}">
+                                    <td><code>{{ depot.numero_depot }}</code></td>
+                                    <td>{{ depot.date_depot.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ depot.paiements|length }}</td>
+                                    <td class="text-end text-success fw-bold">{{ "{:,.0f}".format(depot.montant_total) }} F</td>
+                                    <td>{{ depot.banque }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ depot.statut }}">
+                                            {% if depot.statut == 'en_attente' %}⏳ En attente
+                                            {% elif depot.statut == 'valide' %}✅ Validé
+                                            {% else %}❌ Annulé{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ depot.effectue_par }}</td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-info btn-sm" onclick="voirDetailsDepot({{ depot.id }})" title="Détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            {% if depot.statut == 'en_attente' %}
+                                            <button class="btn btn-success btn-sm" onclick="validerDepot({{ depot.id }})" title="Valider">
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
+                                            {% if current_user.role == 'admin' %}
+                                            <button class="btn btn-danger btn-sm" onclick="annulerDepot({{ depot.id }})" title="Annuler">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                            {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DÉTAILS DÉPÔT -->
+<div class="modal fade" id="detailsDepotModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h6 class="modal-title"><i class="fas fa-university me-2"></i>Détails du dépôt</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailsDepotBody">
+                <div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2">Chargement...</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL VALIDATION DÉPÔT -->
+<div class="modal fade" id="validerDepotModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h6 class="modal-title">Valider le dépôt bancaire</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formValiderDepot">
+                    <p>Confirmez-vous la validation de ce dépôt bancaire ?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Référence bancaire</label>
+                        <input type="text" name="reference_banque" class="form-control" placeholder="Numéro de transaction, chèque...">
+                    </div>
+                    <div id="validerErreur" class="alert alert-danger d-none"></div>
+                    <button type="submit" class="btn btn-success w-100">Confirmer la validation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialiser DataTables
+    if ($.fn.DataTable) {
+        $('#paiementsTable, #depotsTable').DataTable({
+            language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json' },
+            pageLength: 25,
+            order: [[1, 'desc']]
+        });
+    }
+    
+    // Sélectionner tous les paiements
+    $('#selectAll').change(function() {
+        $('.paiement-checkbox').prop('checked', $(this).prop('checked'));
+        calculerTotal();
+    });
+    
+    // Calculer le total des paiements sélectionnés
+    $(document).on('change', '.paiement-checkbox', function() {
+        calculerTotal();
+    });
+    
+    function calculerTotal() {
+        var total = 0;
+        $('.paiement-checkbox:checked').each(function() {
+            var row = $(this).closest('tr');
+            var montantText = row.find('td:eq(5)').text();
+            var montant = parseFloat(montantText.replace(/[^\d]/g, ''));
+            if (!isNaN(montant)) {
+                total += montant;
+            }
+        });
+        $('#totalSelectionne').text(new Intl.NumberFormat('fr-FR').format(total) + ' F');
+    }
+    
+    // Générer le dépôt
+    $('#formGenererDepot').submit(function(e) {
+        e.preventDefault();
+        
+        var paiementsIds = [];
+        $('.paiement-checkbox:checked').each(function() {
+            paiementsIds.push($(this).val());
+        });
+        
+        console.log('Paiements sélectionnés:', paiementsIds);
+        
+        if (paiementsIds.length === 0) {
+            alert('Veuillez sélectionner au moins un paiement');
+            return;
+        }
+        
+        var formData = new FormData();
+        for (var i = 0; i < paiementsIds.length; i++) {
+            formData.append('paiements_ids', paiementsIds[i]);
+        }
+        formData.append('banque', $('select[name="banque"]').val());
+        formData.append('observations', $('textarea[name="observations"]').val());
+        
+        $('#btnGenererDepot').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Traitement...');
+        
+        fetch('/bank/generer_depot', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Réponse:', data);
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.message);
+                $('#btnGenererDepot').prop('disabled', false).html('<i class="fas fa-university me-2"></i>Générer le dépôt bancaire');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur réseau: ' + error);
+            $('#btnGenererDepot').prop('disabled', false).html('<i class="fas fa-university me-2"></i>Générer le dépôt bancaire');
+        });
+    });
+});
+
+// Voir les détails d'un dépôt
+function voirDetailsDepot(depotId) {
+    var modal = new bootstrap.Modal(document.getElementById('detailsDepotModal'));
+    modal.show();
+    
+    fetch('/api/bank/depot/' + depotId + '/details')
+    .then(response => response.json())
+    .then(data => {
+        var html = '';
+        
+        html += '<div class="bg-light p-3 rounded mb-3">';
+        html += '<div class="row">';
+        html += '<div class="col-md-3"><small>N° Dépôt</small><br><strong>' + data.depot.numero_depot + '</strong></div>';
+        html += '<div class="col-md-3"><small>Date</small><br><strong>' + data.depot.date_depot + '</strong></div>';
+        html += '<div class="col-md-3"><small>Montant total</small><br><strong class="text-success">' + formatMontant(data.depot.montant_total) + '</strong></div>';
+        html += '<div class="col-md-3"><small>Statut</small><br><span class="badge badge-' + data.depot.statut + '">' + data.depot.statut + '</span></div>';
+        html += '<div class="col-md-3 mt-2"><small>Banque</small><br><strong>' + data.depot.banque + '</strong></div>';
+        html += '<div class="col-md-3 mt-2"><small>Réf. bancaire</small><br><strong>' + (data.depot.reference_banque || '-') + '</strong></div>';
+        html += '<div class="col-md-3 mt-2"><small>Effectué par</small><br><strong>' + data.depot.effectue_par + '</strong></div>';
+        if (data.depot.date_validation) {
+            html += '<div class="col-md-3 mt-2"><small>Date validation</small><br><strong>' + data.depot.date_validation + '</strong></div>';
+        }
+        if (data.depot.observations) {
+            html += '<div class="col-12 mt-2"><small>Observations</small><br><strong>' + data.depot.observations + '</strong></div>';
+        }
+        html += '</div></div>';
+        
+        html += '<h6 class="mt-3"><i class="fas fa-receipt me-2"></i>Paiements inclus (' + data.depot.nombre_paiements + ')</h6>';
+        html += '<div class="table-responsive">';
+        html += '<table class="table table-sm table-hover">';
+        html += '<thead class="table-light"><tr>';
+        html += '<th>N° Reçu</th><th>Date</th><th>Élève</th><th>Classe</th><th>Niveau</th><th class="text-end">Montant</th><th>Mode</th>';
+        html += '</tr></thead><tbody>';
+        
+        data.paiements.forEach(p => {
+            html += '<tr>';
+            html += '<td><code>' + (p.recu || '-') + '</code></td>';
+            html += '<td>' + p.date_paiement + '</td>';
+            html += '<td>' + p.eleve.prenom + ' ' + p.eleve.nom + '</td>';
+            html += '<td>' + p.eleve.classe + '</td>';
+            html += '<td>' + (p.eleve.sous_groupe || '-') + '</td>';
+            html += '<td class="text-end text-success fw-bold">' + formatMontant(p.montant) + '</td>';
+            html += '<td>' + p.type_paiement + '</td>';
+            html += '</tr>';
+        });
+        
+        html += '<tr class="table-success">';
+        html += '<td colspan="5" class="text-end"><strong>TOTAL</strong></td>';
+        html += '<td class="text-end"><strong>' + formatMontant(data.depot.montant_total) + '</strong></td>';
+        html += '<td></td>';
+        html += '</tr>';
+        
+        html += '</tbody></table></div>';
+        
+        $('#detailsDepotBody').html(html);
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        $('#detailsDepotBody').html('<div class="alert alert-danger">Erreur lors du chargement</div>');
+    });
+}
+
+// Valider un dépôt
+var currentDepotId = null;
+
+function validerDepot(depotId) {
+    currentDepotId = depotId;
+    var modal = new bootstrap.Modal(document.getElementById('validerDepotModal'));
+    modal.show();
+    
+    $('#formValiderDepot').off('submit').on('submit', function(e) {
+        e.preventDefault();
+        
+        var formData = new FormData(this);
+        
+        fetch('/bank/depot/' + currentDepotId + '/valider', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                $('#validerErreur').removeClass('d-none').text(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur réseau');
+        });
+    });
+}
+
+// Annuler un dépôt
+function annulerDepot(depotId) {
+    if (confirm('⚠️ Attention ! Annuler ce dépôt supprimera définitivement le lien entre les paiements et ce dépôt. Confirmez-vous ?')) {
+        fetch('/bank/depot/' + depotId + '/annuler', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur réseau');
+        });
+    }
+}
+
+function formatMontant(m) {
+    return new Intl.NumberFormat('fr-FR').format(m||0) + ' FCFA';
+}
+</script>
+{% endblock %}
