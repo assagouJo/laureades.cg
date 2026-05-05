@@ -729,6 +729,42 @@
                 });
             }, 5000);
         });
+        // Assurer que les dropdowns restent ouverts sur mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            // Forcer le bon comportement des dropdowns Bootstrap sur mobile
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                document.querySelectorAll('.eleves-dropdown .dropdown-toggle').forEach(function(toggle) {
+                    toggle.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        var dropdownMenu = this.nextElementSibling;
+                        var bsDropdown = bootstrap.Dropdown.getInstance(this);
+                        
+                        if (!bsDropdown) {
+                            bsDropdown = new bootstrap.Dropdown(this);
+                        }
+                        
+                        // Forcer l'ouverture
+                        if (!dropdownMenu.classList.contains('show')) {
+                            bsDropdown.show();
+                        }
+                    });
+                });
+                
+                // Empêcher la fermeture immédiate sur le dropdown menu lui-même
+                document.querySelectorAll('.eleves-dropdown .dropdown-menu').forEach(function(menu) {
+                    menu.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                    
+                    // Empêcher le touchstart de fermer le menu
+                    menu.addEventListener('touchstart', function(e) {
+                        e.stopPropagation();
+                    });
+                });
+            }
+        });
     </script>
     
     {% block scripts %}{% endblock %}
