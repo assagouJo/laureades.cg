@@ -4,6 +4,7 @@
 
 {% block styles %}
 <style>
+
     .stat-card {
         transition: transform 0.2s;
         border-radius: 12px;
@@ -491,7 +492,9 @@
                     data: modeData,
                     backgroundColor: modeColors.slice(0, modeLabels.length),
                     borderWidth: 0,
-                    hoverOffset: 4
+                    hoverOffset: 4,
+                    radius: '75%',
+                    cutout: '60%'
                 }]
             },
             options: {
