@@ -1,7 +1,6 @@
 # app.py
 from flask import Flask
 from flask_login import LoginManager
-from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
 
@@ -24,7 +23,6 @@ app.config.from_object(CurrentConfig)
 
 # Initialisation
 db.init_app(app)  # Important: initialiser db avec l'app
-migrate = Migrate(app, db)
 
 # Login manager
 login_manager = LoginManager()
