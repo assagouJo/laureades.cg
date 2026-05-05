@@ -8,10 +8,20 @@ ENV = os.environ.get('ENV', 'development')
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'you-will-never-guess')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+def get_database_url():
+    """Retourne l'URL de la base de données corrigée"""
+    db_url = os.environ.get('DATABASE_URL', 'sqlite:///ecole_compta.db')
     
+    # Correction pour PostgreSQL Render
+    if db_url and db_url.startswith('postgres://'):
+        db_url = db_url.replace('postgres://', 'postgresql://', 1)
+    
+    return db_url
+
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///ecole_compta.db')
+    SQLALCHEMY_DATABASE_URI = get_database_url()
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size': 10,
         'pool_recycle': 3600,
@@ -20,30 +30,14 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    
-    @property
-    def SQLALCHEMY_DATABASE_URI(self):
-        """Corrige l'URL PostgreSQL pour Render"""
-        db_url = os.environ.get('DATABASE_URL')
-        if not db_url:
-            # Fallback SQLite si pas de DATABASE_URL
-            return 'sqlite:///ecole_compta.db'
-        
-        # 🔥 CORRECTION CRUCIALE : Render renvoie postgres:// → postgresql://
-        if db_url.startswith('postgres://'):
-            db_url = db_url.replace('postgres://', 'postgresql://', 1)
-        
-        return db_url
-    
+    SQLALCHEMY_DATABASE_URI = get_database_url()  # ← PAS de @property !
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size': 20,
         'pool_recycle': 3600,
         'pool_pre_ping': True,
     }
-    
-    # Sécurité pour la production
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
 
-# Sélection de la configuration
+# Configuration active
 CurrentConfig = DevelopmentConfig if ENV == 'development' else ProductionConfig
