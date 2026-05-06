@@ -1979,6 +1979,8 @@ def ajouter_eleve():
                     date_naissance = None
             lieu_naissance = request.form.get('lieu_naissance', '')
             adresse = request.form.get('adresse', '')
+            profession_parent = request.form.get('profession_parent', '')
+            employeur = request.form.get('employeur', '')
             nom_parent = request.form.get('nom_parent', '')
             telephone_parent = request.form.get('telephone_parent', '')
             
@@ -2023,6 +2025,8 @@ def ajouter_eleve():
                 lieu_naissance=lieu_naissance,
                 adresse=adresse,
                 nom_parent=nom_parent,
+                profession_parent=profession_parent,
+                employeur=employeur, 
                 telephone_parent=telephone_parent,
                 est_affecte_etat=est_affecte_etat,
                 reference_affectation=reference_affectation,
@@ -2034,6 +2038,8 @@ def ajouter_eleve():
                 montant_paye=0,
                 date_inscription=datetime.utcnow()
             )
+
+            print(f"🔍 AJOUT - Profession: '{profession_parent}' - Employeur: '{employeur}' - Nom parent: '{nom_parent}'")
             
             db.session.add(eleve)
             db.session.commit()
@@ -2066,7 +2072,6 @@ def ajouter_eleve():
 
 
 
-
 @app.route('/eleve/<int:id>/modifier', methods=['GET', 'POST'])
 @login_required
 def modifier_eleve(id):
@@ -2074,7 +2079,7 @@ def modifier_eleve(id):
     
     if request.method == 'POST':
         try:
-            # Vérifier l'unicité du matricule AVANT modification
+            # Vérifier l'unicité du matricule
             nouveau_matricule = request.form.get('matricule', '').strip()
             if nouveau_matricule and nouveau_matricule != eleve.matricule:
                 matricule_existant = Eleve.query.filter(
@@ -2082,10 +2087,10 @@ def modifier_eleve(id):
                     Eleve.id != id
                 ).first()
                 if matricule_existant:
-                    flash(f'Le matricule {nouveau_matricule} existe déjà pour un autre élève', 'danger')
+                    flash(f'Le matricule {nouveau_matricule} existe déjà', 'danger')
                     return redirect(url_for('modifier_eleve', id=id))
             
-            # Mise à jour des informations de base
+            # Infos de base
             eleve.nom = request.form.get('nom')
             eleve.prenom = request.form.get('prenom')
             eleve.genre = request.form.get('genre', '').upper()
@@ -2093,35 +2098,75 @@ def modifier_eleve(id):
             eleve.sous_groupe_id = request.form.get('sous_groupe_id')
             eleve.matricule = nouveau_matricule
             
-            # Nouvelles colonnes - CONVERSION DE LA DATE
+            # Date naissance
             date_naissance_str = request.form.get('date_naissance')
             if date_naissance_str:
                 try:
-                    # Conversion de la chaîne en objet date Python
                     eleve.date_naissance = datetime.strptime(date_naissance_str, '%Y-%m-%d').date()
                 except (ValueError, TypeError):
-                    flash('Format de date de naissance invalide. Utilisez le format AAAA-MM-JJ', 'warning')
+                    flash('Format de date invalide', 'warning')
                     eleve.date_naissance = None
             else:
                 eleve.date_naissance = None
-                
+            
             eleve.lieu_naissance = request.form.get('lieu_naissance', '')
             eleve.adresse = request.form.get('adresse', '')
             eleve.nom_parent = request.form.get('nom_parent', '')
+            eleve.profession_parent = request.form.get('profession_parent', '')
+            eleve.employeur = request.form.get('employeur', '')
             eleve.telephone_parent = request.form.get('telephone_parent', '')
             
-            # Mise à jour affectation État
-            ancien_statut = eleve.est_affecte_etat
+            # Affectation État
             eleve.est_affecte_etat = 'est_affecte_etat' in request.form
             eleve.reference_affectation = request.form.get('reference_affectation') if eleve.est_affecte_etat else None
             eleve.organisme_affectation = request.form.get('organisme_affectation', 'État')
             
-            # Mise à jour des options
-            eleve.transport_option_id = request.form.get('transport_option_id') or None
-            eleve.cantine_option_id = request.form.get('cantine_option_id') or None
+            # 🔥 TRANSPORT : checkbox name="transport_actif"
+            transport_actif = request.form.get('transport_actif')
+            if transport_actif == 'on':
+                transport_id = request.form.get('transport_option_id', '').strip()
+                eleve.transport_option_id = int(transport_id) if transport_id else None
+            else:
+                eleve.transport_option_id = None
+            
+            # 🔥 CANTINE : checkbox name="cantine_actif"
+            cantine_actif = request.form.get('cantine_actif')
+            if cantine_actif == 'on':
+                cantine_id = request.form.get('cantine_option_id', '').strip()
+                eleve.cantine_option_id = int(cantine_id) if cantine_id else None
+            else:
+                eleve.cantine_option_id = None
+            
             eleve.renforcement_inscrit = 'renforcement_inscrit' in request.form
             
-            # Recalcul du montant total des frais
+            # Calculer les frais de tenue
+            frais_tenue = 0
+            if eleve.sous_groupe_id:
+                sous_groupe = SousGroupe.query.get(int(eleve.sous_groupe_id))
+                if sous_groupe and sous_groupe.groupe_parent:
+                    groupe_nom = sous_groupe.groupe_parent.nom
+                    if groupe_nom == 'Maternelle':
+                        frais_tenue = float(get_parametre('montant_tenue_maternelle', 15000))
+                    elif groupe_nom == 'Primaire':
+                        frais_tenue = float(get_parametre('montant_tenue_primaire', 15000))
+                    elif groupe_nom == 'Secondaire':
+                        frais_tenue = float(get_parametre('montant_tenue_secondaire', 20000))
+            eleve.frais_tenue = frais_tenue
+            
+            # Calculer les droits d'examen
+            frais_droit_examen = 0
+            if eleve.classe == 'CM2':
+                frais_droit_examen = float(get_parametre('droit_examen_cm2_ministere', 5000)) + \
+                                    float(get_parametre('droit_examen_cm2_ecole', 3000))
+            elif eleve.classe == '3ème':
+                frais_droit_examen = float(get_parametre('droit_examen_3eme_ministere', 8000)) + \
+                                    float(get_parametre('droit_examen_3eme_ecole', 5000))
+            elif eleve.classe == 'Terminale':
+                frais_droit_examen = float(get_parametre('droit_examen_tle_ministere', 10000)) + \
+                                    float(get_parametre('droit_examen_tle_ecole', 7000))
+            eleve.frais_droit_examen = frais_droit_examen
+            
+            # Recalculer le total
             nouveau_frais_total = calculer_frais_total(
                 sous_groupe_id=eleve.sous_groupe_id,
                 est_affecte=eleve.est_affecte_etat,
@@ -2131,36 +2176,36 @@ def modifier_eleve(id):
                 classe=eleve.classe
             )
             
-            # Si le montant total change, ajuster
-            if nouveau_frais_total != eleve.frais_scolarite:
-                eleve.frais_scolarite = nouveau_frais_total
+            eleve.frais_scolarite = nouveau_frais_total
+            
+            print(f"✅ MODIFICATION - Transport: {eleve.transport_option_id} | Cantine: {eleve.cantine_option_id} | Total: {nouveau_frais_total}")
             
             db.session.commit()
             
             log_action('MODIFIER_ELEVE', 
-                       f"Modification de {eleve.nom_complet} - Genre: {eleve.genre}")
+                       f"Modification de {eleve.nom_complet} - Classe: {eleve.classe} - "
+                       f"Transport: {eleve.transport_option_id} - Cantine: {eleve.cantine_option_id} - "
+                       f"Total: {nouveau_frais_total}")
             flash('Élève modifié avec succès !', 'success')
             return redirect(url_for('liste_eleves'))
             
         except Exception as e:
             db.session.rollback()
-            # Log l'erreur complète pour le débogage
             app.logger.error(f"Erreur modification élève {id}: {str(e)}", exc_info=True)
             flash(f'Erreur lors de la modification : {str(e)}', 'danger')
     
-    # GET: Afficher le formulaire avec les données existantes
+    # GET
     groupes = GroupeScolaire.query.order_by(GroupeScolaire.ordre).all()
     transports = OptionTransport.query.filter_by(actif=True).order_by(OptionTransport.ordre).all()
     cantines = OptionCantine.query.filter_by(actif=True).all()
     
-    # Récupérer les sous-groupes du groupe de l'élève
     sous_groupes = []
     if eleve.sous_groupe:
         sous_groupes = SousGroupe.query.filter_by(
             groupe_id=eleve.sous_groupe.groupe_parent.id
         ).order_by(SousGroupe.ordre).all()
     
-    return render_template('modifier_eleve.html', 
+    return render_template('modifier_eleve_v2.html', 
                          eleve=eleve,
                          groupes=groupes,
                          sous_groupes=sous_groupes,
@@ -2227,7 +2272,6 @@ def calculer_frais_total(sous_groupe_id, est_affecte, transport_option_id=None,
         if tarif:
             total += tarif.montant
         else:
-            # Fallback: chercher le tarif normal
             tarif_normal = TarifFraisAffecte.query.filter_by(
                 sous_groupe_id=sous_groupe_id,
                 est_affecte=False,
@@ -2250,19 +2294,40 @@ def calculer_frais_total(sous_groupe_id, est_affecte, transport_option_id=None,
     
     # 4. Frais de renforcement (si obligatoire ou inscrit)
     if renforcement_inscrit:
-        # Vérifier si le renforcement est obligatoire pour cette classe
         classes_renforcement = ['CM1', 'CM2', '3ème', 'Terminale']
         if classe in classes_renforcement or renforcement_inscrit:
             tarif_renf = TarifFrais.query.filter_by(
-                type_frais_id=4,  # Renforcement
+                type_frais_id=4,
                 sous_groupe_id=sous_groupe_id,
                 actif=True
             ).first()
             if tarif_renf:
                 total += tarif_renf.montant
+
+    # 🔥 5. Tenue obligatoire (CORRIGÉ : hors du if renforcement_inscrit)
+    if sous_groupe_id:
+        sous_groupe = SousGroupe.query.get(int(sous_groupe_id))
+        if sous_groupe and sous_groupe.groupe_parent:
+            groupe_nom = sous_groupe.groupe_parent.nom
+            if groupe_nom == 'Maternelle':
+                total += float(get_parametre('montant_tenue_maternelle', 15000))
+            elif groupe_nom == 'Primaire':
+                total += float(get_parametre('montant_tenue_primaire', 15000))
+            elif groupe_nom == 'Secondaire':
+                total += float(get_parametre('montant_tenue_secondaire', 20000))
+    
+    # 🔥 6. Droit d'examen
+    if classe == 'CM2':
+        total += float(get_parametre('droit_examen_cm2_ministere', 5000))
+        total += float(get_parametre('droit_examen_cm2_ecole', 3000))
+    elif classe == '3ème':
+        total += float(get_parametre('droit_examen_3eme_ministere', 8000))
+        total += float(get_parametre('droit_examen_3eme_ecole', 5000))
+    elif classe == 'Terminale':
+        total += float(get_parametre('droit_examen_tle_ministere', 10000))
+        total += float(get_parametre('droit_examen_tle_ecole', 7000))
     
     return total
-
 
 # API Routes
 @app.route('/api/groupes/<int:groupe_id>/sous-groupes')

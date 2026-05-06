@@ -231,20 +231,23 @@ class TarifFraisAffecte(db.Model):
 class Eleve(db.Model):
     """Modèle principal des élèves"""
     __tablename__ = 'eleves'
+    
+    # Informations eleves
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100), nullable=False)
     prenom = db.Column(db.String(100), nullable=False)
     classe = db.Column(db.String(50), nullable=False)
-    sous_groupe_id = db.Column(db.Integer, db.ForeignKey('sous_groupes.id'), nullable=True)
     genre = db.Column(db.String(1))
-    matricule = db.Column(db.String(50), unique=True, nullable=False)
-    
-    # Informations personnelles
     date_naissance = db.Column(db.Date, nullable=True)
     lieu_naissance = db.Column(db.String(100))
-    adresse = db.Column(db.String(200))
+    matricule = db.Column(db.String(50), unique=True, nullable=False)
+    
+    # Informations parents
     nom_parent = db.Column(db.String(200))
+    profession_parent = db.Column(db.String(200))
+    employeur = db.Column(db.String(200))
     telephone_parent = db.Column(db.String(20))
+    adresse = db.Column(db.String(200))
     
     # Affectation par l'État
     est_affecte_etat = db.Column(db.Boolean, default=False)
@@ -252,12 +255,15 @@ class Eleve(db.Model):
     organisme_affectation = db.Column(db.String(100), default='État')
     
     # Options souscrites
+    sous_groupe_id = db.Column(db.Integer, db.ForeignKey('sous_groupes.id'), nullable=True)
     transport_option_id = db.Column(db.Integer, db.ForeignKey('options_transport.id'), nullable=True)
     cantine_option_id = db.Column(db.Integer, db.ForeignKey('options_cantine.id'), nullable=True)
     renforcement_inscrit = db.Column(db.Boolean, default=False)
+    frais_tenue = db.Column(db.Float, default=0)
+    frais_droit_examen = db.Column(db.Float, default=0)
     
     # Frais et paiements
-    frais_scolarite = db.Column(db.Float, default=0)  # Total des frais (scolarité + options)
+    frais_scolarite = db.Column(db.Float, default=0)
     montant_paye = db.Column(db.Float, default=0)
     
     # Dates
@@ -267,46 +273,37 @@ class Eleve(db.Model):
     # Statut
     actif = db.Column(db.Boolean, default=True)
     commentaire = db.Column(db.Text)
-
-    annee_scolaire = db.Column(db.String(20), default='2025-2026')  # Année scolaire de l'élève
-    reinscrit = db.Column(db.Boolean, default=False)  # Statut de réinscription
-    date_reinscription = db.Column(db.DateTime, nullable=True)  # Date de réinscription
-    reinscrit_par = db.Column(db.String(100), nullable=True)  # Qui a réinscrit
+    annee_scolaire = db.Column(db.String(20), default='2026-2027')
+    reinscrit = db.Column(db.Boolean, default=False)
+    date_reinscription = db.Column(db.DateTime, nullable=True)
+    reinscrit_par = db.Column(db.String(100), nullable=True)
     
-    # Relations
+    # Relations - avec foreign_keys pour éviter les conflits
     paiements = db.relationship('Paiement', backref='eleve', lazy=True, cascade='all, delete-orphan')
 
+    # ========== PROPRIÉTÉS ==========
+    
     @property
     def statut_reinscription(self):
-        """Retourne le statut de réinscription"""
         if self.reinscrit:
             return f'Réinscrit - {self.annee_scolaire}'
         return 'Non réinscrit'
     
     @property
     def badge_reinscription(self):
-        """Retourne la classe CSS pour le badge"""
-        if self.reinscrit:
-            return 'badge bg-success'
-        return 'badge bg-warning text-dark'
+        return 'badge bg-success' if self.reinscrit else 'badge bg-warning text-dark'
     
     @property
     def frais_scolarite_base(self):
-        """Frais de scolarité selon le niveau ET le statut d'affectation"""
         if not self.sous_groupe_id:
             return 0
-        
-        # Chercher le tarif pour ce niveau selon le statut d'affectation
         tarif = TarifFraisAffecte.query.filter_by(
             sous_groupe_id=self.sous_groupe_id,
             est_affecte=self.est_affecte_etat,
             actif=True
         ).first()
-        
         if tarif:
             return tarif.montant
-        
-        # Fallback: chercher le tarif non affecté
         tarif_normal = TarifFraisAffecte.query.filter_by(
             sous_groupe_id=self.sous_groupe_id,
             est_affecte=False,
@@ -316,24 +313,21 @@ class Eleve(db.Model):
     
     @property
     def frais_transport(self):
-        """Frais de transport si option choisie"""
         if self.transport_option:
             return self.transport_option.montant_supplement
         return 0
     
     @property
     def frais_cantine(self):
-        """Frais de cantine si option choisie"""
         if self.cantine_option:
             return self.cantine_option.montant
         return 0
     
     @property
     def frais_renforcement(self):
-        """Frais de renforcement si obligatoire ou inscrit"""
         if self.renforcement_inscrit or self.est_renforcement_obligatoire:
             tarif = TarifFrais.query.filter_by(
-                type_frais_id=4,  # Renforcement
+                type_frais_id=4,
                 sous_groupe_id=self.sous_groupe_id,
                 actif=True
             ).first()
@@ -341,12 +335,57 @@ class Eleve(db.Model):
         return 0
     
     @property
+    def frais_tenue_montant(self):
+        if self.sous_groupe and self.sous_groupe.groupe_parent:
+            groupe = self.sous_groupe.groupe_parent.nom
+            if groupe == 'Maternelle':
+                return float(Parametre.get('montant_tenue_maternelle', 15000))
+            elif groupe == 'Primaire':
+                return float(Parametre.get('montant_tenue_primaire', 15000))
+            elif groupe == 'Secondaire':
+                return float(Parametre.get('montant_tenue_secondaire', 20000))
+        return 0
+    
+    @property
+    def frais_droit_examen_montant(self):
+        if self.classe == 'CM2':
+            return float(Parametre.get('droit_examen_cm2_ministere', 5000)) + \
+                   float(Parametre.get('droit_examen_cm2_ecole', 3000))
+        elif self.classe == '3ème':
+            return float(Parametre.get('droit_examen_3eme_ministere', 8000)) + \
+                   float(Parametre.get('droit_examen_3eme_ecole', 5000))
+        elif self.classe == 'Terminale':
+            return float(Parametre.get('droit_examen_tle_ministere', 10000)) + \
+                   float(Parametre.get('droit_examen_tle_ecole', 7000))
+        return 0
+    
+    @property
+    def est_classe_examen(self):
+        return self.classe in ['CM2', '3ème', 'Terminale']
+    
+    @property
+    def detail_droit_examen(self):
+        if self.classe == 'CM2':
+            return {
+                'ministere': float(Parametre.get('droit_examen_cm2_ministere', 5000)),
+                'ecole': float(Parametre.get('droit_examen_cm2_ecole', 3000))
+            }
+        elif self.classe == '3ème':
+            return {
+                'ministere': float(Parametre.get('droit_examen_3eme_ministere', 8000)),
+                'ecole': float(Parametre.get('droit_examen_3eme_ecole', 5000))
+            }
+        elif self.classe == 'Terminale':
+            return {
+                'ministere': float(Parametre.get('droit_examen_tle_ministere', 10000)),
+                'ecole': float(Parametre.get('droit_examen_tle_ecole', 7000))
+            }
+        return {'ministere': 0, 'ecole': 0}
+    
+    @property
     def frais_scolarite_total(self):
-        """Total des frais (scolarité + options + renforcement)"""
-        return (self.frais_scolarite_base + 
-                self.frais_transport + 
-                self.frais_cantine + 
-                self.frais_renforcement)
+        """Total stocké en base (mis à jour par la route)"""
+        return self.frais_scolarite or 0
     
     @property
     def solde(self):
@@ -358,8 +397,7 @@ class Eleve(db.Model):
             return 'Payé'
         elif self.montant_paye > 0:
             return 'Partiel'
-        else:
-            return 'Impayé'
+        return 'Impayé'
     
     @property
     def taux_paiement(self):
@@ -369,7 +407,6 @@ class Eleve(db.Model):
     
     @property
     def est_renforcement_obligatoire(self):
-        """Vérifie si le renforcement est obligatoire pour ce niveau"""
         classes_renforcement_obligatoire = ['CM1', 'CM2', '3ème', 'Terminale']
         return self.classe in classes_renforcement_obligatoire
     
@@ -379,15 +416,19 @@ class Eleve(db.Model):
     
     @property
     def montant_paye_reel(self):
-        """
-        Montant réellement payé (ignore les avoirs)
-        = somme des paiements positifs uniquement
-        """
         return sum(p.montant for p in self.paiements if p.montant > 0)
     
     @property
     def type_affectation(self):
         return "Affecté État" if self.est_affecte_etat else "Non affecté"
+    
+    @property
+    def genre_icon(self):
+        if self.genre == 'M':
+            return '♂️'
+        elif self.genre == 'F':
+            return '♀️'
+        return '👤'
     
     def __repr__(self):
         return f'<Eleve {self.nom_complet} - {self.matricule}>'

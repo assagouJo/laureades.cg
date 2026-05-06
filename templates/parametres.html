@@ -13,7 +13,9 @@
         color: #495057;
         font-weight: 500;
         border: none;
-        padding: 12px 20px;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        white-space: nowrap;
     }
     
     .nav-tabs .nav-link.active {
@@ -63,6 +65,10 @@
     .modal-header .btn-close {
         filter: brightness(0) invert(1);
     }
+    
+    .exam-card .card-header {
+        font-weight: 600;
+    }
 </style>
 {% endblock %}
 
@@ -72,37 +78,42 @@
     <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
-                <i class="fas fa-school me-2"></i>Général
+                <i class="fas fa-school me-1"></i>Général
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="periodes-tab" data-bs-toggle="tab" data-bs-target="#periodes" type="button" role="tab">
-                <i class="fas fa-calendar-alt me-2"></i>Périodes
+                <i class="fas fa-calendar-alt me-1"></i>Périodes
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tenues-tab" data-bs-toggle="tab" data-bs-target="#tenues" type="button" role="tab">
+                <i class="fas fa-tshirt me-1"></i>Tenues & Examens
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="groupes-tab" data-bs-toggle="tab" data-bs-target="#groupes" type="button" role="tab">
-                <i class="fas fa-layer-group me-2"></i>Groupes
+                <i class="fas fa-layer-group me-1"></i>Groupes
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="sous-groupes-tab" data-bs-toggle="tab" data-bs-target="#sous-groupes" type="button" role="tab">
-                <i class="fas fa-folder-tree me-2"></i>Sous-groupes
+                <i class="fas fa-folder-tree me-1"></i>Sous-groupes
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="tarifs-tab" data-bs-toggle="tab" data-bs-target="#tarifs" type="button" role="tab">
-                <i class="fas fa-money-bill-wave me-2"></i>Tarifs
+                <i class="fas fa-money-bill-wave me-1"></i>Tarifs
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="transports-tab" data-bs-toggle="tab" data-bs-target="#transports" type="button" role="tab">
-                <i class="fas fa-bus me-2"></i>Transports
+                <i class="fas fa-bus me-1"></i>Transports
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="cantines-tab" data-bs-toggle="tab" data-bs-target="#cantines" type="button" role="tab">
-                <i class="fas fa-utensils me-2"></i>Cantines
+                <i class="fas fa-utensils me-1"></i>Cantines
             </button>
         </li>
     </ul>
@@ -113,64 +124,42 @@
         <!-- ========== ONGLET GÉNÉRAL ========== -->
         <div class="tab-pane fade show active" id="general" role="tabpanel">
             <div class="settings-section">
-                <h5 class="section-title">
-                    <i class="fas fa-cog"></i>Paramètres généraux
-                </h5>
+                <h5 class="section-title"><i class="fas fa-cog"></i>Paramètres généraux</h5>
                 
                 <form method="POST" action="{{ url_for('sauvegarder_parametres_generaux') }}">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Nom de l'établissement</label>
-                                <input type="text" name="nom_ecole" class="form-control" 
-                                       value="{{ parametres.get('nom_ecole', 'GestScolaire') }}">
+                                <input type="text" name="nom_ecole" class="form-control" value="{{ parametres.get('nom_ecole', 'GestScolaire') }}">
                             </div>
-                            
                             <div class="mb-3">
                                 <label class="form-label">Devise</label>
-                                <input type="text" name="devise" class="form-control" 
-                                       value="{{ parametres.get('devise', 'FCFA') }}">
+                                <input type="text" name="devise" class="form-control" value="{{ parametres.get('devise', 'FCFA') }}">
                             </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Année scolaire</label>
-                                <input type="text" name="annee_scolaire" class="form-control" 
-                                       value="{{ parametres.get('annee_scolaire', '2024-2025') }}">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Frais d'inscription (FCFA)</label>
-                                <input type="number" name="frais_inscription" class="form-control" 
-                                       value="{{ parametres.get('frais_inscription', '0') }}">
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Téléphone de l'école</label>
-                                <input type="text" name="telephone_ecole" class="form-control" 
-                                       value="{{ parametres.get('telephone_ecole', '') }}">
+                                <input type="text" name="telephone_ecole" class="form-control" value="{{ parametres.get('telephone_ecole', '') }}">
                             </div>
-                            
                             <div class="mb-3">
                                 <label class="form-label">Email de notification</label>
-                                <input type="email" name="email_notification" class="form-control" 
-                                       value="{{ parametres.get('email_notification', '') }}">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Délai de paiement (jours)</label>
-                                <input type="number" name="delai_paiement" class="form-control" 
-                                       value="{{ parametres.get('delai_paiement', '30') }}">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Pénalité de retard (%)</label>
-                                <input type="number" name="penalite_retard" class="form-control" 
-                                       value="{{ parametres.get('penalite_retard', '0') }}">
+                                <input type="email" name="email_notification" class="form-control" value="{{ parametres.get('email_notification', '') }}">
                             </div>
                         </div>
-                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Frais d'inscription (FCFA)</label>
+                                <input type="number" name="frais_inscription" class="form-control" value="{{ parametres.get('frais_inscription', '0') }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Délai de paiement (jours)</label>
+                                <input type="number" name="delai_paiement" class="form-control" value="{{ parametres.get('delai_paiement', '30') }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Pénalité de retard (%)</label>
+                                <input type="number" name="penalite_retard" class="form-control" value="{{ parametres.get('penalite_retard', '0') }}">
+                            </div>
+                        </div>
                         <div class="col-12">
                             <div class="mb-3">
                                 <label class="form-label">Adresse</label>
@@ -188,45 +177,37 @@
             </div>
         </div>
 
-        <!-- ========== 🔥 ONGLET PÉRIODES AVEC ACTIVATION/DÉSACTIVATION 🔥 ========== -->
+        <!-- ========== ONGLET PÉRIODES ========== -->
         <div class="tab-pane fade" id="periodes" role="tabpanel">
             <div class="settings-section">
-                <h5 class="section-title">
-                    <i class="fas fa-calendar-alt"></i>Gestion des périodes scolaires
-                </h5>
+                <h5 class="section-title"><i class="fas fa-calendar-alt"></i>Gestion des périodes scolaires</h5>
                 
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
                     Gérez les années scolaires pour les réinscriptions. L'année active détermine quels élèves sont affichés.
                 </div>
                 
-                <!-- 🔥 Liste des périodes avec activation 🔥 -->
+                {% set annees = parametres.get('annees_scolaires', '2024-2025,2025-2026,2026-2027').split(',') %}
+                {% set active = parametres.get('annee_scolaire_active', '') %}
+                
                 <div class="row mb-4">
-                    {% set annees = parametres.get('annees_scolaires', '2024-2025,2025-2026,2026-2027').split(',') %}
-                    {% set active = parametres.get('annee_scolaire_active', '') %}
-                    
                     {% for annee in annees %}
                     {% set annee_clean = annee.strip() %}
                     {% set est_active = (annee_clean == active) %}
                     <div class="col-md-4 mb-3">
-                        <div class="card {% if est_active %}border-success{% else %}border-secondary{% endif %}" 
-                            style="border-width: 2px;">
+                        <div class="card {% if est_active %}border-success{% else %}border-secondary{% endif %}" style="border-width: 2px;">
                             <div class="card-body text-center">
                                 <h5 class="card-title">{{ annee_clean }}</h5>
-                                
                                 {% if est_active %}
                                 <span class="badge bg-success mb-2">✅ Active</span>
                                 <br>
-                                <a href="{{ url_for('desactiver_periode') }}" 
-                                class="btn btn-outline-danger btn-sm"
-                                onclick="return confirm('Désactiver la période {{ annee_clean }} ?')">
+                                <a href="{{ url_for('desactiver_periode') }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Désactiver la période {{ annee_clean }} ?')">
                                     <i class="fas fa-pause me-1"></i>Désactiver
                                 </a>
                                 {% else %}
                                 <span class="badge bg-secondary mb-2">⏸️ Inactive</span>
                                 <br>
-                                <a href="{{ url_for('activer_periode', annee=annee_clean) }}" 
-                                class="btn btn-outline-success btn-sm">
+                                <a href="{{ url_for('activer_periode', annee=annee_clean) }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-play me-1"></i>Activer
                                 </a>
                                 {% endif %}
@@ -236,7 +217,6 @@
                     {% endfor %}
                 </div>
                 
-                <!-- Formulaire de configuration -->
                 <form method="POST" action="{{ url_for('sauvegarder_parametres_periodes') }}">
                     <h6 class="mb-3"><i class="fas fa-cog me-2"></i>Configuration des périodes</h6>
                     
@@ -247,44 +227,32 @@
                                 <select name="annee_scolaire_active" class="form-select">
                                     <option value="">-- Aucune --</option>
                                     {% for annee in annees %}
-                                    <option value="{{ annee.strip() }}" {% if annee.strip() == active %}selected{% endif %}>
-                                        {{ annee.strip() }}
-                                    </option>
+                                    <option value="{{ annee.strip() }}" {% if annee.strip() == active %}selected{% endif %}>{{ annee.strip() }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            
                             <div class="mb-3">
                                 <label class="form-label">Liste des années disponibles</label>
-                                <input type="text" name="annees_scolaires" class="form-control" 
-                                    value="{{ parametres.get('annees_scolaires', '2024-2025,2025-2026,2026-2027') }}">
+                                <input type="text" name="annees_scolaires" class="form-control" value="{{ parametres.get('annees_scolaires', '2024-2025,2025-2026,2026-2027') }}">
                                 <small class="text-muted">Séparées par des virgules</small>
                             </div>
-                            
                             <div class="mb-3">
                                 <label class="form-label">Frais de réinscription (FCFA)</label>
-                                <input type="number" name="frais_reinscription" class="form-control" 
-                                    value="{{ parametres.get('frais_reinscription', '0') }}" min="0" step="1000">
+                                <input type="number" name="frais_reinscription" class="form-control" value="{{ parametres.get('frais_reinscription', '0') }}" min="0" step="1000">
                             </div>
                         </div>
-                        
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Date de début de la période</label>
-                                <input type="date" name="periode_debut" class="form-control" 
-                                    value="{{ parametres.get('periode_debut', '2025-09-01') }}">
+                                <input type="date" name="periode_debut" class="form-control" value="{{ parametres.get('periode_debut', '2026-09-01') }}">
                             </div>
-                            
                             <div class="mb-3">
                                 <label class="form-label">Date de fin de la période</label>
-                                <input type="date" name="periode_fin" class="form-control" 
-                                    value="{{ parametres.get('periode_fin', '2026-07-31') }}">
+                                <input type="date" name="periode_fin" class="form-control" value="{{ parametres.get('periode_fin', '2027-07-31') }}">
                             </div>
-                            
                             <div class="mb-3">
                                 <label class="form-label">Année scolaire affichée</label>
-                                <input type="text" name="annee_scolaire" class="form-control" 
-                                    value="{{ parametres.get('annee_scolaire', '2025-2026') }}">
+                                <input type="text" name="annee_scolaire" class="form-control" value="{{ parametres.get('annee_scolaire', '2025-2026') }}">
                             </div>
                         </div>
                     </div>
@@ -300,14 +268,129 @@
                 </form>
             </div>
         </div>
-        
+
+        <!-- ========== 🔥 ONGLET TENUES & DROITS D'EXAMEN 🔥 ========== -->
+        <div class="tab-pane fade" id="tenues" role="tabpanel">
+            <div class="settings-section">
+                
+                <!-- TENUES OBLIGATOIRES -->
+                <h5 class="section-title"><i class="fas fa-tshirt"></i>Tenues obligatoires</h5>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Les frais de tenue sont ajoutés automatiquement selon le groupe de l'élève (Maternelle, Primaire, Secondaire).
+                </div>
+                
+                <form method="POST" action="{{ url_for('sauvegarder_parametres_generaux') }}">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label"><span style="color: #e91e63;">🧸</span> Tenue Maternelle (FCFA)</label>
+                            <input type="number" name="montant_tenue_maternelle" class="form-control" value="{{ parametres.get('montant_tenue_maternelle', 15000) }}" min="0" step="500">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label"><span style="color: #2196f3;">📚</span> Tenue Primaire (FCFA)</label>
+                            <input type="number" name="montant_tenue_primaire" class="form-control" value="{{ parametres.get('montant_tenue_primaire', 15000) }}" min="0" step="500">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label"><span style="color: #4caf50;">🎓</span> Tenue Secondaire (FCFA)</label>
+                            <input type="number" name="montant_tenue_secondaire" class="form-control" value="{{ parametres.get('montant_tenue_secondaire', 20000) }}" min="0" step="500">
+                        </div>
+                    </div>
+                
+                    <!-- DROITS D'EXAMEN -->
+                    <h5 class="section-title mt-4"><i class="fas fa-file-alt"></i>Droits d'examen</h5>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Applicable uniquement aux classes d'examen : <strong>CM2 (CEPE)</strong>, <strong>3ème (BEPC)</strong>, <strong>Terminale (BAC)</strong>
+                    </div>
+                    
+                    <!-- CM2 -->
+                    <div class="card mb-3 border-warning exam-card">
+                        <div class="card-header" style="background: #fff3cd;">
+                            <strong>📝 CM2 - CEPE</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Droit Ministère (FCFA)</label>
+                                    <input type="number" name="droit_examen_cm2_ministere" class="form-control" value="{{ parametres.get('droit_examen_cm2_ministere', 5000) }}" min="0" step="500">
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Droit École (FCFA)</label>
+                                    <input type="number" name="droit_examen_cm2_ecole" class="form-control" value="{{ parametres.get('droit_examen_cm2_ecole', 3000) }}" min="0" step="500">
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">
+                                    Total CM2 : <strong>{{ "{:,.0f}".format(parametres.get('droit_examen_cm2_ministere', 5000)|int + parametres.get('droit_examen_cm2_ecole', 3000)|int) }} FCFA</strong>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 3ème -->
+                    <div class="card mb-3 border-info exam-card">
+                        <div class="card-header" style="background: #d1ecf1;">
+                            <strong>📝 3ème - BEPC</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Droit Ministère (FCFA)</label>
+                                    <input type="number" name="droit_examen_3eme_ministere" class="form-control" value="{{ parametres.get('droit_examen_3eme_ministere', 8000) }}" min="0" step="500">
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Droit École (FCFA)</label>
+                                    <input type="number" name="droit_examen_3eme_ecole" class="form-control" value="{{ parametres.get('droit_examen_3eme_ecole', 5000) }}" min="0" step="500">
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">
+                                    Total 3ème : <strong>{{ "{:,.0f}".format(parametres.get('droit_examen_3eme_ministere', 8000)|int + parametres.get('droit_examen_3eme_ecole', 5000)|int) }} FCFA</strong>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Terminale -->
+                    <div class="card mb-3 border-danger exam-card">
+                        <div class="card-header" style="background: #f8d7da;">
+                            <strong>📝 Terminale - BAC</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Droit Ministère (FCFA)</label>
+                                    <input type="number" name="droit_examen_tle_ministere" class="form-control" value="{{ parametres.get('droit_examen_tle_ministere', 10000) }}" min="0" step="500">
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Droit École (FCFA)</label>
+                                    <input type="number" name="droit_examen_tle_ecole" class="form-control" value="{{ parametres.get('droit_examen_tle_ecole', 7000) }}" min="0" step="500">
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">
+                                    Total Terminale : <strong>{{ "{:,.0f}".format(parametres.get('droit_examen_tle_ministere', 10000)|int + parametres.get('droit_examen_tle_ecole', 7000)|int) }} FCFA</strong>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Enregistrer tous les montants
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- ========== ONGLET GROUPES ========== -->
         <div class="tab-pane fade" id="groupes" role="tabpanel">
             <div class="settings-section">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="section-title mb-0">
-                        <i class="fas fa-layer-group"></i>Groupes scolaires
-                    </h5>
+                    <h5 class="section-title mb-0"><i class="fas fa-layer-group"></i>Groupes scolaires</h5>
                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterGroupeModal">
                         <i class="fas fa-plus me-1"></i>Ajouter
                     </button>
@@ -340,13 +423,10 @@
                                     {% endif %}
                                 </td>
                                 <td class="text-end table-actions">
-                                    <button class="btn btn-warning btn-sm" 
-                                            onclick="editerGroupe({{ groupe.id }}, '{{ groupe.nom }}', '{{ groupe.code }}', {{ groupe.ordre }}, '{{ groupe.description or '' }}', {{ 'true' if groupe.actif else 'false' }})">
+                                    <button class="btn btn-warning btn-sm" onclick="editerGroupe({{ groupe.id }}, '{{ groupe.nom }}', '{{ groupe.code }}', {{ groupe.ordre }}, '{{ groupe.description or '' }}', {{ 'true' if groupe.actif else 'false' }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <a href="{{ url_for('param_supprimer_groupe', id=groupe.id) }}" 
-                                       class="btn btn-danger btn-sm"
-                                       onclick="return confirm('Supprimer le groupe {{ groupe.nom }} ?')">
+                                    <a href="{{ url_for('param_supprimer_groupe', id=groupe.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer le groupe {{ groupe.nom }} ?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
@@ -362,9 +442,7 @@
         <div class="tab-pane fade" id="sous-groupes" role="tabpanel">
             <div class="settings-section">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="section-title mb-0">
-                        <i class="fas fa-folder-tree"></i>Sous-groupes (Niveaux)
-                    </h5>
+                    <h5 class="section-title mb-0"><i class="fas fa-folder-tree"></i>Sous-groupes (Niveaux)</h5>
                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterSousGroupeModal">
                         <i class="fas fa-plus me-1"></i>Ajouter
                     </button>
@@ -386,17 +464,11 @@
                         <tbody>
                             {% for sg in sous_groupes %}
                             <tr>
-                                <td>
-                                    <span class="badge" style="background: #667eea; color: white;">
-                                        {{ sg.groupe_parent.nom }}
-                                    </span>
-                                </td>
+                                <td><span class="badge" style="background: #667eea; color: white;">{{ sg.groupe_parent.nom }}</span></td>
                                 <td>{{ sg.ordre }}</td>
                                 <td><strong>{{ sg.nom }}</strong></td>
                                 <td><code>{{ sg.code }}</code></td>
-                                <td>
-                                    <span class="badge bg-info">{{ sg.eleves|length }}</span>
-                                </td>
+                                <td><span class="badge bg-info">{{ sg.eleves|length }}</span></td>
                                 <td>
                                     {% if sg.actif %}
                                         <span class="badge bg-success">Actif</span>
@@ -405,13 +477,10 @@
                                     {% endif %}
                                 </td>
                                 <td class="text-end table-actions">
-                                    <button class="btn btn-warning btn-sm" 
-                                            onclick="editerSousGroupe({{ sg.id }}, '{{ sg.nom }}', '{{ sg.code }}', {{ sg.ordre }}, '{{ sg.description or '' }}', {{ sg.groupe_id }}, {{ 'true' if sg.actif else 'false' }})">
+                                    <button class="btn btn-warning btn-sm" onclick="editerSousGroupe({{ sg.id }}, '{{ sg.nom }}', '{{ sg.code }}', {{ sg.ordre }}, '{{ sg.description or '' }}', {{ sg.groupe_id }}, {{ 'true' if sg.actif else 'false' }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <a href="{{ url_for('param_supprimer_sous_groupe', id=sg.id) }}" 
-                                       class="btn btn-danger btn-sm"
-                                       onclick="return confirm('Supprimer le sous-groupe {{ sg.nom }} ?')">
+                                    <a href="{{ url_for('param_supprimer_sous_groupe', id=sg.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer le sous-groupe {{ sg.nom }} ?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
@@ -426,9 +495,7 @@
         <!-- ========== ONGLET TARIFS ========== -->
         <div class="tab-pane fade" id="tarifs" role="tabpanel">
             <div class="settings-section">
-                <h5 class="section-title">
-                    <i class="fas fa-money-bill-wave"></i>Tarifs de scolarité
-                </h5>
+                <h5 class="section-title"><i class="fas fa-money-bill-wave"></i>Tarifs de scolarité</h5>
                 
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
@@ -451,19 +518,10 @@
                             {% set tarif_affecte = tarifs_affectes|selectattr('sous_groupe_id', 'equalto', sg.id)|selectattr('est_affecte', 'equalto', true)|first %}
                             <tr>
                                 <td><strong>{{ sg.nom }}</strong> ({{ sg.groupe_parent.nom }})</td>
-                                <td class="text-center">
-                                    <span class="badge bg-primary">
-                                        {{ "{:,.0f}".format(tarif_normal.montant) if tarif_normal else '0' }} FCFA
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-success">
-                                        {{ "{:,.0f}".format(tarif_affecte.montant) if tarif_affecte else '0' }} FCFA
-                                    </span>
-                                </td>
+                                <td class="text-center"><span class="badge bg-primary">{{ "{:,.0f}".format(tarif_normal.montant) if tarif_normal else '0' }} FCFA</span></td>
+                                <td class="text-center"><span class="badge bg-success">{{ "{:,.0f}".format(tarif_affecte.montant) if tarif_affecte else '0' }} FCFA</span></td>
                                 <td class="text-end">
-                                    <button class="btn btn-warning btn-sm" 
-                                            onclick="editerTarif({{ sg.id }}, '{{ sg.nom }}', {{ tarif_normal.montant if tarif_normal else 0 }}, {{ tarif_affecte.montant if tarif_affecte else 0 }}, {{ tarif_normal.id if tarif_normal else 0 }}, {{ tarif_affecte.id if tarif_affecte else 0 }})">
+                                    <button class="btn btn-warning btn-sm" onclick="editerTarif({{ sg.id }}, '{{ sg.nom }}', {{ tarif_normal.montant if tarif_normal else 0 }}, {{ tarif_affecte.montant if tarif_affecte else 0 }}, {{ tarif_normal.id if tarif_normal else 0 }}, {{ tarif_affecte.id if tarif_affecte else 0 }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </td>
@@ -479,9 +537,7 @@
         <div class="tab-pane fade" id="transports" role="tabpanel">
             <div class="settings-section">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="section-title mb-0">
-                        <i class="fas fa-bus"></i>Options de transport
-                    </h5>
+                    <h5 class="section-title mb-0"><i class="fas fa-bus"></i>Options de transport</h5>
                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterTransportModal">
                         <i class="fas fa-plus me-1"></i>Ajouter
                     </button>
@@ -514,8 +570,7 @@
                                     {% endif %}
                                 </td>
                                 <td class="text-end">
-                                    <button class="btn btn-warning btn-sm" 
-                                            onclick="editerTransport({{ transport.id }}, '{{ transport.nom }}', '{{ transport.code }}', {{ transport.montant_supplement }}, {{ transport.ordre }}, '{{ transport.description or '' }}', {{ 'true' if transport.actif else 'false' }})">
+                                    <button class="btn btn-warning btn-sm" onclick="editerTransport({{ transport.id }}, '{{ transport.nom }}', '{{ transport.code }}', {{ transport.montant_supplement }}, {{ transport.ordre }}, '{{ transport.description or '' }}', {{ 'true' if transport.actif else 'false' }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </td>
@@ -531,9 +586,7 @@
         <div class="tab-pane fade" id="cantines" role="tabpanel">
             <div class="settings-section">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="section-title mb-0">
-                        <i class="fas fa-utensils"></i>Options de cantine
-                    </h5>
+                    <h5 class="section-title mb-0"><i class="fas fa-utensils"></i>Options de cantine</h5>
                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterCantineModal">
                         <i class="fas fa-plus me-1"></i>Ajouter
                     </button>
@@ -566,8 +619,7 @@
                                     {% endif %}
                                 </td>
                                 <td class="text-end">
-                                    <button class="btn btn-warning btn-sm" 
-                                            onclick="editerCantine({{ cantine.id }}, '{{ cantine.nom }}', '{{ cantine.code }}', {{ cantine.montant }}, {{ cantine.ordre }}, '{{ cantine.description or '' }}', {{ 'true' if cantine.actif else 'false' }})">
+                                    <button class="btn btn-warning btn-sm" onclick="editerCantine({{ cantine.id }}, '{{ cantine.nom }}', '{{ cantine.code }}', {{ cantine.montant }}, {{ cantine.ordre }}, '{{ cantine.description or '' }}', {{ 'true' if cantine.actif else 'false' }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </td>
@@ -593,26 +645,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nom *</label>
-                        <input type="text" name="nom" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Code *</label>
-                        <input type="text" name="code" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Ordre</label>
-                        <input type="number" name="ordre" class="form-control" value="0">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="actif" class="form-check-input" id="actifGroupe" checked>
-                        <label class="form-check-label" for="actifGroupe">Actif</label>
-                    </div>
+                    <div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" class="form-control" value="0"></div>
+                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+                    <div class="form-check"><input type="checkbox" name="actif" class="form-check-input" id="actifGroupe" checked><label class="form-check-label" for="actifGroupe">Actif</label></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -633,26 +670,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nom *</label>
-                        <input type="text" name="nom" id="editGroupeNom" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Code *</label>
-                        <input type="text" name="code" id="editGroupeCode" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Ordre</label>
-                        <input type="number" name="ordre" id="editGroupeOrdre" class="form-control" value="0">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" id="editGroupeDescription" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="actif" id="editGroupeActif" class="form-check-input">
-                        <label class="form-check-label" for="editGroupeActif">Actif</label>
-                    </div>
+                    <div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" id="editGroupeNom" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" id="editGroupeCode" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" id="editGroupeOrdre" class="form-control" value="0"></div>
+                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="editGroupeDescription" class="form-control" rows="2"></textarea></div>
+                    <div class="form-check"><input type="checkbox" name="actif" id="editGroupeActif" class="form-check-input"><label class="form-check-label" for="editGroupeActif">Actif</label></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -677,31 +699,14 @@
                         <label class="form-label">Groupe parent *</label>
                         <select name="groupe_id" class="form-select" required>
                             <option value="">Sélectionner...</option>
-                            {% for groupe in groupes %}
-                            <option value="{{ groupe.id }}">{{ groupe.nom }}</option>
-                            {% endfor %}
+                            {% for groupe in groupes %}<option value="{{ groupe.id }}">{{ groupe.nom }}</option>{% endfor %}
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nom *</label>
-                        <input type="text" name="nom" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Code *</label>
-                        <input type="text" name="code" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Ordre</label>
-                        <input type="number" name="ordre" class="form-control" value="0">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="actif" class="form-check-input" id="actifSousGroupe" checked>
-                        <label class="form-check-label" for="actifSousGroupe">Actif</label>
-                    </div>
+                    <div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" class="form-control" value="0"></div>
+                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+                    <div class="form-check"><input type="checkbox" name="actif" class="form-check-input" id="actifSousGroupe" checked><label class="form-check-label" for="actifSousGroupe">Actif</label></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -726,31 +731,14 @@
                         <label class="form-label">Groupe parent *</label>
                         <select name="groupe_id" id="editSousGroupeParent" class="form-select" required>
                             <option value="">Sélectionner...</option>
-                            {% for groupe in groupes %}
-                            <option value="{{ groupe.id }}">{{ groupe.nom }}</option>
-                            {% endfor %}
+                            {% for groupe in groupes %}<option value="{{ groupe.id }}">{{ groupe.nom }}</option>{% endfor %}
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nom *</label>
-                        <input type="text" name="nom" id="editSousGroupeNom" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Code *</label>
-                        <input type="text" name="code" id="editSousGroupeCode" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Ordre</label>
-                        <input type="number" name="ordre" id="editSousGroupeOrdre" class="form-control" value="0">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" id="editSousGroupeDescription" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="actif" id="editSousGroupeActif" class="form-check-input">
-                        <label class="form-check-label" for="editSousGroupeActif">Actif</label>
-                    </div>
+                    <div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" id="editSousGroupeNom" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" id="editSousGroupeCode" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" id="editSousGroupeOrdre" class="form-control" value="0"></div>
+                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="editSousGroupeDescription" class="form-control" rows="2"></textarea></div>
+                    <div class="form-check"><input type="checkbox" name="actif" id="editSousGroupeActif" class="form-check-input"><label class="form-check-label" for="editSousGroupeActif">Actif</label></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -774,15 +762,8 @@
                     <input type="hidden" name="sous_groupe_id" id="tarifSousGroupeId">
                     <input type="hidden" name="tarif_normal_id" id="tarifNormalId">
                     <input type="hidden" name="tarif_affecte_id" id="tarifAffecteId">
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Tarif Normal (FCFA)</label>
-                        <input type="number" name="tarif_normal" id="editTarifNormal" class="form-control" step="500" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tarif Affecté (FCFA)</label>
-                        <input type="number" name="tarif_affecte" id="editTarifAffecte" class="form-control" step="500" required>
-                    </div>
+                    <div class="mb-3"><label class="form-label">Tarif Normal (FCFA)</label><input type="number" name="tarif_normal" id="editTarifNormal" class="form-control" step="500" required></div>
+                    <div class="mb-3"><label class="form-label">Tarif Affecté (FCFA)</label><input type="number" name="tarif_affecte" id="editTarifAffecte" class="form-control" step="500" required></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -803,30 +784,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nom *</label>
-                        <input type="text" name="nom" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Code *</label>
-                        <input type="text" name="code" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Montant supplément (FCFA)</label>
-                        <input type="number" name="montant_supplement" class="form-control" value="0" step="500">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Ordre</label>
-                        <input type="number" name="ordre" class="form-control" value="0">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="actif" class="form-check-input" id="actifTransport" checked>
-                        <label class="form-check-label" for="actifTransport">Actif</label>
-                    </div>
+                    <div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Montant supplément (FCFA)</label><input type="number" name="montant_supplement" class="form-control" value="0" step="500"></div>
+                    <div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" class="form-control" value="0"></div>
+                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+                    <div class="form-check"><input type="checkbox" name="actif" class="form-check-input" id="actifTransport" checked><label class="form-check-label" for="actifTransport">Actif</label></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -847,30 +810,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nom *</label>
-                        <input type="text" name="nom" id="editTransportNom" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Code *</label>
-                        <input type="text" name="code" id="editTransportCode" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Montant supplément (FCFA)</label>
-                        <input type="number" name="montant_supplement" id="editTransportMontant" class="form-control" step="500">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Ordre</label>
-                        <input type="number" name="ordre" id="editTransportOrdre" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" id="editTransportDescription" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="actif" id="editTransportActif" class="form-check-input">
-                        <label class="form-check-label" for="editTransportActif">Actif</label>
-                    </div>
+                    <div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" id="editTransportNom" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" id="editTransportCode" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Montant supplément (FCFA)</label><input type="number" name="montant_supplement" id="editTransportMontant" class="form-control" step="500"></div>
+                    <div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" id="editTransportOrdre" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="editTransportDescription" class="form-control" rows="2"></textarea></div>
+                    <div class="form-check"><input type="checkbox" name="actif" id="editTransportActif" class="form-check-input"><label class="form-check-label" for="editTransportActif">Actif</label></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -891,30 +836,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nom *</label>
-                        <input type="text" name="nom" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Code *</label>
-                        <input type="text" name="code" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Montant (FCFA)</label>
-                        <input type="number" name="montant" class="form-control" value="0" step="500">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Ordre</label>
-                        <input type="number" name="ordre" class="form-control" value="0">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="actif" class="form-check-input" id="actifCantine" checked>
-                        <label class="form-check-label" for="actifCantine">Actif</label>
-                    </div>
+                    <div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Montant (FCFA)</label><input type="number" name="montant" class="form-control" value="0" step="500"></div>
+                    <div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" class="form-control" value="0"></div>
+                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+                    <div class="form-check"><input type="checkbox" name="actif" class="form-check-input" id="actifCantine" checked><label class="form-check-label" for="actifCantine">Actif</label></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -935,30 +862,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nom *</label>
-                        <input type="text" name="nom" id="editCantineNom" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Code *</label>
-                        <input type="text" name="code" id="editCantineCode" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Montant (FCFA)</label>
-                        <input type="number" name="montant" id="editCantineMontant" class="form-control" step="500">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Ordre</label>
-                        <input type="number" name="ordre" id="editCantineOrdre" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" id="editCantineDescription" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="actif" id="editCantineActif" class="form-check-input">
-                        <label class="form-check-label" for="editCantineActif">Actif</label>
-                    </div>
+                    <div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" id="editCantineNom" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" id="editCantineCode" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Montant (FCFA)</label><input type="number" name="montant" id="editCantineMontant" class="form-control" step="500"></div>
+                    <div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" id="editCantineOrdre" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="editCantineDescription" class="form-control" rows="2"></textarea></div>
+                    <div class="form-check"><input type="checkbox" name="actif" id="editCantineActif" class="form-check-input"><label class="form-check-label" for="editCantineActif">Actif</label></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -968,12 +877,11 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // === FONCTIONS D'ÉDITION ===
-    
     function editerGroupe(id, nom, code, ordre, description, actif) {
         document.getElementById('editGroupeNom').value = nom;
         document.getElementById('editGroupeCode').value = code;
@@ -981,9 +889,7 @@
         document.getElementById('editGroupeDescription').value = description;
         document.getElementById('editGroupeActif').checked = actif;
         document.getElementById('modifierGroupeForm').action = "/parametres/groupes/" + id + "/modifier";
-        
-        var modal = new bootstrap.Modal(document.getElementById('modifierGroupeModal'));
-        modal.show();
+        new bootstrap.Modal(document.getElementById('modifierGroupeModal')).show();
     }
     
     function editerSousGroupe(id, nom, code, ordre, description, groupe_id, actif) {
@@ -994,9 +900,7 @@
         document.getElementById('editSousGroupeParent').value = groupe_id;
         document.getElementById('editSousGroupeActif').checked = actif;
         document.getElementById('modifierSousGroupeForm').action = "/parametres/sous-groupes/" + id + "/modifier";
-        
-        var modal = new bootstrap.Modal(document.getElementById('modifierSousGroupeModal'));
-        modal.show();
+        new bootstrap.Modal(document.getElementById('modifierSousGroupeModal')).show();
     }
     
     function editerTarif(sgId, nom, normal, affecte, tarifNormalId, tarifAffecteId) {
@@ -1007,9 +911,7 @@
         document.getElementById('tarifNormalId').value = tarifNormalId;
         document.getElementById('tarifAffecteId').value = tarifAffecteId;
         document.getElementById('modifierTarifForm').action = "/parametres/tarifs-affectes/ajouter";
-        
-        var modal = new bootstrap.Modal(document.getElementById('modifierTarifModal'));
-        modal.show();
+        new bootstrap.Modal(document.getElementById('modifierTarifModal')).show();
     }
     
     function editerTransport(id, nom, code, montant_supplement, ordre, description, actif) {
@@ -1019,11 +921,8 @@
         document.getElementById('editTransportOrdre').value = ordre;
         document.getElementById('editTransportDescription').value = description;
         document.getElementById('editTransportActif').checked = actif;
-        // Route de modification du transport à créer
         document.getElementById('modifierTransportForm').action = "/parametres/transports/" + id + "/modifier";
-        
-        var modal = new bootstrap.Modal(document.getElementById('modifierTransportModal'));
-        modal.show();
+        new bootstrap.Modal(document.getElementById('modifierTransportModal')).show();
     }
     
     function editerCantine(id, nom, code, montant, ordre, description, actif) {
@@ -1033,11 +932,8 @@
         document.getElementById('editCantineOrdre').value = ordre;
         document.getElementById('editCantineDescription').value = description;
         document.getElementById('editCantineActif').checked = actif;
-        // Route de modification de la cantine à créer
         document.getElementById('modifierCantineForm').action = "/parametres/cantines/" + id + "/modifier";
-        
-        var modal = new bootstrap.Modal(document.getElementById('modifierCantineModal'));
-        modal.show();
+        new bootstrap.Modal(document.getElementById('modifierCantineModal')).show();
     }
 </script>
 {% endblock %}

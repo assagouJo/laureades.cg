@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier l'Élève - {{ eleve.prenom }} {{ eleve.nom }}{% endblock %}
+
+{% block styles %}
+<style>
+    .option-card { border-left: 4px solid #dee2e6; transition: all 0.3s ease; }
+    .option-card:hover { background-color: #f8f9fa; }
+    .option-selected { border-left-color: #28a745; background-color: #f0fff4; }
+    .price-tag { font-size: 0.85rem; color: #28a745; font-weight: bold; }
+    .info-badge { font-size: 0.7rem; padding: 3px 8px; }
+    .current-value { font-size: 0.8rem; color: #6c757d; }
+    .avatar-lg {
+        width: 70px; height: 70px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+    .avatar-initials { font-size: 28px; color: white; font-weight: bold; }
+    #soldeAlert { transition: all 0.3s ease; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <div class="d-flex align-items-center">
+                <a href="{{ url_for('liste_eleves') }}" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="mb-0"><i class="fas fa-edit me-2"></i>Modifier l'élève</h2>
+            </div>
+            <p class="text-muted mt-2">
+                <i class="fas fa-user-graduate me-1"></i>
+                {{ eleve.prenom }} {{ eleve.nom }} - Matricule: {{ eleve.matricule }}
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Formulaire de modification</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="eleveForm">
+                        <!-- Section 1: Informations personnelles -->
+                        <h6 class="mb-3"><i class="fas fa-user me-2"></i>Informations personnelles</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nom <span class="text-danger">*</span></label>
+                                <input type="text" name="nom" class="form-control" value="{{ eleve.nom }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                                <input type="text" name="prenom" class="form-control" value="{{ eleve.prenom }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date de naissance</label>
+                                <input type="date" name="date_naissance" class="form-control" 
+                                       value="{{ eleve.date_naissance.strftime('%Y-%m-%d') if eleve.date_naissance else '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Lieu de naissance</label>
+                                <input type="text" name="lieu_naissance" class="form-control" value="{{ eleve.lieu_naissance or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nom du Parent</label>
+                                <input type="text" name="nom_parent" class="form-control" value="{{ eleve.nom_parent or '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Téléphone parent</label>
+                                <input type="tel" name="telephone_parent" class="form-control" value="{{ eleve.telephone_parent or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Profession parent</label>
+                                <input type="text" name="profession_parent" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Employeur</label>
+                                <input type="text" name="employeur" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Adresse</label>
+                                <textarea name="adresse" class="form-control" rows="2">{{ eleve.adresse or '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Section 2: Niveau scolaire -->
+                        <h6 class="mb-3"><i class="fas fa-graduation-cap me-2"></i>Niveau scolaire</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Groupe <span class="text-danger">*</span></label>
+                                <select class="form-select" id="groupe_id" name="groupe_id" required>
+                                    <option value="">Sélectionner un groupe</option>
+                                    {% for groupe in groupes %}
+                                        <option value="{{ groupe.id }}" 
+                                            {% if eleve.sous_groupe and eleve.sous_groupe.groupe_parent.id == groupe.id %}selected{% endif %}>
+                                            {{ groupe.nom }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Niveau <span class="text-danger">*</span></label>
+                                <select class="form-select" id="sous_groupe_id" name="sous_groupe_id" required>
+                                    <option value="">Sélectionner d'abord un groupe</option>
+                                    {% for sg in sous_groupes %}
+                                        <option value="{{ sg.id }}" {% if eleve.sous_groupe_id == sg.id %}selected{% endif %}>
+                                            {{ sg.nom }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Classe <span class="text-danger">*</span></label>
+                                <input type="text" name="classe" class="form-control" value="{{ eleve.classe }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Matricule <span class="text-danger">*</span></label>
+                                <input type="text" name="matricule" class="form-control" value="{{ eleve.matricule }}" required>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Section 3: Affectation État -->
+                        <h6 class="mb-3"><i class="fas fa-hand-holding-heart me-2"></i>Affectation par l'État</h6>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="estAffecteEtat" name="est_affecte_etat"
+                                           {% if eleve.est_affecte_etat %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="estAffecteEtat">Élève affecté par l'État</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="affectationDetails" style="display: {% if eleve.est_affecte_etat %}block{% else %}none{% endif %};">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">N° dossier d'affectation</label>
+                                    <input type="text" name="reference_affectation" class="form-control" 
+                                           value="{{ eleve.reference_affectation or '' }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Organisme</label>
+                                    <select name="organisme_affectation" class="form-select">
+                                        <option value="État" {% if eleve.organisme_affectation == 'État' %}selected{% endif %}>État</option>
+                                        <option value="Bourse nationale" {% if eleve.organisme_affectation == 'Bourse nationale' %}selected{% endif %}>Bourse nationale</option>
+                                        <option value="ONG" {% if eleve.organisme_affectation == 'ONG' %}selected{% endif %}>ONG</option>
+                                        <option value="Mairie" {% if eleve.organisme_affectation == 'Mairie' %}selected{% endif %}>Mairie</option>
+                                        <option value="Entreprise" {% if eleve.organisme_affectation == 'Entreprise' %}selected{% endif %}>Entreprise</option>
+                                        <option value="Autre" {% if eleve.organisme_affectation == 'Autre' %}selected{% endif %}>Autre</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Section 4: Options supplémentaires -->
+                        <h6 class="mb-3"><i class="fas fa-bus me-2"></i>Options supplémentaires</h6>
+                        
+                       <!-- Transport -->
+                        <div class="card mb-3 option-card" id="transportCard">
+                            <div class="card-body py-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="transportCheckbox" name="transport_actif"
+                                        {% if eleve.transport_option_id %}checked{% endif %}
+                                        onchange="document.getElementById('transportOptions').style.display = this.checked ? 'block' : 'none'">
+                                    <label class="form-check-label fw-bold" for="transportCheckbox">Transport scolaire</label>
+                                </div>
+                                <div id="transportOptions" style="display: {% if eleve.transport_option_id %}block{% else %}none{% endif %};" class="mt-2">
+                                    <select class="form-select" id="transport_option" name="transport_option_id">
+                                        <option value="">Aucun</option>
+                                        {% for transport in transports %}
+                                            <option value="{{ transport.id }}" data-montant="{{ transport.montant_supplement }}"
+                                                    {% if eleve.transport_option_id == transport.id %}selected{% endif %}>
+                                                {{ transport.nom }} - {{ "{:,.0f}".format(transport.montant_supplement) }} FCFA
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cantine -->
+                        <div class="card mb-3 option-card" id="cantineCard">
+                            <div class="card-body py-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="cantineCheckbox" name="cantine_actif"
+                                        {% if eleve.cantine_option_id %}checked{% endif %}
+                                        onchange="document.getElementById('cantineOptions').style.display = this.checked ? 'block' : 'none'">
+                                    <label class="form-check-label fw-bold" for="cantineCheckbox">Cantine scolaire</label>
+                                </div>
+                                <div id="cantineOptions" style="display: {% if eleve.cantine_option_id %}block{% else %}none{% endif %};" class="mt-2">
+                                    <select class="form-select" id="cantine_option" name="cantine_option_id">
+                                        <option value="">Aucune</option>
+                                        {% for cantine in cantines %}
+                                            <option value="{{ cantine.id }}" data-montant="{{ cantine.montant }}"
+                                                    {% if eleve.cantine_option_id == cantine.id %}selected{% endif %}>
+                                                {{ cantine.nom }} - {{ "{:,.0f}".format(cantine.montant) }} FCFA
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Renforcement -->
+                        <div class="card mb-3 option-card" id="renforcementCard" style="display: none;">
+                            <div class="card-body py-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="renforcementCheckbox" name="renforcement_inscrit"
+                                           {% if eleve.renforcement_inscrit %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="renforcementCheckbox">Cours de renforcement</label>
+                                </div>
+                                <div id="renforcementInfo" class="mt-2 small text-muted"></div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Section 5: Récapitulatif des frais -->
+                        <div id="fraisResume">
+                            <h6 class="mb-3"><i class="fas fa-calculator me-2"></i>Récapitulatif des frais</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <td width="60%">Scolarité de base</td>
+                                            <td class="text-end">
+                                                <strong>{{ "{:,.0f}".format(eleve.frais_scolarite_base) }}</strong> FCFA
+                                            </td>
+                                        </tr>
+                                        {% if eleve.transport_option_id %}
+                                        <tr>
+                                            <td>Transport scolaire</td>
+                                            <td class="text-end">
+                                                <strong>{{ "{:,.0f}".format(eleve.frais_transport) }}</strong> FCFA
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if eleve.cantine_option_id %}
+                                        <tr>
+                                            <td>Cantine scolaire</td>
+                                            <td class="text-end">
+                                                <strong>{{ "{:,.0f}".format(eleve.frais_cantine) }}</strong> FCFA
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if eleve.renforcement_inscrit or eleve.est_renforcement_obligatoire %}
+                                        <tr>
+                                            <td>Cours de renforcement</td>
+                                            <td class="text-end">
+                                                <strong>{{ "{:,.0f}".format(eleve.frais_renforcement) }}</strong> FCFA
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if eleve.frais_tenue > 0 %}
+                                        <tr>
+                                            <td>Tenue scolaire</td>
+                                            <td class="text-end">
+                                                <strong>{{ "{:,.0f}".format(eleve.frais_tenue) }}</strong> FCFA
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if eleve.frais_droit_examen > 0 %}
+                                        <tr>
+                                            <td>Droit d'examen</td>
+                                            <td class="text-end">
+                                                <strong>{{ "{:,.0f}".format(eleve.frais_droit_examen) }}</strong> FCFA
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        <tr class="table-primary">
+                                            <td><strong>TOTAL ANNUEL</strong></td>
+                                            <td class="text-end">
+                                                <strong>{{ "{:,.0f}".format(eleve.frais_scolarite_total) }}</strong> FCFA
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="alert alert-warning" id="soldeAlert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Montant déjà payé: <strong>{{ "{:,.0f}".format(eleve.montant_paye) }} FCFA</strong>
+                                <br>
+                                <small>
+                                    {% if eleve.solde > 0 %}
+                                        <span class="text-danger">Reste à payer: <strong>{{ "{:,.0f}".format(eleve.solde) }}</strong> FCFA</span>
+                                    {% elif eleve.solde == 0 %}
+                                        <span class="text-success">✅ Compte soldé</span>
+                                    {% else %}
+                                        <span class="text-info">Trop perçu: <strong>{{ "{:,.0f}".format(eleve.solde|abs) }}</strong> FCFA</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <a href="{{ url_for('liste_eleves') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Mettre à jour
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h6></div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="avatar-lg mx-auto mb-2"><span class="avatar-initials">{{ eleve.prenom[0]|upper }}{{ eleve.nom[0]|upper }}</span></div>
+                        <h6 class="mb-1">{{ eleve.prenom }} {{ eleve.nom }}</h6>
+                        <small class="text-muted">{{ eleve.matricule }}</small>
+                    </div>
+                    <hr>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><i class="fas fa-calendar-alt me-2 text-muted"></i><strong>Inscrit le :</strong><br>{{ eleve.date_inscription.strftime('%d/%m/%Y') if eleve.date_inscription else 'N/A' }}</li>
+                        <li class="mb-2"><i class="fas fa-chart-line me-2 text-muted"></i><strong>Taux de paiement :</strong><br>
+                            <div class="progress mt-1" style="height: 5px;"><div class="progress-bar bg-success" style="width: {{ eleve.taux_paiement }}%"></div></div>
+                            <span class="small">{{ eleve.taux_paiement }}%</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Aucun JavaScript nécessaire -->
+{% endblock %}

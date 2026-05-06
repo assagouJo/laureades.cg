@@ -32,9 +32,7 @@
             background: #f0f2f5;
         }
         
-        body {
-            overflow: hidden;
-        }
+        body { overflow: hidden; }
         
         /* ========== LAYOUT PRINCIPAL ========== */
         .app-layout {
@@ -90,10 +88,7 @@
             -webkit-overflow-scrolling: touch;
         }
         
-        .sidebar-nav::-webkit-scrollbar {
-            width: 4px;
-        }
-        
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
         .sidebar-nav::-webkit-scrollbar-thumb {
             background: rgba(255,255,255,0.2);
             border-radius: 10px;
@@ -109,6 +104,7 @@
             align-items: center;
             white-space: nowrap;
             text-decoration: none;
+            cursor: pointer;
         }
         
         .sidebar .nav-link:hover {
@@ -131,6 +127,20 @@
             font-size: 0.95rem;
         }
         
+        /* ========== DROPDOWN SIDEBAR CORRIGÉ ========== */
+        .eleves-dropdown {
+            position: relative;
+        }
+        
+        .eleves-dropdown .dropdown-toggle::after {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .eleves-dropdown .dropdown-toggle.open::after {
+            transform: rotate(180deg);
+        }
+        
         .eleves-dropdown .dropdown-menu {
             background: white;
             border: none;
@@ -139,26 +149,25 @@
             margin-left: 15px;
             min-width: 200px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            /* 🔥 Animation lente et fluide 🔥 */
-            display: block;
+            /* ✅ CORRECTION : caché par défaut */
+            display: none;
             opacity: 0;
-            transform: translateY(-15px);
-            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                        transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            pointer-events: none;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
-
+        
         .eleves-dropdown .dropdown-menu.show {
+            display: block !important;
             opacity: 1;
             transform: translateY(0);
-            pointer-events: auto;
         }
         
         .eleves-dropdown .dropdown-item {
-            padding: 9px 20px;
+            padding: 10px 20px;
             color: #333;
             font-size: 0.85rem;
-            transition: all 0.2s;
+            transition: all 0.15s;
+            cursor: pointer;
         }
         
         .eleves-dropdown .dropdown-item:hover,
@@ -218,24 +227,6 @@
             color: #333;
             font-size: 1rem;
         }
-
-        .topbar .dropdown-menu {
-            display: block;
-            opacity: 0;
-            transform: translateY(-15px);
-            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                        transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            pointer-events: none;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-
-        .topbar .dropdown-menu.show {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
         
         .dossier-badge {
             background: var(--primary-gradient);
@@ -246,9 +237,7 @@
             box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
         }
         
-        .dossier-badge i {
-            margin-right: 6px;
-        }
+        .dossier-badge i { margin-right: 6px; }
         
         .user-dropdown {
             display: flex;
@@ -262,9 +251,7 @@
             transition: background 0.2s;
         }
         
-        .user-dropdown:hover {
-            background: #f8f9fa;
-        }
+        .user-dropdown:hover { background: #f8f9fa; }
         
         .user-avatar {
             width: 36px;
@@ -290,10 +277,7 @@
             padding-bottom: calc(15px + var(--safe-area-bottom));
         }
         
-        .page-content::-webkit-scrollbar {
-            width: 6px;
-        }
-        
+        .page-content::-webkit-scrollbar { width: 6px; }
         .page-content::-webkit-scrollbar-thumb {
             background: #c0c0c0;
             border-radius: 10px;
@@ -323,9 +307,7 @@
             transition: all 0.2s;
         }
         
-        .btn:active {
-            transform: scale(0.97);
-        }
+        .btn:active { transform: scale(0.97); }
         
         .btn-primary {
             background: var(--primary-gradient);
@@ -350,10 +332,7 @@
             animation: slideDown 0.3s ease;
         }
         
-        .table {
-            font-size: 0.85rem;
-        }
-        
+        .table { font-size: 0.85rem; }
         .table td, .table th {
             padding: 8px 10px;
             vertical-align: middle;
@@ -371,9 +350,7 @@
             z-index: 1025;
         }
         
-        .overlay.show {
-            display: block;
-        }
+        .overlay.show { display: block; }
         
         /* ========== ANIMATIONS ========== */
         @keyframes fadeIn {
@@ -386,15 +363,23 @@
             to { transform: translateY(0); opacity: 1; }
         }
         
+        /* ========== TOPBAR DROPDOWN ========== */
+        .topbar .dropdown-menu {
+            display: none;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .topbar .dropdown-menu.show {
+            display: block !important;
+        }
+        
         /* ========== RESPONSIVE MOBILE ========== */
         @media (max-width: 768px) {
-            :root {
-                --topbar-height: 50px;
-            }
+            :root { --topbar-height: 50px; }
             
-            body {
-                overflow: auto;
-            }
+            body { overflow: auto; }
             
             .sidebar {
                 transform: translateX(-100%);
@@ -402,9 +387,7 @@
                 min-width: 280px;
             }
             
-            .sidebar.mobile-open {
-                transform: translateX(0);
-            }
+            .sidebar.mobile-open { transform: translateX(0); }
             
             .main-area {
                 margin-left: 0 !important;
@@ -412,9 +395,7 @@
                 height: -webkit-fill-available;
             }
             
-            .topbar {
-                padding: 0 12px;
-            }
+            .topbar { padding: 0 12px; }
             
             .topbar h5 {
                 font-size: 0.9rem;
@@ -424,13 +405,8 @@
                 white-space: nowrap;
             }
             
-            .dossier-badge {
-                display: none;
-            }
-            
-            .user-dropdown .d-none {
-                display: none !important;
-            }
+            .dossier-badge { display: none; }
+            .user-dropdown .d-none { display: none !important; }
             
             .page-content {
                 padding: 10px;
@@ -448,10 +424,7 @@
                 height: 100%;
             }
             
-            .modal-content {
-                border-radius: 0;
-                height: 100%;
-            }
+            .modal-content { border-radius: 0; height: 100%; }
             
             .modal-body {
                 max-height: calc(100vh - 120px);
@@ -459,19 +432,21 @@
                 -webkit-overflow-scrolling: touch;
             }
             
-            .btn {
-                padding: 10px 16px;
-                font-size: 15px;
-            }
-            
-            .btn-sm {
-                padding: 6px 10px;
-                font-size: 13px;
-            }
+            .btn { padding: 10px 16px; font-size: 15px; }
+            .btn-sm { padding: 6px 10px; font-size: 13px; }
             
             .dropdown-menu {
                 max-height: 50vh;
                 overflow-y: auto;
+            }
+            
+            /* Sur mobile, le dropdown s'affiche en dessous */
+            .eleves-dropdown .dropdown-menu {
+                position: static !important;
+                float: none;
+                margin: 0 15px;
+                width: calc(100% - 30px);
+                background: rgba(255,255,255,0.95);
             }
         }
         
@@ -528,12 +503,13 @@
                 </a>
                 {% endif %}
                 
+                <!-- 🔥 DROPDOWN ÉLÈVES CORRIGÉ -->
                 <div class="eleves-dropdown">
                     <a class="nav-link dropdown-toggle {% if request.endpoint == 'liste_eleves' %}active{% endif %}" 
-                       href="#" data-bs-toggle="dropdown">
+                       href="#" onclick="toggleSidebarDropdown(event, this)">
                         <i class="fas fa-users"></i> Élèves
                     </a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu" id="dropdownEleves">
                         <li><a class="dropdown-item {% if session.get('dossier_actif') == 'maternelle' %}active{% endif %}" 
                                href="{{ url_for('changer_dossier', dossier='maternelle') }}">
                             🧸 Maternelle</a></li>
@@ -550,14 +526,14 @@
                     </ul>
                 </div>
                 
-                <!-- 🔥 NOUVEAU MENU RÉINSCRIPTIONS 🔥 -->
+                <!-- 🔥 DROPDOWN RÉINSCRIPTIONS CORRIGÉ -->
                 {% if current_user.role in ['admin', 'comptable'] %}
                 <div class="eleves-dropdown">
                     <a class="nav-link dropdown-toggle {% if request.endpoint in ['liste_reinscriptions', 'reinscrire_anciens'] %}active{% endif %}" 
-                       href="#" data-bs-toggle="dropdown">
+                       href="#" onclick="toggleSidebarDropdown(event, this)">
                         <i class="fas fa-redo"></i> Réinscriptions
                     </a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu" id="dropdownReinscriptions">
                         <li><a class="dropdown-item {% if request.endpoint == 'liste_reinscriptions' %}active{% endif %}" 
                                href="{{ url_for('liste_reinscriptions') }}">
                             <i class="fas fa-list"></i> 📋 Liste</a></li>
@@ -679,10 +655,41 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
+        // ========== FONCTION DROPDOWN SIDEBAR STABLE ==========
+        function toggleSidebarDropdown(e, toggle) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var menu = toggle.nextElementSibling;
+            var isOpen = menu.classList.contains('show');
+            
+            // Fermer tous les autres dropdowns
+            document.querySelectorAll('.eleves-dropdown .dropdown-menu.show').forEach(function(m) {
+                if (m !== menu) {
+                    m.classList.remove('show');
+                    // Enlever la classe open du toggle correspondant
+                    var otherToggle = m.previousElementSibling;
+                    if (otherToggle) otherToggle.classList.remove('open');
+                }
+            });
+            
+            // Toggle
+            if (isOpen) {
+                menu.classList.remove('show');
+                toggle.classList.remove('open');
+            } else {
+                menu.classList.add('show');
+                toggle.classList.add('open');
+            }
+        }
+        
+        // ========== INITIALISATION ==========
         document.addEventListener('DOMContentLoaded', function() {
+            // Tooltips
             var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltips.forEach(function(el) { new bootstrap.Tooltip(el); });
             
+            // Menu mobile
             var menuToggle = document.getElementById('menuToggle');
             var sidebar = document.getElementById('sidebar');
             var overlay = document.getElementById('overlay');
@@ -702,16 +709,43 @@
             if (menuToggle) menuToggle.addEventListener('click', openMenu);
             if (overlay) overlay.addEventListener('click', closeMenu);
             
+            // Fermer le menu mobile après clic sur un lien
             if (sidebar) {
-                sidebar.querySelectorAll('.nav-link').forEach(function(link) {
+                sidebar.querySelectorAll('.nav-link:not(.dropdown-toggle)').forEach(function(link) {
                     link.addEventListener('click', function() {
                         if (window.innerWidth <= 768) {
-                            setTimeout(closeMenu, 200);
+                            setTimeout(closeMenu, 300);
                         }
                     });
                 });
             }
             
+            // Fermer les dropdowns au clic extérieur
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.eleves-dropdown')) {
+                    document.querySelectorAll('.eleves-dropdown .dropdown-menu.show').forEach(function(menu) {
+                        menu.classList.remove('show');
+                        var toggle = menu.previousElementSibling;
+                        if (toggle) toggle.classList.remove('open');
+                    });
+                }
+            });
+            
+            // Fermer le dropdown après clic sur un item (mobile)
+            document.querySelectorAll('.eleves-dropdown .dropdown-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    setTimeout(function() {
+                        var menu = item.closest('.dropdown-menu');
+                        if (menu) {
+                            menu.classList.remove('show');
+                            var toggle = menu.previousElementSibling;
+                            if (toggle) toggle.classList.remove('open');
+                        }
+                    }, 400);
+                });
+            });
+            
+            // Hauteur mobile
             function setMobileHeight() {
                 var vh = window.innerHeight * 0.01;
                 document.documentElement.style.setProperty('--vh', vh + 'px');
@@ -723,47 +757,12 @@
                 setTimeout(setMobileHeight, 100);
             });
             
+            // Auto-fermeture des alertes
             setTimeout(function() {
                 document.querySelectorAll('.alert').forEach(function(alert) {
-                    new bootstrap.Alert(alert).close();
+                    try { new bootstrap.Alert(alert).close(); } catch(e) {}
                 });
             }, 5000);
-        });
-        // Assurer que les dropdowns restent ouverts sur mobile
-        document.addEventListener('DOMContentLoaded', function() {
-            // Forcer le bon comportement des dropdowns Bootstrap sur mobile
-            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-                document.querySelectorAll('.eleves-dropdown .dropdown-toggle').forEach(function(toggle) {
-                    toggle.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        var dropdownMenu = this.nextElementSibling;
-                        var bsDropdown = bootstrap.Dropdown.getInstance(this);
-                        
-                        if (!bsDropdown) {
-                            bsDropdown = new bootstrap.Dropdown(this);
-                        }
-                        
-                        // Forcer l'ouverture
-                        if (!dropdownMenu.classList.contains('show')) {
-                            bsDropdown.show();
-                        }
-                    });
-                });
-                
-                // Empêcher la fermeture immédiate sur le dropdown menu lui-même
-                document.querySelectorAll('.eleves-dropdown .dropdown-menu').forEach(function(menu) {
-                    menu.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                    });
-                    
-                    // Empêcher le touchstart de fermer le menu
-                    menu.addEventListener('touchstart', function(e) {
-                        e.stopPropagation();
-                    });
-                });
-            }
         });
     </script>
     

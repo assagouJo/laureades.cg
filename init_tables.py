@@ -3,11 +3,38 @@
 # python init_db.py
 
 from app import app, db
+from sqlalchemy import inspect, text
+from datetime import datetime
 from models import (
     User, GroupeScolaire, SousGroupe, TypeFrais, OptionTransport, 
     OptionCantine, TarifFrais, TarifFraisAffecte, Parametre
 )
-from datetime import datetime
+
+
+def safe_add_missing_columns():
+    """Ajoute les colonnes manquantes sans toucher aux données"""
+    inspector = inspect(db.engine)
+    
+    # Colonnes à vérifier pour chaque table
+    columns_to_check = {
+        # 'eleves': {
+        #     'email_parent': 'VARCHAR(120)',
+        #     'photo': 'VARCHAR(200)',
+        # },
+
+    }
+    
+    for table, columns in columns_to_check.items():
+        existing_cols = [c['name'] for c in inspector.get_columns(table)]
+        for col_name, col_type in columns.items():
+            if col_name not in existing_cols:
+                try:
+                    with db.engine.begin() as conn:
+                        sql = f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}"
+                        conn.execute(text(sql))
+                    print(f"  ➕ Colonne ajoutée: {table}.{col_name}")
+                except Exception as e:
+                    print(f"  ⚠️ Erreur: {e}")
 
 def init_database():
     with app.app_context():
@@ -15,9 +42,11 @@ def init_database():
         print("🚀 INITIALISATION DE LA BASE DE DONNÉES - GestScolaire")
         print("=" * 70)
         
-        # Créer toutes les tables
+        # Créer les tables (ignore celles qui existent déjà)
+        print("\n📊 Vérification des tables...")
         db.create_all()
-        print("✅ Tables créées avec succès")
+        safe_add_missing_columns()
+        print("✅ Tables vérifiées (données conservées)")
         
         # ============================================================
         # 1. CRÉATION DES GROUPES
@@ -305,9 +334,9 @@ def init_database():
         print("─" * 70)
         
         renforcement_config = {
-            'CM2':       50000,
-            '3ème':      60000,
-            'Terminale': 75000
+            'CM2':       30000,
+            '3ème':      42000,
+            'Terminale': 55000
         }
         
         type_renforcement = TypeFrais.query.filter_by(code='renforcement').first()
@@ -387,10 +416,10 @@ def init_database():
 
 
         parametres_periodes = [
-            Parametre(cle='annee_scolaire_active', valeur='2025-2026', description='Année scolaire en cours pour les réinscriptions'),
-            Parametre(cle='annees_scolaires', valeur='2025-2026,2026-2027,2027-2028', description='Liste des années disponibles (séparées par des virgules)'),
-            Parametre(cle='periode_debut', valeur='2025-09-01', description='Date de début de la période active'),
-            Parametre(cle='periode_fin', valeur='2026-07-31', description='Date de fin de la période active'),
+            Parametre(cle='annee_scolaire_active', valeur='2026-2027', description='Année scolaire en cours pour les réinscriptions'),
+            Parametre(cle='annees_scolaires', valeur='2026-2027,2027-2028, 2028-2029', description='Liste des années disponibles (séparées par des virgules)'),
+            Parametre(cle='periode_debut', valeur='2026-09-01', description='Date de début de la période active'),
+            Parametre(cle='periode_fin', valeur='2027-07-31', description='Date de fin de la période active'),
             Parametre(cle='frais_reinscription', valeur='0', description='Frais de réinscription (FCFA)'),
         ]
 
@@ -401,6 +430,41 @@ def init_database():
                 print(f"  ✅ Paramètre créé : {p.cle} = {p.valeur}")
             else:
                 print(f"  ⏭️  Paramètre existant : {p.cle} = {existant.valeur}")
+
+        # ============================================================
+        # 🔥 10. INITIALISATION DES TENUES ET DROITS D'EXAMEN 🔥
+        # ============================================================
+        print("\n" + "─" * 70)
+        print("👔 10. INITIALISATION DES TENUES ET DROITS D'EXAMEN")
+        print("─" * 70)
+
+        parametres_tenues_examen = [
+            # Tenues obligatoires
+            Parametre(cle='montant_tenue_maternelle', valeur='15000', description='Montant tenue maternelle (FCFA)'),
+            Parametre(cle='montant_tenue_primaire', valeur='15000', description='Montant tenue primaire (FCFA)'),
+            Parametre(cle='montant_tenue_secondaire', valeur='20000', description='Montant tenue secondaire (FCFA)'),
+            
+             # 🔥 Droits d'examen - CM2 🔥
+            Parametre(cle='droit_examen_cm2_ministere', valeur='5000', description='Droit examen ministère - CM2 (FCFA)'),
+            Parametre(cle='droit_examen_cm2_ecole', valeur='3000', description='Droit examen école - CM2 (FCFA)'),
+            
+            # 🔥 Droits d'examen - 3ème 🔥
+            Parametre(cle='droit_examen_3eme_ministere', valeur='8000', description='Droit examen ministère - 3ème/BEPC (FCFA)'),
+            Parametre(cle='droit_examen_3eme_ecole', valeur='5000', description='Droit examen école - 3ème (FCFA)'),
+            
+            # 🔥 Droits d'examen - Terminale 🔥
+            Parametre(cle='droit_examen_tle_ministere', valeur='10000', description='Droit examen ministère - Terminale/BAC (FCFA)'),
+            Parametre(cle='droit_examen_tle_ecole', valeur='7000', description='Droit examen école - Terminale (FCFA)'),
+        ]
+        
+
+        for p in parametres_tenues_examen:
+            existant = Parametre.query.filter_by(cle=p.cle).first()
+            if not existant:
+                db.session.add(p)
+                print(f"  ✅ Paramètre créé : {p.cle} = {p.valeur} FCFA")
+            else:
+                print(f"  ⏭️  Paramètre existant : {p.cle} = {existant.valeur} FCFA")
 
         db.session.commit()
 
