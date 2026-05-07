@@ -3,7 +3,6 @@ set -e
 
 echo "🚀 Démarrage de Gestion École..."
 echo "📊 Environnement: ${ENV:-production}"
-echo "🐍 Python version: $(python --version)"
 
 # Créer les dossiers nécessaires
 mkdir -p static/images
