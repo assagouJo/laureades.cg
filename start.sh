@@ -8,19 +8,16 @@ echo "🐍 Python version: $(python --version)"
 # Créer les dossiers nécessaires
 mkdir -p static/images
 
-# 🔒 SAUVEGARDE AVANT INITIALISATION
-echo "💾 Vérification de la base de données..."
-if [ -f "instance/ecole.db" ]; then
-    echo "✅ Base de données existante détectée"
-    # Optionnel : faire une sauvegarde
-    cp instance/ecole.db instance/ecole_backup_$(date +%Y%m%d_%H%M%S).db
-    echo "💾 Sauvegarde effectuée"
-fi
-
-# Initialisation/Mise à jour SÉCURISÉE de la base de données
-echo "📊 Initialisation sécurisée de la base de données..."
-python init_tables.py
-echo "✅ Base de données initialisée (données existantes préservées)"
+# 🔒 CRÉATION DES TABLES UNIQUEMENT (sans insertions)
+echo "📊 Vérification de la base de données..."
+python -c "
+from app import app, db
+with app.app_context():
+    # Crée UNIQUEMENT les tables manquantes
+    # Ne touche JAMAIS aux données existantes
+    db.create_all()
+    print('✅ Tables vérifiées - Données PRÉSERVÉES')
+"
 
 echo "✅ Démarrage du serveur Gunicorn..."
 exec gunicorn app:app --bind 0.0.0.0:${PORT:-8000} --workers=4 --timeout=120
