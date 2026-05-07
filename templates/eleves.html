@@ -36,10 +36,10 @@
     .table { font-size: 0.85rem !important; }
     .table td, .table th { padding: 8px 6px !important; vertical-align: middle; }
     .table thead { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-    .table thead th { border-bottom: none; font-weight: 500; }
+    .table thead th { border-bottom: none; font-weight: 500; white-space: nowrap; }
     
     .btn-sm { padding: 4px 8px !important; font-size: 0.75rem !important; }
-    .badge { font-size: 0.7rem !important; padding: 4px 7px !important; }
+    .badge { font-size: 0.7rem !important; padding: 4px 7px !important; white-space: nowrap; }
     
     .badge-paye { background: #28a745; color: white; }
     .badge-partiel { background: #ffc107; color: #333; }
@@ -72,6 +72,151 @@
         from { transform: translateX(100%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
     }
+    
+    /* ========== STYLES RESPONSIVE ========== */
+    
+    /* Tablette et petits écrans (jusqu'à 992px) */
+    @media (max-width: 992px) {
+        .container-fluid { 
+            padding-left: 5px !important; 
+            padding-right: 5px !important; 
+        }
+        
+        .stats-badge {
+            width: calc(50% - 12px);
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            margin-right: 4px;
+            margin-bottom: 4px;
+        }
+        
+        .stats-badge small { font-size: 0.65rem; }
+        
+        .table td, .table th { 
+            padding: 6px 4px !important; 
+            font-size: 0.8rem !important;
+        }
+        
+        .btn-sm { 
+            padding: 3px 6px !important; 
+            font-size: 0.7rem !important; 
+        }
+        
+        /* Cacher les colonnes moins prioritaires */
+        .col-affectation { display: none; }
+    }
+    
+    /* Tablette portrait et mobiles larges (jusqu'à 768px) */
+    @media (max-width: 768px) {
+        .stats-badge {
+            width: calc(50% - 8px);
+            padding: 6px 10px;
+        }
+        
+        .btn-group-sm > .btn {
+            padding: 2px 5px !important;
+        }
+        
+        /* Cacher la colonne niveau */
+        .col-niveau { display: none; }
+        
+        /* Réduire le padding des cellules */
+        .table td, .table th { 
+            padding: 4px 3px !important; 
+            font-size: 0.75rem !important;
+        }
+        
+        /* DataTable pagination plus compacte */
+        .dataTables_paginate .paginate_button {
+            padding: 0.25em 0.5em;
+            margin-left: 2px;
+        }
+        
+        .dataTables_length,
+        .dataTables_filter {
+            margin-bottom: 10px;
+        }
+        
+        .dataTables_filter input {
+            width: 150px;
+        }
+    }
+    
+    /* Mobiles (jusqu'à 576px) */
+    @media (max-width: 576px) {
+        .container-fluid { 
+            padding-left: 0 !important; 
+            padding-right: 0 !important; 
+        }
+        
+        /* Stats badges en pleine largeur */
+        .stats-badge {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 6px;
+            padding: 10px 15px;
+        }
+        
+        /* Cacher la colonne affectation si pas déjà fait */
+        .col-affectation { display: none; }
+        
+        /* Réduire la taille des badges */
+        .badge { 
+            font-size: 0.65rem !important; 
+            padding: 2px 4px !important; 
+        }
+        
+        /* Modals plein écran sur mobile */
+        .modal-dialog {
+            margin: 0.5rem;
+            max-width: none;
+        }
+        
+        /* Titre de page adapté */
+        .card-body { padding: 8px !important; }
+        
+        /* Boutons d'action en colonne */
+        .btn-group-sm {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .btn-group-sm .btn {
+            border-radius: 4px !important;
+            width: 100%;
+        }
+        
+        /* Enlever les bordures arrondies problématiques */
+        .btn-group-sm .btn:not(:last-child) {
+            border-radius: 4px !important;
+        }
+        
+        /* Notification toast pleine largeur */
+        .notification-toast {
+            left: 20px;
+            right: 20px;
+            min-width: auto;
+        }
+    }
+    
+    /* Très petits écrans (jusqu'à 480px) */
+    @media (max-width: 480px) {
+        .table td, .table th { 
+            padding: 3px 2px !important; 
+            font-size: 0.7rem !important;
+        }
+        
+        .btn-sm { 
+            padding: 2px 4px !important; 
+            font-size: 0.65rem !important; 
+        }
+        
+        .badge { 
+            font-size: 0.6rem !important; 
+            padding: 2px 3px !important; 
+        }
+    }
 </style>
 {% endblock %}
 
@@ -79,8 +224,8 @@
 <div class="container-fluid">
     
     <!-- STATISTIQUES JOURNALIÈRES -->
-    <div class="row mb-3 mt-3">
-        <div class="col-12">                        
+    <div class="row mb-3 mt-3 align-items-center">
+        <div class="col-12 col-md-auto mb-2 mb-md-0">                        
             <div class="stats-badge" style="background: linear-gradient(135deg, #606b36 0%, #d0bee3 100%);">
                 <strong id="dateAujourdhui">{{ date_aujourdhui }}</strong>
                 <small>aujourd'hui</small>
@@ -102,11 +247,11 @@
                 <strong id="nombrePaiements">{{ nombre_paiements_aujourdhui }}</strong> Paiements
                 <small>Effectués aujourd'hui</small>
             </div>
-            
         </div>
+        
         {% if current_user.role in ['admin', 'comptable'] %}
-        <div>
-            <a href="{{ url_for('ajouter_eleve') }}" class="btn btn-primary float-end">
+        <div class="col-12 col-md-auto ms-auto">
+            <a href="{{ url_for('ajouter_eleve') }}" class="btn btn-primary w-100 w-md-auto">
                 <i class="fas fa-plus me-1"></i>Nouvel Élève
             </a>
         </div>
@@ -117,14 +262,14 @@
     <div class="card shadow-sm p-2">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0 p-2" id="elevesTable">
+                <table class="table table-hover mb-0 p-2" id="elevesTable" style="width:100%;">
                     <thead>
                         <tr>
                             <th>Matricule</th>
                             <th>Nom & Prénom</th>
                             <th>Classe</th>
-                            <th>Niveau</th>
-                            <th>Affectation</th>
+                            <th class="col-niveau">Niveau</th>
+                            <th class="col-affectation">Affectation</th>
                             <th class="text-center">Frais</th>
                             <th class="text-center">Payé</th>
                             <th class="text-center">Solde</th>
@@ -139,8 +284,8 @@
                             <td><span class="fw-bold">{{ eleve.matricule }}</span></td>
                             <td>{{ eleve.genre_icon if eleve.genre else '👤' }} {{ eleve.prenom }} {{ eleve.nom }}</td>
                             <td>{{ eleve.classe }}</td>
-                            <td>{% if eleve.sous_groupe %}<span class="badge bg-secondary">{{ eleve.sous_groupe.nom }}</span>{% else %}-{% endif %}</td>
-                            <td>{% if eleve.est_affecte_etat %}<span class="badge bg-success">Affecté</span>{% else %}<span class="badge bg-light text-dark">Non affecté</span>{% endif %}</td>
+                            <td class="col-niveau">{% if eleve.sous_groupe %}<span class="badge bg-secondary">{{ eleve.sous_groupe.nom }}</span>{% else %}-{% endif %}</td>
+                            <td class="col-affectation">{% if eleve.est_affecte_etat %}<span class="badge bg-success">Affecté</span>{% else %}<span class="badge bg-light text-dark">Non affecté</span>{% endif %}</td>
                             <td class="text-center">{{ "{:,.0f}".format(eleve.frais_scolarite_total) }}</td>
                             <td class="text-center text-success fw-bold" id="paye{{ eleve.id }}">{{ "{:,.0f}".format(eleve.montant_paye) }}</td>
                             <td class="text-center fw-bold" id="solde{{ eleve.id }}" style="color: {% if eleve.solde > 0 %}#dc3545{% else %}#28a745{% endif %};">{{ "{:,.0f}".format(eleve.solde) }}</td>
@@ -194,7 +339,7 @@
 <!-- ========== MODAL PAIEMENT ========== -->
 {% for eleve in eleves %}
 <div class="modal fade" id="paiementModal{{ eleve.id }}" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form id="paiementForm{{ eleve.id }}" class="paiement-ajax-form" data-eleve-id="{{ eleve.id }}">
                 <div class="modal-header bg-success text-white py-2">
@@ -245,7 +390,7 @@
 
 <!-- ========== MODAL HISTORIQUE ========== -->
 <div class="modal fade" id="recusModal" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                 <h6 class="modal-title"><i class="fas fa-history me-2"></i>Historique des paiements</h6>
@@ -260,7 +405,7 @@
 
 <!-- ========== MODAL MODIFIER PAIEMENT ========== -->
 <div class="modal fade" id="modifierPaiementModal" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-warning">
                 <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le paiement</h6>
@@ -273,7 +418,7 @@
 
 <!-- ========== MODAL ANNULER PAIEMENT ========== -->
 <div class="modal fade" id="annulerPaiementModal" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
                 <h6 class="modal-title"><i class="fas fa-ban me-2"></i>Annuler le paiement</h6>
@@ -286,7 +431,7 @@
 
 <!-- ========== MODAL APERÇU REÇU ========== -->
 <div class="modal fade" id="recuModal" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
                 <h6 class="modal-title"><i class="fas fa-receipt me-2"></i>Reçu de paiement</h6>
@@ -385,11 +530,38 @@ function mettreAJourStats() {
 
 // ========== INITIALISATION DATATABLE ==========
 $(document).ready(function() {
-    $('#elevesTable').DataTable({
-        language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json' },
-        pageLength: 25,
+    // Détection de la largeur d'écran pour adapter le nombre d'élèves par page
+    var pageLength = 25;
+    if ($(window).width() < 576) {
+        pageLength = 10;
+    } else if ($(window).width() < 768) {
+        pageLength = 15;
+    }
+    
+    var table = $('#elevesTable').DataTable({
+        language: { 
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json',
+            search: "Rechercher :",
+            lengthMenu: "Afficher _MENU_ élèves",
+            info: "Élèves _START_ à _END_ sur _TOTAL_",
+            infoEmpty: "Aucun élève trouvé",
+            infoFiltered: "(filtré de _MAX_ élèves au total)",
+            zeroRecords: "Aucun élève trouvé"
+        },
+        pageLength: pageLength,
         order: [[1, 'asc']],
-        columnDefs: [{ orderable: false, targets: [9] }]
+        columnDefs: [{ orderable: false, targets: [10] }],
+        responsive: false,
+        scrollX: true,
+        scrollCollapse: true,
+        pagingType: 'simple_numbers',
+        lengthMenu: [[10, 15, 25, 50, -1], [10, 15, 25, 50, "Tous"]],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+    });
+    
+    // Ajuster DataTable quand la fenêtre est redimensionnée
+    $(window).on('resize', function() {
+        table.columns.adjust().draw();
     });
     
     // Ouvrir modal paiement
@@ -477,10 +649,10 @@ function voirPaiements(eleveId) {
         html += '</div>';
         
         html += '<div class="row text-center mb-3">';
-        html += '<div class="col-3"><small>Frais</small><h6>' + formatMontant(data.eleve.frais_scolarite_total) + '</h6></div>';
-        html += '<div class="col-3"><small>Payé</small><h6 class="text-success">' + formatMontant(data.eleve.montant_paye) + '</h6></div>';
-        html += '<div class="col-3"><small>Solde</small><h6 class="' + (data.eleve.solde > 0 ? 'text-danger' : 'text-success') + '">' + formatMontant(data.eleve.solde) + '</h6></div>';
-        html += '<div class="col-3"><small>Taux</small><h6>' + data.eleve.taux_paiement + '%</h6></div>';
+        html += '<div class="col-6 col-md-3"><small>Frais</small><h6>' + formatMontant(data.eleve.frais_scolarite_total) + '</h6></div>';
+        html += '<div class="col-6 col-md-3"><small>Payé</small><h6 class="text-success">' + formatMontant(data.eleve.montant_paye) + '</h6></div>';
+        html += '<div class="col-6 col-md-3"><small>Solde</small><h6 class="' + (data.eleve.solde > 0 ? 'text-danger' : 'text-success') + '">' + formatMontant(data.eleve.solde) + '</h6></div>';
+        html += '<div class="col-6 col-md-3"><small>Taux</small><h6>' + data.eleve.taux_paiement + '%</h6></div>';
         html += '</div>';
         
         if (data.paiements.length === 0) {
