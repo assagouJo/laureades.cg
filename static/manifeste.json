@@ -1,7 +1,7 @@
 {
   "name": "Agora School - Gestion Scolaire",
   "short_name": "AgoraSchool",
-  "description": "Application de gestion des paiements scolaires",
+  "description": "Application de gestion scolaires",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#667eea",

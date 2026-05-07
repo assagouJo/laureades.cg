@@ -1,7 +1,7 @@
 <!-- templates/parametres.html -->
 {% extends "base.html" %}
 
-{% block title %}Paramètres - GestScolaire{% endblock %}
+{% block title %}Paramètres{% endblock %}
 
 {% block page_title %}
 <i class="fas fa-cog me-2" style="color: #667eea;"></i>Paramètres du système
@@ -131,7 +131,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Nom de l'établissement</label>
-                                <input type="text" name="nom_ecole" class="form-control" value="{{ parametres.get('nom_ecole', 'GestScolaire') }}">
+                                <input type="text" name="nom_ecole" class="form-control" value="{{ parametres.get('nom_ecole', '') }}">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Devise</label>
