@@ -5,26 +5,31 @@ from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
-import config
-from config import CurrentConfig
-
-# Importer db depuis models au lieu de créer ici
+load_dotenv()  # Charge .env mais ne doit PAS contenir DATABASE_URL
 from models import db
 
 app = Flask(__name__)
 
 # Configurations de base
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'you-will-never-guess')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///ecole_compta.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Appliquer la configuration
-app.config.from_object(CurrentConfig)
+# ✅ CORRECTION : Vérifier d'abord Render, puis .env, puis fallback
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Si Render fournit DATABASE_URL (ou .env en local)
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    print(f"✅ Base de données : {'PostgreSQL' if 'postgresql' in database_url else 'SQLite'}")
+else:
+    # Fallback uniquement si aucune variable définie
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ecole_compta.db'
+    print("⚠️ Aucune DATABASE_URL trouvée, utilisation SQLite par défaut")
 
 # Initialisation
-db.init_app(app)  # Important: initialiser db avec l'app
-migrate = Migrate(app, db) 
+db.init_app(app)
+migrate = Migrate(app, db)
 
 # Login manager
 login_manager = LoginManager()
@@ -35,7 +40,6 @@ login_manager.login_view = "login"
 UPLOAD_FOLDER = os.path.join('static', 'images')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Fermeture des connexions
 @app.after_request
 def close_db_connection(response):
     try:
@@ -44,6 +48,5 @@ def close_db_connection(response):
         pass
     return response
 
-# Importer routes après l'initialisation pour éviter les imports circulaires
 from routes import *
 from audit import *
