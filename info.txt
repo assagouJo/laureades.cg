@@ -10,7 +10,7 @@ la bonne pratique est d’utiliser Flask-Migrate (Alembic).
 ## flask db init  👉 Cela crée le dossier migrations/
 
 3️⃣ Modifier ton modèle SQLAlchemy
-## flask db migrate -m "Ajout colonne telephone à user"
+## flask db migrate -m "initial"
 
 ➡️ Alembic détecte automatiquement la nouvelle colonne
 ➡️ Les données existantes sont conservées
