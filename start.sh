@@ -8,16 +8,7 @@ echo "🐍 Python version: $(python --version)"
 # Créer les dossiers nécessaires
 mkdir -p static/images
 
-# 🔒 SAUVEGARDE AVANT INITIALISATION
-echo "💾 Vérification de la base de données..."
-if [ -f "instance/ecole.db" ]; then
-    echo "✅ Base de données existante détectée"
-    # Optionnel : faire une sauvegarde
-    cp instance/ecole.db instance/ecole_backup_$(date +%Y%m%d_%H%M%S).db
-    echo "💾 Sauvegarde effectuée"
-fi
-
-# Initialisation/Mise à jour SÉCURISÉE de la base de données
+# 🔒 Initialisation SÉCURISÉE (PostgreSQL Render)
 echo "📊 Initialisation sécurisée de la base de données..."
 python init_tables.py
 echo "✅ Base de données initialisée (données existantes préservées)"

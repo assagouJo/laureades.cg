@@ -383,6 +383,58 @@ class Eleve(db.Model):
         return {'ministere': 0, 'ecole': 0}
     
     @property
+    def subvention_etat(self):
+        """
+        Calcule ce que l'État doit pour cet élève affecté
+        Retourne 0 si l'élève n'est pas affecté
+        """
+        if not self.est_affecte_etat:
+            return 0
+        
+        # Récupérer les tarifs
+        tarif_normal = None
+        tarif_affecte = None
+        
+        if self.sous_groupe:
+            tarif_normal_obj = TarifFraisAffecte.query.filter_by(
+                sous_groupe_id=self.sous_groupe.id,
+                est_affecte=False,
+                actif=True
+            ).first()
+            
+            tarif_affecte_obj = TarifFraisAffecte.query.filter_by(
+                sous_groupe_id=self.sous_groupe.id,
+                est_affecte=True,
+                actif=True
+            ).first()
+            
+            if tarif_normal_obj:
+                tarif_normal = tarif_normal_obj.montant
+            if tarif_affecte_obj:
+                tarif_affecte = tarif_affecte_obj.montant
+        
+        if tarif_normal and tarif_affecte:
+            return tarif_normal - tarif_affecte
+        return 0
+    
+    @property
+    def statut_subvention(self):
+        """Statut de la subvention État"""
+        subvention = self.subvention_etat
+        if subvention <= 0:
+            return "Non concerné"
+        
+        montant_paye = self.montant_paye
+        montant_du = self.frais_scolarite_total - subvention  # Ce que l'élève doit payer
+        
+        if montant_paye >= self.frais_scolarite_total:
+            return "Complet"
+        elif montant_paye >= montant_du:
+            return "Partiel (État)"
+        else:
+            return "En attente État"
+    
+    @property
     def frais_scolarite_total(self):
         """Total stocké en base (mis à jour par la route)"""
         return self.frais_scolarite or 0

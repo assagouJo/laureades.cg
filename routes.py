@@ -795,9 +795,18 @@ def dashboard_admin():
     
     from datetime import datetime, date
     from sqlalchemy import func
-    
+    from utils import calculer_subventions_etat
     # 🔥 Année active GLOBALE (définie dans les paramètres) 🔥
     annee_active_globale = get_annee_active()
+    subventions = calculer_subventions_etat()
+
+    subvention_totale=subventions['total_subvention']
+    subvention_eleves=subventions['eleves_affectes']
+    subvention_niveaux=subventions['subvention_par_niveau']
+
+    subvention_par_eleve = 0
+    if subvention_eleves > 0:
+        subvention_par_eleve = subvention_totale // subvention_eleves
     
     # 🔥 Période du filtre dashboard (par défaut = année active globale) 🔥
     periode_filtre = request.args.get('periode', annee_active_globale)
@@ -936,11 +945,15 @@ def dashboard_admin():
                          periode_filtre=periode_filtre,           # Période du filtre dashboard
                          annees_disponibles=annees_disponibles,   # Pour le sélecteur
                          total_eleves=total_eleves,
-                         total_encaisse=total_encaisse,
+                         total_encaisse=total_encaisse,                         
                          taux_recouvrement=taux_recouvrement,
                          eleves_payes=eleves_payes,
                          eleves_partiels=eleves_partiels,
                          eleves_impayes=eleves_impayes,
+                         subvention_totale=subvention_totale,           # Montant total
+                        subvention_eleves=subvention_eleves,           # Nombre d'élèves affectés
+                        subvention_niveaux=subvention_niveaux,         # Détail par niveau
+                        subvention_par_eleve=subvention_par_eleve,
                          eleves_affectes=eleves_affectes,
                          eleves_non_affectes=eleves_non_affectes,
                          total_jour=total_jour,
@@ -1047,7 +1060,7 @@ def dashboard_comptable():
                          paiements_jour=paiements_jour,
                          total_semaine=total_semaine,
                          total_mois=total_mois,
-                         paiements_recents=paiements_recents,
+                         paiements_recents=paiements_recents,                         
                          stats_modes=stats_modes,
                          eleves_avec_solde=eleves_avec_solde)
 
@@ -2070,6 +2083,33 @@ def ajouter_eleve():
                          cantines=cantines,
                          dossier_actif=dossier_actif)
 
+
+# routes.py
+
+@app.route('/api/subventions-etat')
+@login_required
+def api_subventions_etat():
+    """API pour récupérer les statistiques des subventions État"""
+    from utils import calculer_subventions_etat
+    
+    stats = calculer_subventions_etat()
+    
+    # Formater les montants
+    stats['total_subvention_formate'] = "{:,.0f}".format(stats['total_subvention'])
+    
+    # Trier les niveaux par montant décroissant
+    stats['subvention_par_niveau'] = dict(
+        sorted(
+            stats['subvention_par_niveau'].items(),
+            key=lambda x: x[1]['montant'],
+            reverse=True
+        )
+    )
+    
+    return jsonify({
+        'success': True,
+        'data': stats
+    })
 
 
 @app.route('/eleve/<int:id>/modifier', methods=['GET', 'POST'])

@@ -237,72 +237,114 @@
     </div>
 
     <!-- ========== STATUT PAIEMENTS & AFFECTATION ========== -->
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-2">
-                    <h6 class="mb-0"><i class="fas fa-chart-simple me-2"></i>Statut des paiements</h6>
-                </div>
-                <div class="card-body py-2">
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between mb-1">
-                            <small><i class="fas fa-check-circle text-success me-1"></i> Payé</small>
-                            <small class="fw-bold">{{ eleves_payes }}</small>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-success" style="width: {{ (eleves_payes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
-                        </div>
-                    </div>
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between mb-1">
-                            <small><i class="fas fa-clock text-warning me-1"></i> Partiel</small>
-                            <small class="fw-bold">{{ eleves_partiels }}</small>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-warning" style="width: {{ (eleves_partiels/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <small><i class="fas fa-times-circle text-danger me-1"></i> Impayé</small>
-                            <small class="fw-bold">{{ eleves_impayes }}</small>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-danger" style="width: {{ (eleves_impayes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
-                        </div>
-                    </div>
-                </div>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-2">
+                <h6 class="mb-0"><i class="fas fa-chart-simple me-2"></i>Statut des paiements</h6>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-2">
-                    <h6 class="mb-0"><i class="fas fa-building me-2"></i>Affectation État</h6>
-                </div>
-                <div class="card-body py-2">
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between mb-1">
-                            <small><i class="fas fa-hand-holding-heart text-success me-1"></i> Affectés</small>
-                            <small class="fw-bold">{{ eleves_affectes }}</small>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-success" style="width: {{ (eleves_affectes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
-                        </div>
+            <div class="card-body py-2">
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small><i class="fas fa-check-circle text-success me-1"></i> Payé</small>
+                        <small class="fw-bold">{{ eleves_payes }}</small>
                     </div>
-                    <div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <small><i class="fas fa-user text-secondary me-1"></i> Non affectés</small>
-                            <small class="fw-bold">{{ eleves_non_affectes }}</small>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-secondary" style="width: {{ (eleves_non_affectes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
-                        </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: {{ (eleves_payes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small><i class="fas fa-clock text-warning me-1"></i> Partiel</small>
+                        <small class="fw-bold">{{ eleves_partiels }}</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-warning" style="width: {{ (eleves_partiels/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <small><i class="fas fa-times-circle text-danger me-1"></i> Impayé</small>
+                        <small class="fw-bold">{{ eleves_impayes }}</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-danger" style="width: {{ (eleves_impayes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    
+    <!-- 🔥 CARTE AFFECTATION ÉTAT AVEC MONTANT SUBVENTION 🔥 -->
+<div class="col-md-6">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-2">
+            <h6 class="mb-0"><i class="fas fa-building me-2"></i>Affectation État</h6>
+        </div>
+        <div class="card-body py-2">
+            <!-- Nombre d'affectés -->
+            <div class="mb-2">
+                <div class="d-flex justify-content-between mb-1">
+                    <small><i class="fas fa-hand-holding-heart text-success me-1"></i> Affectés</small>
+                    <small class="fw-bold">{{ eleves_affectes }}</small>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-success" 
+                         style="width: {{ (eleves_affectes/total_eleves*100) if total_eleves > 0 else 0 }}%">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Nombre de non affectés -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <small><i class="fas fa-user text-secondary me-1"></i> Non affectés</small>
+                    <small class="fw-bold">{{ eleves_non_affectes }}</small>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-secondary" 
+                         style="width: {{ (eleves_non_affectes/total_eleves*100) if total_eleves > 0 else 0 }}%">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 🔥 MONTANT DÛ PAR L'ÉTAT 🔥 -->
+            <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <small class="text-muted">
+                            <i class="fas fa-landmark text-danger me-1"></i>
+                            Montant dû par l'État
+                        </small>
+                    </div>
+                    <div class="text-end">
+                        <h4 class="mb-0 text-danger fw-bold" id="montantSubventionEtat">
+                            {% if subvention_totale is defined %}
+                                {{ "{:,.0f}".format(subvention_totale) }} FCFA
+                            {% else %}
+                                <span class="spinner-border spinner-border-sm text-danger"></span>
+                            {% endif %}
+                        </h4>
+                        {% if subvention_par_eleve is defined and subvention_par_eleve > 0 %}
+                        <small class="text-muted">
+                            ~{{ "{:,.0f}".format(subvention_par_eleve) }} FCFA/élève
+                        </small>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Mini barre de progression -->
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-danger" style="width: 100%"></div>
+                </div>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Différence entre tarif normal et tarif affecté
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- ========== TOP 5 ========== -->
     <div class="row mb-3">
         <div class="col-md-6">
@@ -403,20 +445,256 @@
 
 {% block scripts %}
 <script>
-    // Appliquer un filtre individuel
-    function applyFilter(param, value) {
-        var url = new URL(window.location.href);
-        if (value) {
-            url.searchParams.set(param, value);
-        } else {
-            url.searchParams.delete(param);
-        }
-        window.location.href = url.toString();
+// ========== FONCTIONS DE FILTRES ==========
+function applyFilter(param, value) {
+    var url = new URL(window.location.href);
+    if (value) {
+        url.searchParams.set(param, value);
+    } else {
+        url.searchParams.delete(param);
     }
+    window.location.href = url.toString();
+}
+
+function quickFilter(queryString) {
+    window.location.href = '{{ url_for("dashboard") }}' + queryString;
+}
+
+// ========== FORMATAGE MONTANT ==========
+function formatMontant(montant) {
+    return new Intl.NumberFormat('fr-FR').format(Math.abs(montant || 0));
+}
+
+// ========== CHARGEMENT DES SUBVENTIONS ==========
+function chargerSubventions() {
+    console.log("🔍 Chargement des subventions..."); // Debug
     
-    // Filtre rapide (remplace tous les paramètres)
-    function quickFilter(queryString) {
-        window.location.href = '{{ url_for("dashboard") }}' + queryString;
+    fetch('/api/subventions-etat')
+    .then(function(response) {
+        console.log("📡 Réponse reçue:", response.status); // Debug
+        return response.json();
+    })
+    .then(function(result) {
+        console.log("📊 Données reçues:", result); // Debug
+        
+        if (result.success) {
+            const data = result.data;
+            
+            console.log("💰 Total subvention:", data.total_subvention); // Debug
+            console.log("👥 Élèves affectés:", data.eleves_affectes); // Debug
+            
+            // 🔥 Mise à jour des statistiques PRINCIPALES
+            $('#totalSubvention').text(formatMontant(data.total_subvention) + ' FCFA');
+            $('#nombreAffectes').text(data.eleves_affectes);
+            
+            // Calcul de la moyenne
+            const moyenne = data.eleves_affectes > 0 
+                ? Math.round(data.total_subvention / data.eleves_affectes) 
+                : 0;
+            $('#moyenneSubvention').text(formatMontant(moyenne) + ' FCFA');
+            
+            // Taux de recouvrement (à adapter selon votre logique métier)
+            const tauxRecouvrement = data.eleves_affectes > 0 ? 100 : 0;
+            $('#tauxRecouvrement').text(tauxRecouvrement + '%');
+            $('#pourcentageGlobal').text(tauxRecouvrement + '%');
+            $('#progressBarSubvention').css('width', tauxRecouvrement + '%');
+            
+            // 🔥 Répartition par niveau
+            let htmlNiveaux = '';
+            const niveaux = data.subvention_par_niveau;
+            
+            if (Object.keys(niveaux).length === 0) {
+                htmlNiveaux = '<div class="text-center py-2 text-muted">Aucune subvention à calculer</div>';
+            } else {
+                // Parcourir les niveaux
+                for (const [niveau, stats] of Object.entries(niveaux)) {
+                    const pourcentage = data.total_subvention > 0 
+                        ? ((stats.montant / data.total_subvention) * 100).toFixed(1) 
+                        : 0;
+                    
+                    htmlNiveaux += `
+                        <div class="niveau-subvention">
+                            <div>
+                                <span class="badge bg-secondary me-2">${niveau}</span>
+                                <small class="text-muted">${stats.nombre} élève(s)</small>
+                            </div>
+                            <div class="text-end">
+                                <strong class="text-danger">${formatMontant(stats.montant)} FCFA</strong>
+                                <small class="text-muted ms-2">(${pourcentage}%)</small>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            $('#subventionsNiveaux').html(htmlNiveaux);
+            
+            // Stocker les données détaillées pour le modal
+            window.subventionDetail = data.subvention_detail;
+            
+            console.log("✅ Affichage terminé"); // Debug
+        } else {
+            console.error("❌ Erreur API:", result);
+        }
+    })
+    .catch(function(error) {
+        console.error('❌ Erreur chargement subventions:', error);
+        $('#totalSubvention').text('Erreur');
+        $('#subventionsNiveaux').html(`
+            <div class="alert alert-danger py-2 text-center">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Erreur lors du calcul: ${error.message}
+            </div>
+        `);
+    });
+}
+
+// ========== CHARGER DÉTAIL PAR ÉLÈVE ==========
+function chargerDetailSubventions() {
+    if (!window.subventionDetail || window.subventionDetail.length === 0) {
+        // Recharger depuis l'API
+        fetch('/api/subventions-etat')
+        .then(response => response.json())
+        .then(result => {
+            if (result.success && result.data.subvention_detail) {
+                window.subventionDetail = result.data.subvention_detail;
+                afficherDetailSubventions(window.subventionDetail);
+            } else {
+                $('#bodyDetailSubventions').html(`
+                    <div class="alert alert-info text-center m-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucun élève affecté par l'État
+                    </div>
+                `);
+            }
+        });
+    } else {
+        afficherDetailSubventions(window.subventionDetail);
     }
+}
+
+function afficherDetailSubventions(details) {
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0">
+                <thead class="table-danger sticky-top">
+                    <tr>
+                        <th>Matricule</th>
+                        <th>Nom & Prénom</th>
+                        <th>Niveau</th>
+                        <th class="text-end">Tarif Normal</th>
+                        <th class="text-end">Tarif Affecté</th>
+                        <th class="text-end">Subvention État</th>
+                        <th class="text-center">% État</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    let totalGeneral = 0;
+    
+    details.forEach(function(item) {
+        totalGeneral += item.subvention;
+        const pourcentage = item.tarif_normal > 0 
+            ? ((item.subvention / item.tarif_normal) * 100).toFixed(1) 
+            : 0;
+        
+        html += `
+            <tr>
+                <td><code>${item.matricule || '-'}</code></td>
+                <td><strong>${item.nom}</strong></td>
+                <td><span class="badge bg-secondary">${item.niveau}</span></td>
+                <td class="text-end">${formatMontant(item.tarif_normal)} FCFA</td>
+                <td class="text-end">${formatMontant(item.tarif_affecte)} FCFA</td>
+                <td class="text-end fw-bold text-danger">${formatMontant(item.subvention)} FCFA</td>
+                <td class="text-center">
+                    <span class="badge bg-danger">${pourcentage}%</span>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                </tbody>
+                <tfoot class="table-light fw-bold">
+                    <tr>
+                        <td colspan="5" class="text-end">TOTAL GÉNÉRAL :</td>
+                        <td class="text-end text-danger">${formatMontant(totalGeneral)} FCFA</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    `;
+    
+    $('#bodyDetailSubventions').html(html);
+}
+
+// ========== INITIALISATION ==========
+$(document).ready(function() {
+    console.log("🚀 Dashboard initialisé"); // Debug
+    
+    // Charger les subventions IMMÉDIATEMENT
+    chargerSubventions();
+    
+    // Rafraîchir toutes les 5 minutes
+    setInterval(chargerSubventions, 300000);
+    
+    // Gérer le clic sur le bouton détail
+    $('#modalDetailSubventions').on('show.bs.modal', function() {
+        chargerDetailSubventions();
+    });
+});
+
+function mettreAJourMontantEtat() {
+    fetch('/api/subventions-etat')
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(result) {
+        if (result.success) {
+            var data = result.data;
+            var montantFormate = new Intl.NumberFormat('fr-FR').format(data.total_subvention);
+            
+            // Mettre à jour l'affichage
+            var el = document.getElementById('montantSubventionEtat');
+            if (el) {
+                el.textContent = montantFormate + ' FCFA';
+            }
+            
+            // Mettre à jour aussi la section détaillée si elle existe
+            if (typeof chargerSubventions === 'function') {
+                chargerSubventions();
+            }
+        }
+    })
+    .catch(function(error) {
+        console.error('Erreur mise à jour subventions:', error);
+    });
+}
+
+// Appliquer les filtres
+function applyFilter(param, value) {
+    var url = new URL(window.location.href);
+    if (value) {
+        url.searchParams.set(param, value);
+    } else {
+        url.searchParams.delete(param);
+    }
+    window.location.href = url.toString();
+}
+
+function quickFilter(queryString) {
+    window.location.href = '{{ url_for("dashboard") }}' + queryString;
+}
+
+// Initialisation
+$(document).ready(function() {
+    console.log("🚀 Dashboard admin initialisé");
+    
+    // Mettre à jour le montant État toutes les 5 minutes
+    mettreAJourMontantEtat();
+    setInterval(mettreAJourMontantEtat, 300000);
+});
 </script>
 {% endblock %}
