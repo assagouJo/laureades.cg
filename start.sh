@@ -3,15 +3,17 @@ set -e
 
 echo "🚀 Démarrage de Gestion École..."
 echo "📊 Environnement: ${ENV:-production}"
-echo "🐍 Python version: $(python --version)"
 
-# Créer les dossiers nécessaires
 mkdir -p static/images
 
-# Appliquer les migrations Flask-Migrate 4.1.0
-echo "📊 Application des migrations..."
-flask db upgrade
-echo "✅ Migrations appliquées"
+# 🔒 CRÉER LES TABLES SI ELLES N'EXISTENT PAS
+echo "📊 Initialisation de la base de données..."
+python -c "
+from app import app, db
+with app.app_context():
+    db.create_all()
+    print('✅ Tables créées/vérifiées')
+"
 
 echo "✅ Démarrage du serveur Gunicorn..."
 exec gunicorn app:app --bind 0.0.0.0:${PORT:-8000} --workers=4 --timeout=120
