@@ -18,320 +18,635 @@
 
 {% block styles %}
 <style>
-    .container-fluid { padding-left: 10px !important; padding-right: 10px !important; }
-    
-    .stats-badge {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 10px 18px;
-        border-radius: 10px;
-        display: inline-block;
-        margin-right: 8px;
-        margin-bottom: 8px;
-        box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary: #5b6abf;
+        --primary-light: #eeefff;
+        --success: #10b981;
+        --success-light: #ecfdf5;
+        --warning: #f59e0b;
+        --warning-light: #fffbeb;
+        --danger: #ef4444;
+        --danger-light: #fef2f2;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-700: #374151;
+        --radius: 12px;
+        --radius-lg: 16px;
     }
-    .stats-badge i { margin-right: 8px; }
-    .stats-badge small { font-size: 0.7rem; opacity: 0.8; display: block; }
     
-    .table { font-size: 0.85rem !important; }
-    .table td, .table th { padding: 8px 6px !important; vertical-align: middle; }
-    .table thead { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-    .table thead th { border-bottom: none; font-weight: 500; white-space: nowrap; }
+    /* ========== STATS BADGES ========== */
+    .stats-badge {
+        background: white;
+        border: 1px solid var(--gray-200);
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        transition: all 200ms ease;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
     
-    .btn-sm { padding: 4px 8px !important; font-size: 0.75rem !important; }
-    .badge { font-size: 0.7rem !important; padding: 4px 7px !important; white-space: nowrap; }
+    .stats-badge:hover {
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(91,106,191,0.1);
+    }
     
-    .badge-paye { background: #28a745; color: white; }
-    .badge-partiel { background: #ffc107; color: #333; }
-    .badge-impaye { background: #dc3545; color: white; }
-    .badge-avoir { background: #ff9800; color: white; font-size: 0.65rem !important; }
-    .badge-annule { background: #dc3545; color: white; font-size: 0.65rem !important; }
+    .stats-badge i { 
+        font-size: 1.1rem; 
+    }
     
-    .modal { background-color: rgba(0,0,0,0.5) !important; }
-    .modal-backdrop { opacity: 0.5 !important; pointer-events: none !important; }
-    body.modal-open { overflow: hidden !important; padding-right: 0 !important; }
+    .stats-badge strong { 
+        font-size: 1rem; 
+        font-weight: 700; 
+        color: var(--gray-700);
+    }
+    
+    .stats-badge small { 
+        font-size: 0.7rem; 
+        color: var(--gray-400); 
+        display: block; 
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    
+    /* Couleurs stats */
+    .stat-date { background: #f0fdf4; border-color: #bbf7d0; }
+    .stat-date i, .stat-date strong { color: #16a34a; }
+    
+    .stat-inscrits { background: var(--primary-light); border-color: #c7d2fe; }
+    .stat-inscrits i, .stat-inscrits strong { color: var(--primary); }
+    
+    .stat-montant { background: var(--success-light); border-color: #a7f3d0; }
+    .stat-montant i, .stat-montant strong { color: var(--success); }
+    
+    .stat-paiements { background: #eff6ff; border-color: #bfdbfe; }
+    .stat-paiements i, .stat-paiements strong { color: #3b82f6; }
+    
+    /* ========== BOUTON EXPORT EXCEL ========== */
+    .btn-export-excel {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.25rem;
+        border-radius: 100px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        background: #ecfdf5;
+        color: #059669;
+        border: 1.5px solid #a7f3d0;
+        cursor: pointer;
+        transition: all 200ms ease;
+        white-space: nowrap;
+        text-decoration: none;
+    }
+    
+    .btn-export-excel:hover {
+        background: #059669;
+        color: white;
+        border-color: #059669;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+    }
+    
+    .btn-export-excel:active {
+        transform: scale(0.97);
+    }
+    
+    /* ========== TABLEAU AVEC SCROLL HORIZONTAL ========== */
+    .table-container {
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+        background: white;
+    }
+    
+    .table-scroll-wrapper {
+        overflow-x: auto;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: var(--gray-300) transparent;
+        max-height: 65vh;
+        overflow-y: auto;
+    }
+    
+    .table-scroll-wrapper::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+    }
+    
+    .table-scroll-wrapper::-webkit-scrollbar-track {
+        background: var(--gray-50);
+    }
+    
+    .table-scroll-wrapper::-webkit-scrollbar-thumb {
+        background: var(--gray-300);
+        border-radius: 100px;
+    }
+    
+    .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-400);
+    }
+    
+    .table-scroll-wrapper::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+    
+    .table-premium {
+        width: 100%;
+        min-width: 1000px;
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: auto;
+    }
+    
+    .table-premium thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    
+    .table-premium thead th {
+        background: var(--gray-50);
+        padding: 0.75rem 0.875rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--gray-200);
+        white-space: nowrap;
+        text-align: left;
+    }
+    
+    .table-premium thead th.text-center { text-align: center; }
+    .table-premium thead th.text-end { text-align: right; }
+    
+    .table-premium tbody td {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.8125rem;
+        color: var(--gray-700);
+        border-bottom: 1px solid var(--gray-100);
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    
+    .table-premium tbody tr {
+        transition: background 150ms ease;
+    }
+    
+    .table-premium tbody tr:hover {
+        background: #fafbfd;
+    }
+    
+    .table-premium tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Colonnes spécifiques */
+    .col-matricule { min-width: 100px; }
+    .col-nom { min-width: 180px; }
+    .col-classe { min-width: 100px; }
+    .col-niveau { min-width: 90px; }
+    .col-affectation { min-width: 110px; }
+    .col-frais { min-width: 90px; }
+    .col-paye { min-width: 90px; }
+    .col-solde { min-width: 90px; }
+    .col-statut { min-width: 90px; }
+    .col-reinscrit { min-width: 100px; }
+    .col-actions { min-width: 170px; }
+    
+    /* ========== BOUTONS D'ACTION EN LIGNE ========== */
+    .actions-group {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        flex-wrap: nowrap;
+    }
+    
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 150ms ease;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+        text-decoration: none;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    
+    .btn-action:active {
+        transform: scale(0.95);
+    }
+    
+    .btn-payer {
+        background: var(--success-light);
+        color: var(--success);
+        border-color: #a7f3d0;
+    }
+    
+    .btn-payer:hover {
+        background: var(--success);
+        color: white;
+    }
+    
+    .btn-historique {
+        background: #eff6ff;
+        color: #3b82f6;
+        border-color: #bfdbfe;
+    }
+    
+    .btn-historique:hover {
+        background: #3b82f6;
+        color: white;
+    }
+    
+    .btn-modifier {
+        background: var(--warning-light);
+        color: #d97706;
+        border-color: #fde68a;
+    }
+    
+    .btn-modifier:hover {
+        background: #d97706;
+        color: white;
+    }
+    
+    .btn-supprimer {
+        background: var(--danger-light);
+        color: var(--danger);
+        border-color: #fecaca;
+    }
+    
+    .btn-supprimer:hover {
+        background: var(--danger);
+        color: white;
+    }
+    
+    /* ========== BADGES ========== */
+    .badge-statut {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 100px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+    }
+    
+    .badge-paye { background: var(--success-light); color: #059669; }
+    .badge-partiel { background: var(--warning-light); color: #b45309; }
+    .badge-impaye { background: var(--danger-light); color: #dc2626; }
+    .badge-affecte { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .badge-non-affecte { background: var(--gray-100); color: var(--gray-500); }
+    .badge-avoir { background: #fff7ed; color: #ea580c; font-size: 0.65rem !important; }
+    .badge-annule { background: #fef2f2; color: #dc2626; font-size: 0.65rem !important; }
+    
+    /* ========== MODALS ========== */
+    .modal-content {
+        border: none;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    }
+    
+    .modal-header {
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        padding: 0.875rem 1.25rem;
+    }
     
     .notification-toast {
         position: fixed;
-        top: 20px;
-        right: 20px;
+        top: 1rem;
+        right: 1rem;
         z-index: 9999;
         min-width: 300px;
-        animation: slideInRight 0.3s ease-out;
+        max-width: 450px;
+        animation: slideIn 0.3s ease-out;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border: none;
+        border-radius: var(--radius);
     }
     
-    .table-avoir { background-color: #fff8e1 !important; }
-    .table-avoir td { font-style: italic; }
-    
-    .table-annule { background-color: #f5f5f5 !important; opacity: 0.75; }
-    .table-annule td { text-decoration: line-through; }
-    
-    .text-avoir { color: #e65100 !important; }
-    
-    @keyframes slideInRight {
+    @keyframes slideIn {
         from { transform: translateX(100%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
     }
     
-    /* ========== STYLES RESPONSIVE ========== */
+    /* Lignes avoir/annulé */
+    .table-avoir { background: #fff7ed; }
+    .table-annule { background: #f9fafb; opacity: 0.7; }
+    .table-annule td { text-decoration: line-through; }
     
-    /* Tablette et petits écrans (jusqu'à 992px) */
-    @media (max-width: 992px) {
-        .container-fluid { 
-            padding-left: 5px !important; 
-            padding-right: 5px !important; 
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+        .table-scroll-wrapper {
+            max-height: 60vh;
         }
-        
-        .stats-badge {
-            width: calc(50% - 12px);
-            padding: 8px 12px;
+        .btn-export-excel {
+            padding: 0.4rem 1rem;
             font-size: 0.8rem;
-            margin-right: 4px;
-            margin-bottom: 4px;
         }
-        
-        .stats-badge small { font-size: 0.65rem; }
-        
-        .table td, .table th { 
-            padding: 6px 4px !important; 
-            font-size: 0.8rem !important;
-        }
-        
-        .btn-sm { 
-            padding: 3px 6px !important; 
-            font-size: 0.7rem !important; 
-        }
-        
-        /* Cacher les colonnes moins prioritaires */
-        .col-affectation { display: none; }
     }
     
-    /* Tablette portrait et mobiles larges (jusqu'à 768px) */
     @media (max-width: 768px) {
+        .container-fluid {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        
         .stats-badge {
-            width: calc(50% - 8px);
-            padding: 6px 10px;
+            padding: 0.625rem 0.875rem;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
         }
         
-        .btn-group-sm > .btn {
-            padding: 2px 5px !important;
+        .stats-badge strong {
+            font-size: 0.875rem;
         }
         
-        /* Cacher la colonne niveau */
-        .col-niveau { display: none; }
-        
-        /* Réduire le padding des cellules */
-        .table td, .table th { 
-            padding: 4px 3px !important; 
-            font-size: 0.75rem !important;
+        .stats-badge small {
+            font-size: 0.65rem;
         }
         
-        /* DataTable pagination plus compacte */
-        .dataTables_paginate .paginate_button {
-            padding: 0.25em 0.5em;
-            margin-left: 2px;
+        .table-premium {
+            min-width: 850px;
         }
         
-        .dataTables_length,
-        .dataTables_filter {
-            margin-bottom: 10px;
+        .table-premium thead th,
+        .table-premium tbody td {
+            padding: 0.5rem 0.625rem;
+            font-size: 0.75rem;
         }
         
-        .dataTables_filter input {
-            width: 150px;
-        }
-    }
-    
-    /* Mobiles (jusqu'à 576px) */
-    @media (max-width: 576px) {
-        .container-fluid { 
-            padding-left: 0 !important; 
-            padding-right: 0 !important; 
+        .btn-action {
+            width: 28px;
+            height: 28px;
+            font-size: 0.7rem;
         }
         
-        /* Stats badges en pleine largeur */
-        .stats-badge {
-            width: 100%;
-            margin-right: 0;
-            margin-bottom: 6px;
-            padding: 10px 15px;
+        .actions-group {
+            gap: 0.15rem;
         }
         
-        /* Cacher la colonne affectation si pas déjà fait */
-        .col-affectation { display: none; }
-        
-        /* Réduire la taille des badges */
-        .badge { 
-            font-size: 0.65rem !important; 
-            padding: 2px 4px !important; 
-        }
-        
-        /* Modals plein écran sur mobile */
-        .modal-dialog {
-            margin: 0.5rem;
+        .notification-toast {
+            left: 1rem;
+            right: 1rem;
+            min-width: auto;
             max-width: none;
         }
         
-        /* Titre de page adapté */
-        .card-body { padding: 8px !important; }
-        
-        /* Boutons d'action en colonne */
-        .btn-group-sm {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
+        .modal-dialog {
+            margin: 0.5rem;
         }
         
-        .btn-group-sm .btn {
-            border-radius: 4px !important;
-            width: 100%;
-        }
-        
-        /* Enlever les bordures arrondies problématiques */
-        .btn-group-sm .btn:not(:last-child) {
-            border-radius: 4px !important;
-        }
-        
-        /* Notification toast pleine largeur */
-        .notification-toast {
-            left: 20px;
-            right: 20px;
-            min-width: auto;
+        .btn-export-excel {
+            padding: 0.35rem 0.875rem;
+            font-size: 0.75rem;
         }
     }
     
-    /* Très petits écrans (jusqu'à 480px) */
-    @media (max-width: 480px) {
-        .table td, .table th { 
-            padding: 3px 2px !important; 
-            font-size: 0.7rem !important;
+    @media (max-width: 576px) {
+        .container-fluid {
+            padding-left: 0.25rem !important;
+            padding-right: 0.25rem !important;
         }
         
-        .btn-sm { 
-            padding: 2px 4px !important; 
-            font-size: 0.65rem !important; 
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.375rem;
         }
         
-        .badge { 
-            font-size: 0.6rem !important; 
-            padding: 2px 3px !important; 
+        .stats-badge {
+            margin-right: 0;
+            margin-bottom: 0;
+            width: 100%;
+            justify-content: flex-start;
+        }
+        
+        .table-premium {
+            min-width: 750px;
+        }
+        
+        .table-premium thead th,
+        .table-premium tbody td {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.7rem;
+        }
+        
+        .btn-action {
+            width: 26px;
+            height: 26px;
+            font-size: 0.65rem;
+            border-radius: 5px;
+        }
+        
+        .actions-group {
+            gap: 0.1rem;
+        }
+        
+        .badge-statut {
+            font-size: 0.625rem;
+            padding: 0.2rem 0.5rem;
+        }
+        
+        .btn-export-excel {
+            padding: 0.3rem 0.75rem;
+            font-size: 0.7rem;
+        }
+    }
+    
+    @media (max-width: 400px) {
+        .table-premium {
+            min-width: 700px;
+        }
+        
+        .table-premium thead th,
+        .table-premium tbody td {
+            padding: 0.3rem 0.375rem;
+            font-size: 0.675rem;
+        }
+        
+        .btn-action {
+            width: 24px;
+            height: 24px;
+            font-size: 0.6rem;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    
-    <!-- STATISTIQUES JOURNALIÈRES -->
-    <div class="row mb-3 mt-3 align-items-center">
-        <div class="col-12 col-md-auto mb-2 mb-md-0">                        
-            <div class="stats-badge" style="background: linear-gradient(135deg, #606b36 0%, #d0bee3 100%);">
+<div class="container-fluid px-2 px-md-3 py-3">
+
+    <!-- ========== STATISTIQUES JOURNALIÈRES ========== -->
+    <div class="d-flex flex-wrap align-items-center mb-3 stats-row">
+        <div class="stats-badge stat-date">
+            <i class="fas fa-calendar-day"></i>
+            <div>
                 <strong id="dateAujourdhui">{{ date_aujourdhui }}</strong>
-                <small>aujourd'hui</small>
-            </div>
-            <div class="stats-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <i class="fas fa-user-plus"></i>
-                <strong id="elevesInscrits">{{ eleves_inscrits_aujourdhui }}</strong> Élèves
-                <small>Inscrits aujourd'hui</small>
-            </div>
-            
-            <div class="stats-badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-                <i class="fas fa-money-bill-wave"></i>
-                <strong id="montantTotalPaye">{{ "{:,.0f}".format(montant_total_paye_aujourdhui) }}</strong>
-                <small>Total payé aujourd'hui</small>
-            </div>
-            
-            <div class="stats-badge" style="background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);">
-                <i class="fas fa-receipt"></i>
-                <strong id="nombrePaiements">{{ nombre_paiements_aujourdhui }}</strong> Paiements
-                <small>Effectués aujourd'hui</small>
+                <small>Aujourd'hui</small>
             </div>
         </div>
         
-        {% if current_user.role in ['admin', 'comptable'] %}
-        <div class="col-12 col-md-auto ms-auto">
-            <a href="{{ url_for('ajouter_eleve') }}" class="btn btn-primary w-100 w-md-auto">
-                <i class="fas fa-plus me-1"></i>Nouvel Élève
-            </a>
+        <div class="stats-badge stat-inscrits">
+            <i class="fas fa-user-plus"></i>
+            <div>
+                <strong id="elevesInscrits">{{ eleves_inscrits_aujourdhui }}</strong>
+                <small>Inscrits</small>
+            </div>
         </div>
+        
+        <div class="stats-badge stat-montant">
+            <i class="fas fa-money-bill-wave"></i>
+            <div>
+                <strong id="montantTotalPaye">{{ "{:,.0f}".format(montant_total_paye_aujourdhui) }}</strong>
+                <small>Total payé</small>
+            </div>
+        </div>
+        
+        <div class="stats-badge stat-paiements">
+            <i class="fas fa-receipt"></i>
+            <div>
+                <strong id="nombrePaiements">{{ nombre_paiements_aujourdhui }}</strong>
+                <small>Paiements</small>
+            </div>
+        </div>
+        
+        <!-- 🔥 BOUTON EXPORT EXCEL 🔥 -->
+        <button style="margin-right: 2px;" class="btn-export-excel ms-auto" onclick="exporterTableauExcel()" title="Exporter le tableau en Excel">
+            <i class="fas fa-file-excel"></i> Exporter Excel
+        </button>
+        
+        {% if current_user.role in ['admin', 'comptable'] %}
+        <a href="{{ url_for('ajouter_eleve') }}" class="btn btn-primary" style="border-radius:100px;padding:0.5rem 1.25rem;font-weight:600;font-size:0.875rem;">
+            <i class="fas fa-plus me-1"></i>Nouvel Élève
+        </a>
         {% endif %}
     </div>
 
-    <!-- TABLEAU DES ÉLÈVES -->
-    <div class="card shadow-sm p-2">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0 p-2" id="elevesTable" style="width:100%;">
-                    <thead>
-                        <tr>
-                            <th>Matricule</th>
-                            <th>Nom & Prénom</th>
-                            <th>Classe</th>
-                            <th class="col-niveau">Niveau</th>
-                            <th class="col-affectation">Affectation</th>
-                            <th class="text-center">Frais</th>
-                            <th class="text-center">Payé</th>
-                            <th class="text-center">Solde</th>
-                            <th>Statut</th>
-                            <th>Réinscrit</th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for eleve in eleves %}
-                        <tr id="row{{ eleve.id }}">
-                            <td><span class="fw-bold">{{ eleve.matricule }}</span></td>
-                            <td>{{ eleve.genre_icon if eleve.genre else '👤' }} {{ eleve.prenom }} {{ eleve.nom }}</td>
-                            <td>{{ eleve.classe }}</td>
-                            <td class="col-niveau">{% if eleve.sous_groupe %}<span class="badge bg-secondary">{{ eleve.sous_groupe.nom }}</span>{% else %}-{% endif %}</td>
-                            <td class="col-affectation">{% if eleve.est_affecte_etat %}<span class="badge bg-success">Affecté</span>{% else %}<span class="badge bg-light text-dark">Non affecté</span>{% endif %}</td>
-                            <td class="text-center">{{ "{:,.0f}".format(eleve.frais_scolarite_total) }}</td>
-                            <td class="text-center text-success fw-bold" id="paye{{ eleve.id }}">{{ "{:,.0f}".format(eleve.montant_paye) }}</td>
-                            <td class="text-center fw-bold" id="solde{{ eleve.id }}" style="color: {% if eleve.solde > 0 %}#dc3545{% else %}#28a745{% endif %};">{{ "{:,.0f}".format(eleve.solde) }}</td>
-                            <td>
-                                {% if eleve.statut_paiement == 'Payé' %}
-                                    <span class="badge badge-paye" id="statut{{ eleve.id }}">Payé</span>
-                                {% elif eleve.statut_paiement == 'Partiel' %}
-                                    <span class="badge badge-partiel" id="statut{{ eleve.id }}">Partiel</span>
-                                {% else %}
-                                    <span class="badge badge-impaye" id="statut{{ eleve.id }}">Impayé</span>
+    <!-- ========== TABLEAU DES ÉLÈVES ========== -->
+    <div class="table-container">
+        <div class="table-scroll-wrapper">
+            <table class="table-premium" id="elevesTable">
+                <thead>
+                    <tr>
+                        <th class="col-matricule">Matricule</th>
+                        <th class="col-nom">Nom & Prénom</th>
+                        <th class="col-classe">Classe</th>
+                        <th class="col-niveau">Niveau</th>
+                        <th class="col-affectation">Affectation</th>
+                        <th class="col-frais text-end">Frais</th>
+                        <th class="col-paye text-end">Payé</th>
+                        <th class="col-solde text-end">Solde</th>
+                        <th class="col-statut text-center">Statut</th>
+                        <th class="col-reinscrit text-center">Réinscrit</th>
+                        <th class="col-actions text-center" data-export="false">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for eleve in eleves %}
+                    <tr id="row{{ eleve.id }}">
+                        <td><span class="fw-bold">{{ eleve.matricule }}</span></td>
+                        <td>{{ eleve.genre_icon if eleve.genre else '👤' }} {{ eleve.prenom }} {{ eleve.nom }}</td>
+                        <td>{{ eleve.classe }}</td>
+                        <td>{% if eleve.sous_groupe %}<span class="badge-statut" style="background:var(--gray-100);color:var(--gray-600);">{{ eleve.sous_groupe.nom }}</span>{% else %}<span style="color:var(--gray-400);">—</span>{% endif %}</td>
+                        <td>
+                            {% if eleve.est_affecte_etat %}
+                                <span class="badge-statut badge-affecte">Affecté</span>
+                            {% else %}
+                                <span class="badge-statut badge-non-affecte">Non affecté</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">{{ "{:,.0f}".format(eleve.frais_scolarite_total) }}</td>
+                        <td class="text-end fw-bold" style="color:var(--success);" id="paye{{ eleve.id }}">{{ "{:,.0f}".format(eleve.montant_paye) }}</td>
+                        <td class="text-end fw-bold" id="solde{{ eleve.id }}" style="color: {% if eleve.solde > 0 %}var(--danger){% else %}var(--success){% endif %};">
+                            {{ "{:,.0f}".format(eleve.solde) }}
+                        </td>
+                        <td class="text-center">
+                            {% if eleve.statut_paiement == 'Payé' %}
+                                <span class="badge-statut badge-paye" id="statut{{ eleve.id }}">Payé</span>
+                            {% elif eleve.statut_paiement == 'Partiel' %}
+                                <span class="badge-statut badge-partiel" id="statut{{ eleve.id }}">Partiel</span>
+                            {% else %}
+                                <span class="badge-statut badge-impaye" id="statut{{ eleve.id }}">Impayé</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if eleve.reinscrit %}
+                                <span class="badge-statut" style="background:#f0fdf4;color:#16a34a;">
+                                    ✅ {{ eleve.annee_scolaire }}
+                                </span>
+                            {% else %}
+                                <span style="color:var(--gray-400);">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center" data-export="false">
+                            <div class="actions-group">
+                                {% if current_user.role in ['admin', 'comptable'] %}
+                                <button type="button" class="btn-action btn-payer btn-paiement" 
+                                        data-eleve-id="{{ eleve.id }}"
+                                        title="Enregistrer un paiement">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </button>
                                 {% endif %}
-                            </td>
-                            <td>
-                                {% if eleve.reinscrit %}
-                                    <span class="badge bg-success" title="Réinscrit le {{ eleve.date_reinscription.strftime('%d/%m/%Y') if eleve.date_reinscription else '-' }}">
-                                        ✅ {{ eleve.annee_scolaire }}
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Non</span>
+                                
+                                <button type="button" class="btn-action btn-historique" 
+                                        onclick="voirPaiements({{ eleve.id }})" 
+                                        title="Historique des paiements">
+                                    <i class="fas fa-history"></i>
+                                </button>
+                                
+                                {% if current_user.role in ['admin', 'comptable'] %}
+                                <a href="{{ url_for('modifier_eleve', id=eleve.id) }}" 
+                                   class="btn-action btn-modifier" 
+                                   title="Modifier l'élève">
+                                    <i class="fas fa-edit"></i>
+                                </a>
                                 {% endif %}
-                            </td>
-                            <td class="text-center">
-                                <div class="btn-group btn-group-sm">
-                                    {% if current_user.role in ['admin', 'comptable'] %}
-                                    <button type="button" class="btn btn-success btn-sm btn-paiement" 
-                                            data-eleve-id="{{ eleve.id }}"
-                                            title="Enregistrer un paiement">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                    </button>
-                                    {% endif %}
-                                    <button type="button" class="btn btn-info btn-sm" onclick="voirPaiements({{ eleve.id }})" title="Historique">
-                                        <i class="fas fa-history"></i>
-                                    </button>
-                                    {% if current_user.role in ['admin', 'comptable'] %}
-                                    <a href="{{ url_for('modifier_eleve', id=eleve.id) }}" class="btn btn-warning btn-sm" title="Modifier"><i class="fas fa-edit"></i></a>
-                                    {% endif %}
-                                    {% if current_user.role == 'admin' %}
-                                    <a href="{{ url_for('supprimer_eleve', id=eleve.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer {{ eleve.prenom }} {{ eleve.nom }} ?')" title="Supprimer"><i class="fas fa-trash-alt"></i></a>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                                
+                                {% if current_user.role == 'admin' %}
+                                <a href="{{ url_for('supprimer_eleve', id=eleve.id) }}" 
+                                   class="btn-action btn-supprimer" 
+                                   onclick="return confirm('Supprimer {{ eleve.prenom }} {{ eleve.nom }} ?')" 
+                                   title="Supprimer l'élève">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Indicateur de scroll horizontal -->
+        <div class="text-center py-2 border-top" style="background:var(--gray-50);">
+            <small style="font-size:0.6875rem;color:var(--gray-400);">
+                <i class="fas fa-arrows-left-right me-1"></i>Faites défiler horizontalement pour voir toutes les colonnes
+            </small>
         </div>
     </div>
 </div>
@@ -452,6 +767,9 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Librairie SheetJS pour l'export Excel -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
 <script>
 // ========== FONCTIONS UTILITAIRES ==========
 function formatMontant(m) { 
@@ -463,18 +781,13 @@ function formatDate(d) {
     return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}); 
 }
 
-function formatDateTime(d) {
-    if(!d) return '-';
-    return new Date(d).toLocaleString('fr-FR');
-}
-
 function showNotification(type, message) {
-    var alertClass = type === 'success' ? 'alert-success' : (type === 'warning' ? 'alert-warning' : 'alert-danger');
+    var bg = type === 'success' ? 'bg-success' : (type === 'warning' ? 'bg-warning' : 'bg-danger');
     var icon = type === 'success' ? 'fa-check-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : 'fa-times-circle');
-    var html = '<div class="notification-toast alert ' + alertClass + ' alert-dismissible fade show shadow">';
+    var html = '<div class="notification-toast alert ' + bg + ' text-white alert-dismissible fade show d-flex align-items-center">';
     html += '<i class="fas ' + icon + ' me-2"></i>';
-    html += message;
-    html += '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    html += '<span>' + message + '</span>';
+    html += '<button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button>';
     html += '</div>';
     $('body').append(html);
     setTimeout(function() {
@@ -482,16 +795,85 @@ function showNotification(type, message) {
     }, 4000);
 }
 
-// ========== SUPPRIMER LE BACKDROP ==========
 function nettoyerBackdrop() {
     document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
-    var backdrops = document.querySelectorAll('.modal-backdrop');
-    backdrops.forEach(function(backdrop) { backdrop.remove(); });
+    document.querySelectorAll('.modal-backdrop').forEach(function(b) { b.remove(); });
 }
 
-// ========== METTRE À JOUR UNE LIGNE ÉLÈVE ==========
+// ========== EXPORT EXCEL ==========
+function exporterTableauExcel() {
+    var table = document.getElementById('elevesTable');
+    if (!table) {
+        showNotification('danger', 'Tableau introuvable !');
+        return;
+    }
+    
+    // Cloner le tableau pour l'export (enlever la colonne actions)
+    var clonedTable = table.cloneNode(true);
+    
+    // Supprimer la colonne "Actions" du clone
+    var headers = clonedTable.querySelectorAll('thead th');
+    var actionColIndex = -1;
+    
+    headers.forEach(function(th, index) {
+        if (th.getAttribute('data-export') === 'false') {
+            actionColIndex = index;
+        }
+    });
+    
+    // Supprimer la colonne d'actions dans le thead
+    if (actionColIndex >= 0) {
+        var theadRow = clonedTable.querySelector('thead tr');
+        if (theadRow && theadRow.children[actionColIndex]) {
+            theadRow.removeChild(theadRow.children[actionColIndex]);
+        }
+        
+        // Supprimer la colonne d'actions dans le tbody
+        var tbodyRows = clonedTable.querySelectorAll('tbody tr');
+        tbodyRows.forEach(function(row) {
+            if (row.children[actionColIndex]) {
+                row.removeChild(row.children[actionColIndex]);
+            }
+        });
+    }
+    
+    // Créer le workbook
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.table_to_sheet(clonedTable, { raw: true });
+    
+    // Ajuster la largeur des colonnes
+    var colWidths = [];
+    var range = XLSX.utils.decode_range(ws['!ref']);
+    
+    for (var C = range.s.c; C <= range.e.c; C++) {
+        var maxWidth = 10;
+        for (var R = range.s.r; R <= range.e.r; R++) {
+            var cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+            var cell = ws[cellRef];
+            if (cell && cell.v) {
+                var width = cell.v.toString().length;
+                if (width > maxWidth) maxWidth = width;
+            }
+        }
+        colWidths.push({ wch: maxWidth + 2 });
+    }
+    ws['!cols'] = colWidths;
+    
+    // Nom du fichier avec la date
+    var today = new Date();
+    var dateStr = today.toISOString().slice(0, 10);
+    var dossier = '{{ dossier_actif if dossier_actif else "tous" }}';
+    var fileName = 'Eleves_' + dossier + '_' + dateStr + '.xlsx';
+    
+    XLSX.utils.book_append_sheet(wb, ws, 'Élèves');
+    XLSX.writeFile(wb, fileName);
+    
+    showNotification('success', 'Export Excel réussi !');
+}
+
+// ========== METTRE À JOUR LIGNE ==========
 function mettreAJourLigneEleve(eleveId) {
     fetch('/api/eleve/' + eleveId + '/paiements')
     .then(function(r) { return r.json(); })
@@ -499,7 +881,7 @@ function mettreAJourLigneEleve(eleveId) {
         var e = data.eleve;
         $('#paye' + eleveId).text(formatMontant(e.montant_paye));
         $('#solde' + eleveId).text(formatMontant(e.solde));
-        $('#solde' + eleveId).css('color', e.solde > 0 ? '#dc3545' : '#28a745');
+        $('#solde' + eleveId).css('color', e.solde > 0 ? 'var(--danger)' : 'var(--success)');
         
         var statut = $('#statut' + eleveId);
         var nouveauStatut = e.solde <= 0 ? 'Payé' : (e.montant_paye > 0 ? 'Partiel' : 'Impayé');
@@ -511,59 +893,21 @@ function mettreAJourLigneEleve(eleveId) {
     });
 }
 
-// ========== METTRE À JOUR STATISTIQUES ==========
 function mettreAJourStats() {
     fetch('/api/stats-journalieres')
     .then(function(r) { return r.json(); })
     .then(function(data) {
         if (data.success) {
-            $('#dateAujourdhui').html('<i class="fas fa-calendar-day me-1"></i>' + data.date);
+            $('#dateAujourdhui').text(data.date);
             $('#elevesInscrits').text(data.eleves_inscrits);
-            $('#montantTotalPaye').text(new Intl.NumberFormat('fr-FR').format(data.montant_total_paye));
+            $('#montantTotalPaye').text(formatMontant(data.montant_total_paye));
             $('#nombrePaiements').text(data.nombre_paiements);
         }
-    })
-    .catch(function(error) {
-        console.error('Erreur mise à jour stats:', error);
     });
 }
 
-// ========== INITIALISATION DATATABLE ==========
+// ========== INITIALISATION ==========
 $(document).ready(function() {
-    // Détection de la largeur d'écran pour adapter le nombre d'élèves par page
-    var pageLength = 25;
-    if ($(window).width() < 576) {
-        pageLength = 10;
-    } else if ($(window).width() < 768) {
-        pageLength = 15;
-    }
-    
-    var table = $('#elevesTable').DataTable({
-        language: { 
-            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json',
-            search: "Rechercher :",
-            lengthMenu: "Afficher _MENU_ élèves",
-            info: "Élèves _START_ à _END_ sur _TOTAL_",
-            infoEmpty: "Aucun élève trouvé",
-            infoFiltered: "(filtré de _MAX_ élèves au total)",
-            zeroRecords: "Aucun élève trouvé"
-        },
-        pageLength: pageLength,
-        order: [[1, 'asc']],
-        columnDefs: [{ orderable: false, targets: [10] }],
-        responsive: false,
-        scrollX: true,
-        scrollCollapse: true,
-        pagingType: 'simple_numbers',
-        lengthMenu: [[10, 15, 25, 50, -1], [10, 15, 25, 50, "Tous"]],
-        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
-    });
-    
-    // Ajuster DataTable quand la fenêtre est redimensionnée
-    $(window).on('resize', function() {
-        table.columns.adjust().draw();
-    });
-    
     // Ouvrir modal paiement
     $(document).on('click', '.btn-paiement', function() {
         var eleveId = $(this).data('eleve-id');
@@ -573,15 +917,12 @@ $(document).ready(function() {
         $('#erreur' + eleveId).addClass('d-none');
         $('#succes' + eleveId).addClass('d-none');
         $('#btnSubmit' + eleveId).prop('disabled', false).html('<i class="fas fa-save me-1"></i>Enregistrer');
-        
-        var modal = new bootstrap.Modal(document.getElementById('paiementModal' + eleveId));
-        modal.show();
+        new bootstrap.Modal(document.getElementById('paiementModal' + eleveId)).show();
     });
     
     // Soumission paiement
     $(document).on('submit', '.paiement-ajax-form', function(e) {
         e.preventDefault();
-        
         var form = $(this);
         var eleveId = form.data('eleve-id');
         var btn = $('#btnSubmit' + eleveId);
@@ -589,154 +930,90 @@ $(document).ready(function() {
         var succes = $('#succes' + eleveId);
         var formData = new FormData(this);
         
-        btn.prop('disabled', true);
-        btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Traitement...');
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Traitement...');
         erreur.addClass('d-none');
         succes.addClass('d-none');
         form.find('input, select, textarea').prop('disabled', true);
         
-        fetch('/paiement/ajouter/' + eleveId, {
-            method: 'POST',
-            body: formData
-        })
+        fetch('/paiement/ajouter/' + eleveId, { method: 'POST', body: formData })
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.success) {
-                // 🔥 Mettre à jour la ligne de l'élève 🔥
                 mettreAJourLigneEleve(eleveId);
                 mettreAJourStats();
-                
-                succes.html('<i class="fas fa-check-circle me-2"></i>' + data.message);
-                succes.removeClass('d-none');
-                
+                succes.html('<i class="fas fa-check-circle me-2"></i>' + data.message).removeClass('d-none');
                 setTimeout(function() {
-                    var modalEl = document.getElementById('paiementModal' + eleveId);
-                    var modal = bootstrap.Modal.getInstance(modalEl);
-                    if (modal) modal.hide();
+                    bootstrap.Modal.getInstance(document.getElementById('paiementModal' + eleveId)).hide();
                 }, 1500);
             } else {
-                erreur.html('<i class="fas fa-exclamation-triangle me-2"></i>' + data.message);
-                erreur.removeClass('d-none');
+                erreur.html('<i class="fas fa-exclamation-triangle me-2"></i>' + data.message).removeClass('d-none');
                 form.find('input, select, textarea').prop('disabled', false);
-                btn.prop('disabled', false);
-                btn.html('<i class="fas fa-save me-1"></i>Enregistrer');
+                btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Enregistrer');
             }
         })
-        .catch(function(err) {
-            erreur.html('<i class="fas fa-times-circle me-2"></i>Erreur réseau');
-            erreur.removeClass('d-none');
+        .catch(function() {
+            erreur.html('<i class="fas fa-times-circle me-2"></i>Erreur réseau').removeClass('d-none');
             form.find('input, select, textarea').prop('disabled', false);
-            btn.prop('disabled', false);
-            btn.html('<i class="fas fa-save me-1"></i>Enregistrer');
+            btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Enregistrer');
         });
     });
 });
 
-
 // ========== VOIR PAIEMENTS ==========
 function voirPaiements(eleveId) {
-    var modal = new bootstrap.Modal(document.getElementById('recusModal'));
-    modal.show();
+    new bootstrap.Modal(document.getElementById('recusModal')).show();
     
     fetch('/api/eleve/' + eleveId + '/paiements')
     .then(function(r) { return r.json(); })
     .then(function(data) {
         var html = '';
-        
         html += '<div class="text-center mb-3 p-3 rounded" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;">';
         html += '<h5>' + data.eleve.prenom + ' ' + data.eleve.nom + '</h5>';
-        html += '<small>' + (data.eleve.classe || '-') + ' - ' + data.eleve.matricule + '</small>';
-        html += '</div>';
+        html += '<small>' + (data.eleve.classe || '-') + ' - ' + data.eleve.matricule + '</small></div>';
         
         html += '<div class="row text-center mb-3">';
         html += '<div class="col-6 col-md-3"><small>Frais</small><h6>' + formatMontant(data.eleve.frais_scolarite_total) + '</h6></div>';
         html += '<div class="col-6 col-md-3"><small>Payé</small><h6 class="text-success">' + formatMontant(data.eleve.montant_paye) + '</h6></div>';
         html += '<div class="col-6 col-md-3"><small>Solde</small><h6 class="' + (data.eleve.solde > 0 ? 'text-danger' : 'text-success') + '">' + formatMontant(data.eleve.solde) + '</h6></div>';
-        html += '<div class="col-6 col-md-3"><small>Taux</small><h6>' + data.eleve.taux_paiement + '%</h6></div>';
-        html += '</div>';
+        html += '<div class="col-6 col-md-3"><small>Taux</small><h6>' + data.eleve.taux_paiement + '%</h6></div></div>';
         
         if (data.paiements.length === 0) {
             html += '<div class="alert alert-info text-center">Aucun paiement enregistré</div>';
         } else {
-            html += '<div class="table-responsive">';
-            html += '<table class="table table-sm table-hover">';
-            html += '<thead class="table-light">';
-            html += '<tr>';
-            html += '<th>N° Reçu</th><th>Date</th><th class="text-end">Montant</th><th>Mode</th><th>Référence</th><th class="text-center">Actions</th>';
-            html += '</tr>';
-            html += '</thead><tbody>';
+            html += '<div class="table-responsive"><table class="table table-sm table-hover"><thead class="table-light"><tr>';
+            html += '<th>N° Reçu</th><th>Date</th><th class="text-end">Montant</th><th>Mode</th><th>Réf.</th><th class="text-center">Actions</th></tr></thead><tbody>';
             
             data.paiements.forEach(function(p) {
                 var estAvoir = p.montant < 0;
                 var estAnnule = p.statut === 'annule';
-                
-                var rowClass = '';
-                if (estAvoir) rowClass = 'table-avoir';
-                else if (estAnnule) rowClass = 'table-annule';
+                var rowClass = estAvoir ? 'table-avoir' : (estAnnule ? 'table-annule' : '');
                 
                 html += '<tr class="' + rowClass + '">';
-                
-                html += '<td>';
-                if (estAvoir) html += '<span class="badge badge-avoir me-1">AVOIR</span>';
-                else if (estAnnule) html += '<span class="badge badge-annule me-1">ANNULÉ</span>';
-                html += '<code>' + (p.recu || '-') + '</code>';
-                if (estAnnule && p.motif_annulation) html += '<br><small class="text-muted">Motif: ' + p.motif_annulation + '</small>';
-                if (estAvoir && p.description) html += '<br><small class="text-muted">' + p.description + '</small>';
-                html += '</td>';
-                
+                html += '<td>' + (estAvoir ? '<span class="badge badge-avoir me-1">AVOIR</span>' : '') + (estAnnule ? '<span class="badge badge-annule me-1">ANNULÉ</span>' : '') + '<code>' + (p.recu || '-') + '</code></td>';
                 html += '<td>' + formatDate(p.date_paiement) + '</td>';
-                
-                if (estAvoir) {
-                    html += '<td class="text-end fw-bold text-avoir"><i class="fas fa-undo me-1"></i>-' + formatMontant(Math.abs(p.montant)) + '</td>';
-                } else if (estAnnule) {
-                    html += '<td class="text-end text-muted" style="text-decoration: line-through;">' + formatMontant(p.montant) + '</td>';
-                } else {
-                    html += '<td class="text-end fw-bold text-success">' + formatMontant(p.montant) + '</td>';
-                }
+                html += '<td class="text-end fw-bold ' + (estAvoir ? 'text-warning' : (estAnnule ? 'text-muted' : 'text-success')) + '">' + formatMontant(p.montant) + '</td>';
                 
                 var mode = p.type_paiement || p.mode_paiement || '';
-                if (mode === 'especes') html += '<td>💵 Espèces</td>';
-                else if (mode === 'cheque') html += '<td>📝 Chèque</td>';
-                else if (mode === 'virement') html += '<td>🏦 Virement</td>';
-                else if (mode === 'mobile_money') html += '<td>📱 Mobile Money</td>';
-                else html += '<td>' + (mode || '-') + '</td>';
-                
+                html += '<td>' + (mode === 'especes' ? '💵' : mode === 'cheque' ? '📝' : mode === 'virement' ? '🏦' : mode === 'mobile_money' ? '📱' : mode || '-') + '</td>';
                 html += '<td><small>' + (p.reference || '-') + '</small></td>';
-                
-                html += '<td class="text-center"><div class="btn-group btn-group-sm">';
-                html += '<button class="btn btn-info btn-sm" onclick="voirRecu(' + p.id + ')" title="Voir"><i class="fas fa-receipt"></i></button>';
-                html += '<button class="btn btn-secondary btn-sm" onclick="imprimerRecu(' + p.id + ')" title="Imprimer"><i class="fas fa-print"></i></button>';
+                html += '<td class="text-center"><div class="actions-group">';
+                html += '<button class="btn-action btn-historique" onclick="voirRecu(' + p.id + ')" title="Voir"><i class="fas fa-receipt"></i></button>';
+                html += '<button class="btn-action btn-historique" onclick="imprimerRecu(' + p.id + ')" title="Imprimer"><i class="fas fa-print"></i></button>';
                 if (!estAvoir && !estAnnule) {
                     {% if current_user.role in ['admin', 'comptable'] %}
-                    html += '<button class="btn btn-warning btn-sm" onclick="modifierPaiement(' + p.id + ')" title="Modifier"><i class="fas fa-edit"></i></button>';
-                    html += '<button class="btn btn-danger btn-sm" onclick="annulerPaiement(' + p.id + ')" title="Annuler"><i class="fas fa-ban"></i></button>';
+                    html += '<button class="btn-action btn-modifier" onclick="modifierPaiement(' + p.id + ')" title="Modifier"><i class="fas fa-edit"></i></button>';
+                    html += '<button class="btn-action btn-supprimer" onclick="annulerPaiement(' + p.id + ')" title="Annuler"><i class="fas fa-ban"></i></button>';
                     {% endif %}
                 }
                 html += '</div></td></tr>';
             });
-            
             html += '</tbody></table></div>';
-            
-            html += '<div class="mt-2">';
-            html += '<small class="text-muted me-3"><span class="badge badge-avoir">AVOIR</span> = Avoir</small>';
-            html += '<small class="text-muted me-3"><span class="badge badge-annule">ANNULÉ</span> = Annulé</small>';
-            html += '<small class="text-muted"><i class="fas fa-undo text-avoir"></i> = Montant annulé</small>';
-            html += '</div>';
         }
-        
-        html += '<div class="mt-3 text-center">';
-        html += '<button class="btn btn-primary" onclick="imprimerTousRecus(' + data.eleve.id + ')"><i class="fas fa-print me-2"></i>Imprimer tous les reçus</button>';
-        html += '</div>';
-        
+        html += '<div class="mt-3 text-center"><button class="btn btn-primary" onclick="imprimerTousRecus(' + data.eleve.id + ')"><i class="fas fa-print me-2"></i>Imprimer tous les reçus</button></div>';
         $('#recusModalBody').html(html);
-    })
-    .catch(function(err) {
-        console.error('Erreur:', err);
-        $('#recusModalBody').html('<div class="alert alert-danger">Erreur lors du chargement des paiements</div>');
     });
 }
 
-// ========== VOIR / IMPRIMER REÇU ==========
 function voirRecu(paiementId) {
     $('#recuModalBody').html('<iframe src="/paiement/' + paiementId + '/recu" style="width:100%;height:550px;border:none;"></iframe>');
     new bootstrap.Modal(document.getElementById('recuModal')).show();
@@ -747,54 +1024,35 @@ function imprimerRecuDepuisModal() {
     if (iframe) iframe.contentWindow.print();
 }
 
-function imprimerRecu(paiementId) {
-    window.open('/paiement/' + paiementId + '/recu', '_blank');
-}
+function imprimerRecu(paiementId) { window.open('/paiement/' + paiementId + '/recu', '_blank'); }
+function imprimerTousRecus(eleveId) { window.open('/eleve/' + eleveId + '/recus', '_blank'); }
 
-function imprimerTousRecus(eleveId) {
-    window.open('/eleve/' + eleveId + '/recus', '_blank');
-}
-
-// ========== MODIFIER PAIEMENT ==========
 function modifierPaiement(paiementId) {
-    var modal = new bootstrap.Modal(document.getElementById('modifierPaiementModal'));
-    modal.show();
-    
+    new bootstrap.Modal(document.getElementById('modifierPaiementModal')).show();
     fetch('/api/paiement/' + paiementId)
     .then(function(r) { return r.json(); })
     .then(function(data) {
-        var html = '';
-        html += '<form id="formModifierPaiement">';
-        html += '<input type="hidden" name="paiement_id" value="' + data.paiement.id + '">';
-        html += '<div class="mb-3"><label class="form-label">Montant (FCFA)</label>';
-        html += '<input type="number" name="montant" class="form-control" value="' + Math.abs(data.paiement.montant) + '" required min="500" step="500"></div>';
-        html += '<div class="mb-3"><label class="form-label">Date de paiement</label>';
-        html += '<input type="date" name="date_paiement" class="form-control" value="' + data.paiement.date_paiement + '" required></div>';
-        html += '<div class="mb-3"><label class="form-label">Mode</label><select name="mode_paiement" class="form-select" required>';
-        html += '<option value="especes" ' + (data.paiement.mode_paiement == 'especes' ? 'selected' : '') + '>💵 Espèces</option>';
-        html += '<option value="cheque" ' + (data.paiement.mode_paiement == 'cheque' ? 'selected' : '') + '>📝 Chèque</option>';
-        html += '<option value="virement" ' + (data.paiement.mode_paiement == 'virement' ? 'selected' : '') + '>🏦 Virement</option>';
-        html += '<option value="mobile_money" ' + (data.paiement.mode_paiement == 'mobile_money' ? 'selected' : '') + '>📱 Mobile Money</option>';
+        var html = '<form id="formModifierPaiement"><input type="hidden" name="paiement_id" value="' + data.paiement.id + '">';
+        html += '<div class="mb-3"><label class="form-label">Montant</label><input type="number" name="montant" class="form-control" value="' + Math.abs(data.paiement.montant) + '" required></div>';
+        html += '<div class="mb-3"><label class="form-label">Date</label><input type="date" name="date_paiement" class="form-control" value="' + data.paiement.date_paiement + '" required></div>';
+        html += '<div class="mb-3"><label class="form-label">Mode</label><select name="mode_paiement" class="form-select">';
+        ['especes','cheque','virement','mobile_money'].forEach(function(m) {
+            html += '<option value="' + m + '" ' + (data.paiement.mode_paiement == m ? 'selected' : '') + '>' + m + '</option>';
+        });
         html += '</select></div>';
-        html += '<div class="mb-3"><label class="form-label">Référence</label><input type="text" name="reference" class="form-control" value="' + (data.paiement.reference || '') + '"></div>';
-        html += '<div class="mb-3"><label class="form-label">Observations</label><textarea name="observations" class="form-control" rows="2">' + (data.paiement.observations || '') + '</textarea></div>';
-        html += '<div id="modifierErreur" class="alert alert-danger d-none"></div>';
-        html += '<div id="modifierSucces" class="alert alert-success d-none"></div>';
+        html += '<div id="modifierErreur" class="alert alert-danger d-none"></div><div id="modifierSucces" class="alert alert-success d-none"></div>';
         html += '<button type="submit" class="btn btn-warning w-100"><i class="fas fa-save me-2"></i>Enregistrer</button></form>';
-        
         $('#modifierPaiementBody').html(html);
         
         $('#formModifierPaiement').on('submit', function(e) {
             e.preventDefault();
-            var formData = new FormData(this);
-            fetch('/paiement/' + paiementId + '/modifier', { method: 'POST', body: formData })
+            fetch('/paiement/' + paiementId + '/modifier', { method: 'POST', body: new FormData(this) })
             .then(function(r) { return r.json(); })
             .then(function(result) {
                 if (result.success) {
                     $('#modifierSucces').html('<i class="fas fa-check-circle me-2"></i>' + result.message).removeClass('d-none');
                     setTimeout(function() {
-                        var modalEl = document.getElementById('modifierPaiementModal');
-                        bootstrap.Modal.getInstance(modalEl).hide();
+                        bootstrap.Modal.getInstance(document.getElementById('modifierPaiementModal')).hide();
                         nettoyerBackdrop();
                         mettreAJourLigneEleve(result.eleve_id);
                         voirPaiements(result.eleve_id);
@@ -809,76 +1067,37 @@ function modifierPaiement(paiementId) {
     });
 }
 
-// ========== ANNULER PAIEMENT ==========
 function annulerPaiement(paiementId) {
-    var modal = new bootstrap.Modal(document.getElementById('annulerPaiementModal'));
-    modal.show();
-    
-    $('#annulerPaiementBody').html(
-        '<div class="text-center py-4"><div class="spinner-border text-danger mb-3"></div><p class="text-muted">Chargement...</p></div>'
-    );
+    new bootstrap.Modal(document.getElementById('annulerPaiementModal')).show();
+    $('#annulerPaiementBody').html('<div class="text-center py-4"><div class="spinner-border text-danger mb-3"></div><p>Chargement...</p></div>');
     
     fetch('/api/paiement/' + paiementId)
     .then(function(r) { return r.json(); })
     .then(function(data) {
-        var html = '';
-        html += '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>Attention !</strong> Cette action annulera le paiement et créera un avoir.</div>';
-        html += '<ul class="list-group mb-3">';
-        html += '<li class="list-group-item d-flex justify-content-between"><span>N° Reçu :</span><strong>' + (data.paiement.recu || '-') + '</strong></li>';
-        html += '<li class="list-group-item d-flex justify-content-between"><span>Montant :</span><strong class="text-danger">' + formatMontant(data.paiement.montant) + '</strong></li>';
-        html += '<li class="list-group-item d-flex justify-content-between"><span>Date :</span><strong>' + formatDate(data.paiement.date_paiement) + '</strong></li>';
-        html += '</ul>';
-        html += '<form id="formAnnulerPaiement">';
-        html += '<div class="mb-3"><label class="form-label">Raison</label><textarea name="raison" class="form-control" rows="2" placeholder="Optionnel..."></textarea></div>';
-        html += '<div class="mb-3"><label>Tapez "CONFIRMER" pour valider</label><input type="text" name="confirmation" class="form-control" placeholder="CONFIRMER" required></div>';
+        var html = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Cette action annulera le paiement.</div>';
+        html += '<ul class="list-group mb-3"><li class="list-group-item d-flex justify-content-between">Reçu :<strong>' + (data.paiement.recu || '-') + '</strong></li>';
+        html += '<li class="list-group-item d-flex justify-content-between">Montant :<strong>' + formatMontant(data.paiement.montant) + '</strong></li></ul>';
+        html += '<form id="formAnnulerPaiement"><div class="mb-3"><label>Raison</label><textarea name="raison" class="form-control" rows="2"></textarea></div>';
+        html += '<div class="mb-3"><label>Tapez "CONFIRMER"</label><input type="text" name="confirmation" class="form-control" placeholder="CONFIRMER" required></div>';
         html += '<div id="annulerErreur" class="alert alert-danger d-none"></div>';
-        html += '<button type="submit" class="btn btn-danger w-100" id="btnAnnulerSubmit"><i class="fas fa-ban me-2"></i>Annuler ce paiement</button></form>';
-        
+        html += '<button type="submit" class="btn btn-danger w-100"><i class="fas fa-ban me-2"></i>Annuler</button></form>';
         $('#annulerPaiementBody').html(html);
         
         $('#formAnnulerPaiement').on('submit', function(e) {
             e.preventDefault();
-            var btn = $('#btnAnnulerSubmit');
-            btn.prop('disabled', true);
-            btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Annulation en cours...');
-            
-            var formData = new FormData(this);
-            fetch('/paiement/' + paiementId + '/annuler', {
-                method: 'POST',
-                body: formData,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
+            fetch('/paiement/' + paiementId + '/annuler', { method: 'POST', body: new FormData(this) })
             .then(function(r) { return r.json(); })
             .then(function(result) {
                 if (result.success) {
-                    // Fermer le modal
-                    var modalEl = document.getElementById('annulerPaiementModal');
-                    bootstrap.Modal.getInstance(modalEl).hide();
-                    
-                    // 🔥 Nettoyer le backdrop 🔥
+                    bootstrap.Modal.getInstance(document.getElementById('annulerPaiementModal')).hide();
                     nettoyerBackdrop();
-                    
-                    // 🔥 Mettre à jour la ligne de l'élève + stats 🔥
                     mettreAJourLigneEleve(result.eleve_id);
                     mettreAJourStats();
-                    
-                    // Rafraîchir l'historique
-                    setTimeout(function() {
-                        voirPaiements(result.eleve_id);
-                    }, 300);
-                    
+                    setTimeout(function() { voirPaiements(result.eleve_id); }, 300);
                     showNotification('warning', result.message);
                 } else {
                     $('#annulerErreur').html('<i class="fas fa-exclamation-triangle me-2"></i>' + result.message).removeClass('d-none');
-                    btn.prop('disabled', false);
-                    btn.html('<i class="fas fa-ban me-2"></i>Annuler ce paiement');
                 }
-            })
-            .catch(function(err) {
-                console.error('Erreur:', err);
-                $('#annulerErreur').html('<i class="fas fa-times-circle me-2"></i>Erreur réseau').removeClass('d-none');
-                btn.prop('disabled', false);
-                btn.html('<i class="fas fa-ban me-2"></i>Annuler ce paiement');
             });
         });
     });

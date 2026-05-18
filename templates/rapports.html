@@ -3,409 +3,995 @@
 {% block title %}Rapports financiers{% endblock %}
 
 {% block styles %}
-<style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    .stat-card {
-        transition: transform 0.2s;
-        border-radius: 12px;
+<style>
+    /* ========== FONDATIONS ========== */
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    :root {
+        --primary: #5b6abf;
+        --primary-light: #eeefff;
+        --success: #10b981;
+        --success-light: #ecfdf5;
+        --warning: #f59e0b;
+        --warning-light: #fffbeb;
+        --danger: #ef4444;
+        --danger-light: #fef2f2;
+        --info: #3b82f6;
+        --info-light: #eff6ff;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --radius: 12px;
+        --radius-lg: 16px;
+        --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    body {
+        background: #f8f9fb;
+        letter-spacing: -0.01em;
+        font-weight: 400;
+        color: var(--gray-700);
+    }
+    
+    /* ========== TITRES ========== */
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        letter-spacing: -0.02em;
+    }
+    
+    .page-subtitle {
+        font-size: 0.8125rem;
+        color: var(--gray-500);
+        font-weight: 400;
+    }
+    
+    /* ========== SÉLECTEUR DE PÉRIODE ========== */
+    .period-selector {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: 100px;
+        padding: 0.25rem;
+        display: inline-flex;
+        gap: 0.125rem;
+    }
+    
+    .period-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 100px;
         border: none;
+        background: transparent;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--gray-500);
+        cursor: pointer;
+        transition: var(--transition);
+        white-space: nowrap;
+        letter-spacing: -0.005em;
     }
+    
+    .period-btn:hover {
+        color: var(--primary);
+        background: var(--primary-light);
+    }
+    
+    .period-btn.active {
+        background: var(--primary);
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(91, 106, 191, 0.3);
+    }
+    
+    /* ========== CARTES STATISTIQUES ========== */
+    .stat-card {
+        background: white;
+        border: 1px solid var(--gray-100);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        transition: var(--transition);
+        height: 100%;
+    }
+    
     .stat-card:hover {
-        transform: translateY(-3px);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        border-color: var(--gray-200);
     }
-    .stat-icon {
-        width: 45px;
-        height: 45px;
-        border-radius: 10px;
+    
+    .stat-card .stat-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--gray-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+    }
+    
+    .stat-card .stat-detail {
+        font-size: 0.6875rem;
+        color: var(--gray-400);
+        margin-top: 0.25rem;
+        word-break: break-word;
+    }
+    
+    .stat-icon-wrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius);
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(102, 126, 234, 0.1);
+        flex-shrink: 0;
     }
-    .badge-mode {
-        font-size: 0.7rem;
-        padding: 3px 8px;
+    
+    .stat-icon-wrapper.success { background: var(--success-light); }
+    .stat-icon-wrapper.primary { background: var(--primary-light); }
+    .stat-icon-wrapper.info { background: var(--info-light); }
+    .stat-icon-wrapper.warning { background: var(--warning-light); }
+    
+    .stat-icon-wrapper i {
+        font-size: 1.1rem;
     }
-    .table th {
+    
+    /* ========== CARTES DE CONTENU ========== */
+    .content-card {
+        background: white;
+        border: 1px solid var(--gray-100);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .content-card .card-header {
+        background: transparent;
+        border-bottom: 1px solid var(--gray-100);
+        padding: 1rem 1.25rem;
         font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--gray-800);
+        letter-spacing: -0.01em;
+        flex-shrink: 0;
     }
-    .period-selector {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 10px 15px;
+    
+    .content-card .card-header.primary { background: var(--primary); color: white; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .content-card .card-header.success { background: var(--success); color: white; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .content-card .card-header.danger { background: var(--danger); color: white; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .content-card .card-header.info { background: var(--info); color: white; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .content-card .card-header.secondary { background: var(--gray-700); color: white; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    
+    .content-card .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* ========== TABLEAUX AVEC SCROLL ========== */
+    .table-scroll-container {
+        flex: 1;
+        overflow: hidden;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+    
+    .table-scroll-wrapper {
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: var(--gray-300) transparent;
+        max-height: 400px;
+        width: 100%;
+    }
+    
+    .table-scroll-wrapper::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+    
+    .table-scroll-wrapper::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .table-scroll-wrapper::-webkit-scrollbar-thumb {
+        background: var(--gray-300);
+        border-radius: 100px;
+    }
+    
+    .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-400);
+    }
+    
+    .table-scroll-wrapper::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+    
+    .table-premium {
+        width: 100%;
+        min-width: 600px;
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: auto;
+    }
+    
+    /* Largeur minimale plus grande pour les tableaux Top 10 */
+    .table-top-debiteurs {
+        min-width: 650px;
+    }
+    
+    .table-premium thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    
+    .table-premium thead th {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--gray-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: var(--gray-50);
+        border-bottom: 2px solid var(--gray-200);
+        white-space: nowrap;
+        text-align: left;
+    }
+    
+    .table-premium thead th.text-end { text-align: right; }
+    .table-premium thead th.text-center { text-align: center; }
+    
+    .table-premium tbody td {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.8125rem;
+        color: var(--gray-700);
+        border-bottom: 1px solid var(--gray-50);
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    
+    .table-premium tbody td.wrap-cell {
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .table-premium tbody tr {
+        transition: background 150ms ease;
+    }
+    
+    .table-premium tbody tr:hover {
+        background: #fafbfd;
+    }
+    
+    .table-premium tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Colonnes spécifiques */
+    .col-rank { width: 45px; min-width: 45px; }
+    .col-eleve { min-width: 160px; }
+    .col-classe { min-width: 90px; }
+    .col-montant { min-width: 110px; }
+    .col-taux { min-width: 120px; }
+    .col-affectation { min-width: 100px; }
+    .col-recus { min-width: 100px; }
+    .col-mode { min-width: 120px; }
+    .col-date { min-width: 130px; }
+    .col-encaisse { min-width: 110px; }
+    
+    /* ========== BADGES ========== */
+    .badge-premium {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.2rem 0.5rem;
+        border-radius: 100px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+    }
+    
+    /* ========== BOUTONS EXPORT ========== */
+    .btn-export {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 100px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        border: 1.5px solid transparent;
+        cursor: pointer;
+        transition: var(--transition);
+        width: 100%;
+    }
+    
+    .btn-export:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .btn-export:active {
+        transform: scale(0.98);
+    }
+    
+    .btn-export-print { background: white; color: var(--gray-700); border-color: var(--gray-300); }
+    .btn-export-print:hover { background: var(--gray-700); color: white; border-color: var(--gray-700); }
+    
+    .btn-export-excel { background: #ecfdf5; color: #059669; border-color: #a7f3d0; }
+    .btn-export-excel:hover { background: #059669; color: white; }
+    
+    .btn-export-pdf { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .btn-export-pdf:hover { background: #dc2626; color: white; }
+    
+    .btn-export-csv { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+    .btn-export-csv:hover { background: #2563eb; color: white; }
+    
+    /* ========== PROGRESS BAR ========== */
+    .progress {
+        height: 5px;
+        background: var(--gray-100);
+        border-radius: 100px;
+        overflow: hidden;
+        min-width: 50px;
+    }
+    
+    .progress-bar {
+        border-radius: 100px;
+        transition: width 1.2s ease;
+    }
+    
+    .taux-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .taux-cell .progress {
+        flex: 1;
+        min-width: 40px;
+    }
+    
+    .taux-cell small {
+        font-size: 0.6875rem;
+        color: var(--gray-500);
+        white-space: nowrap;
+        min-width: 35px;
+        text-align: right;
+    }
+    
+    /* ========== INDICATEUR SCROLL ========== */
+    .scroll-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        padding: 0.5rem;
+        font-size: 0.6875rem;
+        color: var(--gray-400);
+        background: var(--gray-50);
+        border-top: 1px solid var(--gray-100);
+        flex-shrink: 0;
+    }
+    
+    .scroll-hint i {
+        animation: hintPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes hintPulse {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+    
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+        .stat-card .stat-value {
+            font-size: 1.35rem;
+        }
+        .stat-icon-wrapper {
+            width: 38px;
+            height: 38px;
+        }
+        .table-scroll-wrapper {
+            max-height: 350px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 1.25rem;
+        }
+        
+        .period-selector {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .period-btn {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.75rem;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 1.2rem;
+        }
+        
+        .stat-card .stat-label {
+            font-size: 0.6875rem;
+        }
+        
+        .stat-icon-wrapper {
+            width: 34px;
+            height: 34px;
+        }
+        
+        .stat-icon-wrapper i {
+            font-size: 0.9rem;
+        }
+        
+        .table-premium {
+            min-width: 500px;
+        }
+        
+        .table-top-debiteurs {
+            min-width: 550px;
+        }
+        
+        .table-premium thead th,
+        .table-premium tbody td {
+            padding: 0.5rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .table-scroll-wrapper {
+            max-height: 300px;
+        }
+        
+        .btn-export {
+            padding: 0.625rem 1rem;
+            font-size: 0.8125rem;
+        }
+        
+        canvas {
+            max-height: 220px !important;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .container-fluid {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        
+        .page-title {
+            font-size: 1.1rem;
+        }
+        
+        .page-subtitle {
+            font-size: 0.7rem;
+        }
+        
+        .period-btn {
+            padding: 0.35rem 0.5rem;
+            font-size: 0.7rem;
+        }
+        
+        .stat-card {
+            padding: 0.875rem;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 1.1rem;
+        }
+        
+        .stat-card .stat-detail {
+            font-size: 0.625rem;
+        }
+        
+        .table-premium {
+            min-width: 450px;
+        }
+        
+        .table-top-debiteurs {
+            min-width: 500px;
+        }
+        
+        .table-premium thead th,
+        .table-premium tbody td {
+            padding: 0.375rem 0.4rem;
+            font-size: 0.7rem;
+        }
+        
+        .table-scroll-wrapper {
+            max-height: 260px;
+        }
+        
+        .btn-export {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .content-card .card-header {
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+        }
+        
+        canvas {
+            max-height: 200px !important;
+        }
+        
+        .badge-premium {
+            font-size: 0.625rem;
+            padding: 0.15rem 0.4rem;
+        }
+        
+        .taux-cell {
+            gap: 0.25rem;
+        }
+        
+        .taux-cell .progress {
+            min-width: 30px;
+        }
+        
+        .taux-cell small {
+            font-size: 0.625rem;
+            min-width: 28px;
+        }
+        
+        .col-taux { min-width: 100px; }
+    }
+    
+    @media (max-width: 400px) {
+        .period-btn {
+            padding: 0.3rem 0.4rem;
+            font-size: 0.65rem;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 1rem;
+        }
+        
+        .table-premium {
+            min-width: 420px;
+        }
+        
+        .table-premium thead th,
+        .table-premium tbody td {
+            padding: 0.3rem 0.35rem;
+            font-size: 0.65rem;
+        }
+        
+        .table-scroll-wrapper {
+            max-height: 240px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid px-3 px-md-4 py-3 py-md-4">
+
+    <!-- ========== EN-TÊTE ========== -->
     <div class="row mb-4">
-        <div class="col">
-            <div class="d-flex justify-content-between align-items-center">
+        <div class="col-12">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <div>
-                    <h2><i class="fas fa-chart-line me-2"></i>Rapports financiers</h2>
-                    <p class="text-muted mb-0">
+                    <h2 class="page-title mb-1">
+                        <i class="fas fa-chart-line me-2" style="color:var(--primary);"></i>Rapports financiers
+                    </h2>
+                    <p class="page-subtitle mb-0">
                         <i class="fas fa-calendar-alt me-1"></i>
-                        Période: <strong>{{ debut_mois.strftime('%d/%m/%Y') }}</strong> - <strong>{{ fin_mois.strftime('%d/%m/%Y') }}</strong>
+                        Période : <strong>{{ debut_mois.strftime('%d/%m/%Y') }}</strong> — <strong>{{ fin_mois.strftime('%d/%m/%Y') }}</strong>
                     </p>
                 </div>
+                
                 <div class="period-selector">
-                    <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-outline-primary" onclick="changerPeriode('mois')">
-                            <i class="fas fa-calendar-month me-1"></i>Ce mois
-                        </button>
-                        <button type="button" class="btn btn-outline-primary" onclick="changerPeriode('trimestre')">
-                            <i class="fas fa-calendar-week me-1"></i>Ce trimestre
-                        </button>
-                        <button type="button" class="btn btn-outline-primary" onclick="changerPeriode('annee')">
-                            <i class="fas fa-calendar-year me-1"></i>Cette année
-                        </button>
+                    <button type="button" class="period-btn {% if periode_active == 'mois' %}active{% endif %}" 
+                            onclick="changerPeriode('mois')">
+                        <i class="fas fa-calendar-day me-1 d-none d-sm-inline"></i>Mois
+                    </button>
+                    <button type="button" class="period-btn {% if periode_active == 'trimestre' %}active{% endif %}" 
+                            onclick="changerPeriode('trimestre')">
+                        <i class="fas fa-calendar-week me-1 d-none d-sm-inline"></i>Trimestre
+                    </button>
+                    <button type="button" class="period-btn {% if periode_active == 'annee' %}active{% endif %}" 
+                            onclick="changerPeriode('annee')">
+                        <i class="fas fa-calendar me-1 d-none d-sm-inline"></i>Année
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== CARTES STATISTIQUES ========== -->
+    <div class="row g-2 g-md-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Encaissé (Mois)</div>
+                        <div class="stat-value text-success">{{ "{:,.0f}".format(total_mois) }} F</div>
+                        <div class="stat-detail">{{ nb_paiements_mois }} transactions</div>
+                    </div>
+                    <div class="stat-icon-wrapper success">
+                        <i class="fas fa-money-bill-wave text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Élèves</div>
+                        <div class="stat-value" style="color:var(--primary);">{{ stats.total_eleves }}</div>
+                        <div class="stat-detail">
+                            <span class="text-success">{{ stats.eleves_payes }} payés</span>
+                            <span class="text-muted mx-1">·</span>
+                            <span class="text-warning">{{ stats.eleves_partiels }} partiels</span>
+                            <span class="text-muted mx-1">·</span>
+                            <span class="text-danger">{{ stats.eleves_impayes }} impayés</span>
+                        </div>
+                    </div>
+                    <div class="stat-icon-wrapper primary">
+                        <i class="fas fa-users" style="color:var(--primary);"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Encaissé Global</div>
+                        <div class="stat-value text-info">{{ "{:,.0f}".format(stats.total_encaisse) }} F</div>
+                        <div class="stat-detail">sur {{ "{:,.0f}".format(stats.total_frais_attendus) }} F attendus</div>
+                    </div>
+                    <div class="stat-icon-wrapper info">
+                        <i class="fas fa-chart-line text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Taux de Paiement</div>
+                        <div class="stat-value text-warning">{{ "%.1f"|format(stats.taux_global_paiement) }}%</div>
+                        <div class="stat-detail">objectif annuel</div>
+                    </div>
+                    <div class="stat-icon-wrapper warning">
+                        <i class="fas fa-chart-pie text-warning"></i>
+                    </div>
+                </div>
+                <div class="progress mt-3">
+                    <div class="progress-bar bg-success" style="width: {{ stats.taux_global_paiement }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== GRAPHIQUES ========== -->
+    <div class="row g-2 g-md-3 mb-4">
+        <!-- Paiements par classe -->
+        <div class="col-md-6">
+            <div class="content-card">
+                <div class="card-header primary">
+                    <i class="fas fa-chart-bar me-2"></i>Paiements par classe
+                </div>
+                <div class="card-body p-3 p-md-4">
+                    <canvas id="classeChart" height="220"></canvas>
+                    <div class="table-scroll-container mt-3">
+                        <div class="table-scroll-wrapper">
+                            <table class="table-premium">
+                                <thead>
+                                    <tr>
+                                        <th>Classe</th>
+                                        <th class="text-end">Montant total</th>
+                                        <th class="text-center">Nb paiements</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for classe in paiements_par_classe %}
+                                    <tr>
+                                        <td style="font-weight:500;">{{ classe.classe }}</td>
+                                        <td class="text-end" style="color:var(--success);font-weight:600;">{{ "{:,.0f}".format(classe.total) }} F</td>
+                                        <td class="text-center">{{ classe.nombre }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-3">Aucune donnée</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paiements par mode -->
+        <div class="col-md-6">
+            <div class="content-card">
+                <div class="card-header primary">
+                    <i class="fas fa-chart-pie me-2"></i>Répartition par mode
+                </div>
+                <div class="card-body p-3 p-md-4">
+                    <canvas id="modeChart" height="220"></canvas>
+                    <div class="table-scroll-container mt-3">
+                        <div class="table-scroll-wrapper">
+                            <table class="table-premium">
+                                <thead>
+                                    <tr>
+                                        <th>Mode</th>
+                                        <th class="text-end">Montant total</th>
+                                        <th class="text-center">Nb paiements</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for mode in paiements_par_mode %}
+                                    <tr>
+                                        <td>
+                                            {% if mode.type_paiement == 'especes' %}
+                                                <span class="badge-premium" style="background:#ecfdf5;color:#059669;">💵 Espèces</span>
+                                            {% elif mode.type_paiement == 'cheque' %}
+                                                <span class="badge-premium" style="background:#eff6ff;color:#2563eb;">📝 Chèque</span>
+                                            {% elif mode.type_paiement == 'virement' %}
+                                                <span class="badge-premium" style="background:#eeefff;color:#5b6abf;">🏦 Virement</span>
+                                            {% elif mode.type_paiement == 'mobile_money' %}
+                                                <span class="badge-premium" style="background:#fffbeb;color:#b45309;">📱 Mobile Money</span>
+                                            {% else %}
+                                                <span class="badge-premium" style="background:#f3f4f6;color:#6b7280;">{{ mode.type_paiement }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end" style="font-weight:600;">{{ "{:,.0f}".format(mode.total) }} F</td>
+                                        <td class="text-center">{{ mode.nombre }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-3">Aucune donnée</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Cartes statistiques -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Total Encaissé (Mois)</h6>
-                            <h4 class="text-success mb-0">{{ "{:,.0f}".format(total_mois) }} F</h4>
-                            <small class="text-muted">{{ nb_paiements_mois }} transactions</small>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-money-bill-wave fa-2x text-success"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Total Élèves</h6>
-                            <h4 class="mb-0">{{ stats.total_eleves }}</h4>
-                            <small class="text-muted">
-                                <span class="text-success">{{ stats.eleves_payes }} payés</span> /
-                                <span class="text-warning">{{ stats.eleves_partiels }} partiels</span> /
-                                <span class="text-danger">{{ stats.eleves_impayes }} impayés</span>
-                            </small>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-users fa-2x text-primary"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Total Encaissé Global</h6>
-                            <h4 class="mb-0">{{ "{:,.0f}".format(stats.total_encaisse) }} F</h4>
-                            <small class="text-muted">sur {{ "{:,.0f}".format(stats.total_frais_attendus) }} F attendus</small>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line fa-2x text-info"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Taux de Paiement</h6>
-                            <h4 class="mb-0">{{ "%.1f"|format(stats.taux_global_paiement) }}%</h4>
-                            <small class="text-muted">objectif annuel</small>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-pie fa-2x text-warning"></i>
-                        </div>
-                    </div>
-                    <div class="progress mt-2" style="height: 5px;">
-                        <div class="progress-bar bg-success" style="width: {{ stats.taux_global_paiement }}%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Graphique paiements par classe -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-primary text-white">
-                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Paiements par classe</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="classeChart" height="200"></canvas>
-                    <div class="table-responsive mt-3">
-                        <table class="table table-sm table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Classe</th>
-                                    <th class="text-end">Montant total</th>
-                                    <th class="text-center">Nb paiements</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for classe in paiements_par_classe %}
-                                <tr>
-                                    <td><strong>{{ classe.classe }}</strong></td>
-                                    <td class="text-end text-success">{{ "{:,.0f}".format(classe.total) }} F</td>
-                                    <td class="text-center">{{ classe.nombre }}</td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">Aucune donnée</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Graphique paiements par mode -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-primary text-white">
-                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Répartition par mode de paiement</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="modeChart" height="200"></canvas>
-                    <div class="table-responsive mt-3">
-                        <table class="table table-sm table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Mode</th>
-                                    <th class="text-end">Montant total</th>
-                                    <th class="text-center">Nb paiements</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for mode in paiements_par_mode %}
-                                <tr>
-                                    <td>
-                                        {% if mode.type_paiement == 'especes' %}
-                                            <i class="fas fa-money-bill text-success me-1"></i> Espèces
-                                        {% elif mode.type_paiement == 'cheque' %}
-                                            <i class="fas fa-money-check text-info me-1"></i> Chèque
-                                        {% elif mode.type_paiement == 'virement' %}
-                                            <i class="fas fa-university text-primary me-1"></i> Virement
-                                        {% elif mode.type_paiement == 'mobile_money' %}
-                                            <i class="fas fa-mobile-alt text-warning me-1"></i> Mobile Money
-                                        {% else %}
-                                            {{ mode.type_paiement }}
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-end text-success">{{ "{:,.0f}".format(mode.total) }} F</td>
-                                    <td class="text-center">{{ mode.nombre }}</td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">Aucune donnée</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
+    <!-- ========== TOP 10 ========== -->
+    <div class="row g-2 g-md-3 mb-4">
         <!-- Top payeurs -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h6 class="mb-0"><i class="fas fa-trophy me-2"></i>Top 10 des meilleurs payeurs</h6>
+        <div class="col-md-6">
+            <div class="content-card">
+                <div class="card-header success">
+                    <i class="fas fa-trophy me-2"></i>Top 10 des meilleurs payeurs
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Élève</th>
-                                    <th>Classe</th>
-                                    <th class="text-end">Montant payé</th>
-                                    <th class="text-center">Taux</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for eleve in top_payeurs %}
-                                <tr>
-                                    <td class="text-center">{{ loop.index }}</td>
-                                    <td>
-                                        <i class="fas fa-user-graduate text-primary me-1"></i>
-                                        {{ eleve.prenom }} {{ eleve.nom }}
-                                    </td>
-                                    <td>{{ eleve.classe }}</td>
-                                    <td class="text-end text-success">{{ "{:,.0f}".format(eleve.montant_paye) }} F</td>
-                                    <td class="text-center">
-                                        <div class="progress" style="height: 4px; width: 80px;">
-                                            <div class="progress-bar bg-success" style="width: {{ eleve.taux_paiement }}%"></div>
-                                        </div>
-                                        <small>{{ eleve.taux_paiement }}%</small>
-                                    </td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted">Aucune donnée</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="table-scroll-container">
+                        <div class="table-scroll-wrapper">
+                            <table class="table-premium">
+                                <thead>
+                                    <tr>
+                                        <th class="col-rank text-center">#</th>
+                                        <th class="col-eleve">Élève</th>
+                                        <th class="col-classe">Classe</th>
+                                        <th class="col-montant text-end">Montant payé</th>
+                                        <th class="col-taux text-center">Taux</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for eleve in top_payeurs %}
+                                    <tr>
+                                        <td class="text-center fw-bold" style="color:var(--gray-400);">{{ loop.index }}</td>
+                                        <td style="font-weight:500;">{{ eleve.prenom }} {{ eleve.nom }}</td>
+                                        <td>{{ eleve.classe }}</td>
+                                        <td class="text-end" style="color:var(--success);font-weight:600;">{{ "{:,.0f}".format(eleve.montant_paye) }} F</td>
+                                        <td>
+                                            <div class="taux-cell">
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-success" style="width:{{ eleve.taux_paiement }}%"></div>
+                                                </div>
+                                                <small>{{ eleve.taux_paiement }}%</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-3">Aucune donnée</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if top_payeurs|length > 0 %}
+                        <div class="scroll-hint d-md-none">
+                            <i class="fas fa-arrows-left-right"></i> Faites défiler horizontalement
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Top débiteurs -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-danger text-white">
-                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Top 10 des plus gros débiteurs</h6>
+        <div class="col-md-6">
+            <div class="content-card">
+                <div class="card-header danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Top 10 des plus gros débiteurs
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Élève</th>
-                                    <th>Classe</th>
-                                    <th class="text-end">Solde restant</th>
-                                    <th class="text-center">Affectation</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for eleve in top_debiteurs %}
-                                <tr>
-                                    <td class="text-center">{{ loop.index }}</td>
-                                    <td>
-                                        <i class="fas fa-user-graduate text-danger me-1"></i>
-                                        {{ eleve.prenom }} {{ eleve.nom }}
-                                    </td>
-                                    <td>{{ eleve.classe }}</td>
-                                    <td class="text-end text-danger">{{ "{:,.0f}".format(eleve.solde) }} F</td>
-                                    <td class="text-center">
-                                        {% if eleve.est_affecte_etat %}
-                                            <span class="badge bg-success">Affecté</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Non affecté</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted">Aucun débiteur</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="table-scroll-container">
+                        <div class="table-scroll-wrapper">
+                            <table class="table-premium table-top-debiteurs">
+                                <thead>
+                                    <tr>
+                                        <th class="col-rank text-center">#</th>
+                                        <th class="col-eleve">Élève</th>
+                                        <th class="col-classe">Classe</th>
+                                        <th class="col-montant text-end">Solde restant</th>
+                                        <th class="col-affectation text-center">Affectation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for eleve in top_debiteurs %}
+                                    <tr>
+                                        <td class="text-center fw-bold" style="color:var(--gray-400);">{{ loop.index }}</td>
+                                        <td style="font-weight:500;">{{ eleve.prenom }} {{ eleve.nom }}</td>
+                                        <td>{{ eleve.classe }}</td>
+                                        <td class="text-end" style="color:var(--danger);font-weight:600;">{{ "{:,.0f}".format(eleve.solde) }} F</td>
+                                        <td class="text-center">
+                                            {% if eleve.est_affecte_etat %}
+                                                <span class="badge-premium" style="background:#ecfdf5;color:#059669;">Affecté</span>
+                                            {% else %}
+                                                <span class="badge-premium" style="background:#f3f4f6;color:#6b7280;">Non affecté</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-3">Aucun débiteur</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if top_debiteurs|length > 0 %}
+                        <div class="scroll-hint d-md-none">
+                            <i class="fas fa-arrows-left-right"></i> Faites défiler horizontalement
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Derniers paiements -->
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h6 class="mb-0"><i class="fas fa-history me-2"></i>Derniers paiements enregistrés</h6>
+    <!-- ========== DERNIERS PAIEMENTS ========== -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="content-card">
+                <div class="card-header info">
+                    <i class="fas fa-history me-2"></i>Derniers paiements enregistrés
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>N° Reçu</th>
-                                    <th>Élève</th>
-                                    <th>Classe</th>
-                                    <th>Montant</th>
-                                    <th>Mode</th>
-                                    <th>Date</th>
-                                    <th>Encaissé par</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for paiement in top_paiements %}
-                                <tr>
-                                    <td><code>{{ paiement.recu }}</code></td>
-                                    <td>{{ paiement.eleve.prenom }} {{ paiement.eleve.nom }}</td>
-                                    <td>{{ paiement.eleve.classe }}</td>
-                                    <td class="text-success">{{ "{:,.0f}".format(paiement.montant) }} F</td>
-                                    <td>
-                                        {% if paiement.type_paiement == 'especes' %}
-                                            <span class="badge bg-success">💵 Espèces</span>
-                                        {% elif paiement.type_paiement == 'cheque' %}
-                                            <span class="badge bg-info">📝 Chèque</span>
-                                        {% elif paiement.type_paiement == 'virement' %}
-                                            <span class="badge bg-primary">🏦 Virement</span>
-                                        {% else %}
-                                            <span class="badge bg-warning text-dark">📱 Mobile Money</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ paiement.date_paiement.strftime('%d/%m/%Y %H:%M') }}</td>
-                                    <td>{{ paiement.encaisse_par or '-' }}</td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted">Aucun paiement</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="table-scroll-container">
+                        <div class="table-scroll-wrapper">
+                            <table class="table-premium">
+                                <thead>
+                                    <tr>
+                                        <th class="col-recus">N° Reçu</th>
+                                        <th class="col-eleve">Élève</th>
+                                        <th class="col-classe">Classe</th>
+                                        <th class="col-montant text-end">Montant</th>
+                                        <th class="col-mode">Mode</th>
+                                        <th class="col-date">Date</th>
+                                        <th class="col-encaisse">Encaissé par</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for paiement in top_paiements %}
+                                    <tr>
+                                        <td><code style="background:var(--gray-100);padding:2px 6px;border-radius:4px;font-size:0.75rem;">{{ paiement.recu }}</code></td>
+                                        <td style="font-weight:500;">{{ paiement.eleve.prenom }} {{ paiement.eleve.nom }}</td>
+                                        <td>{{ paiement.eleve.classe }}</td>
+                                        <td class="text-end" style="color:var(--success);font-weight:600;">{{ "{:,.0f}".format(paiement.montant) }} F</td>
+                                        <td>
+                                            {% if paiement.type_paiement == 'especes' %}
+                                                <span class="badge-premium" style="background:#ecfdf5;color:#059669;">💵 Espèces</span>
+                                            {% elif paiement.type_paiement == 'cheque' %}
+                                                <span class="badge-premium" style="background:#eff6ff;color:#2563eb;">📝 Chèque</span>
+                                            {% elif paiement.type_paiement == 'virement' %}
+                                                <span class="badge-premium" style="background:#eeefff;color:#5b6abf;">🏦 Virement</span>
+                                            {% else %}
+                                                <span class="badge-premium" style="background:#fffbeb;color:#b45309;">📱 Mobile Money</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="font-size:0.75rem;">{{ paiement.date_paiement.strftime('%d/%m/%Y %H:%M') }}</td>
+                                        <td style="font-size:0.75rem;color:var(--gray-500);">{{ paiement.encaisse_par or '—' }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">Aucun paiement enregistré</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if top_paiements|length > 0 %}
+                        <div class="scroll-hint d-md-none">
+                            <i class="fas fa-arrows-left-right"></i> Faites défiler horizontalement pour voir toutes les colonnes
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Export des rapports -->
+    <!-- ========== EXPORT ========== -->
     <div class="row">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h6 class="mb-0"><i class="fas fa-download me-2"></i>Exporter les rapports</h6>
+            <div class="content-card">
+                <div class="card-header secondary">
+                    <i class="fas fa-download me-2"></i>Exporter les rapports
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <button class="btn btn-success w-100" onclick="window.print()">
-                                <i class="fas fa-print me-2"></i>Imprimer
+                <div class="card-body p-3 p-md-4">
+                    <div class="row g-2 g-md-3">
+                        <div class="col-6 col-md-3">
+                            <button class="btn-export btn-export-print" onclick="imprimerRapport()">
+                                <i class="fas fa-print"></i> Imprimer
                             </button>
                         </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-primary w-100" onclick="exporterExcel()">
-                                <i class="fas fa-file-excel me-2"></i>Excel
+                        <div class="col-6 col-md-3">
+                            <button class="btn-export btn-export-excel" onclick="exporterExcel()">
+                                <i class="fas fa-file-excel"></i> Excel
                             </button>
                         </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-danger w-100" onclick="exporterPDF()">
-                                <i class="fas fa-file-pdf me-2"></i>PDF
+                        <div class="col-6 col-md-3">
+                            <button class="btn-export btn-export-pdf" onclick="exporterPDF()">
+                                <i class="fas fa-file-pdf"></i> PDF
                             </button>
                         </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-info w-100" onclick="exporterCSV()">
-                                <i class="fas fa-file-csv me-2"></i>CSV
+                        <div class="col-6 col-md-3">
+                            <button class="btn-export btn-export-csv" onclick="exporterCSV()">
+                                <i class="fas fa-file-csv"></i> CSV
                             </button>
                         </div>
                     </div>
@@ -413,40 +999,42 @@
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Graphique des paiements par classe
-    const classeCtx = document.getElementById('classeChart').getContext('2d');
+    // ========== GRAPHIQUE PAR CLASSE ==========
+    const classeCtx = document.getElementById('classeChart')?.getContext('2d');
     const classeLabels = [{% for classe in paiements_par_classe %}'{{ classe.classe }}',{% endfor %}];
     const classeData = [{% for classe in paiements_par_classe %}{{ classe.total }},{% endfor %}];
     
-    if (classeLabels.length > 0) {
+    if (classeCtx && classeLabels.length > 0) {
         new Chart(classeCtx, {
             type: 'bar',
             data: {
                 labels: classeLabels,
                 datasets: [{
-                    label: 'Montant encaissé (FCFA)',
+                    label: 'Montant (FCFA)',
                     data: classeData,
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(91, 106, 191, 0.7)',
+                    borderColor: 'rgba(91, 106, 191, 1)',
                     borderWidth: 1,
-                    borderRadius: 8
+                    borderRadius: 6,
+                    borderSkipped: false
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: { position: 'top' },
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
-                                return context.raw.toLocaleString() + ' FCFA';
+                            label: function(ctx) {
+                                return new Intl.NumberFormat('fr-FR').format(ctx.raw) + ' FCFA';
                             }
                         }
                     }
@@ -455,59 +1043,61 @@
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString() + ' F';
-                            }
+                            callback: function(v) { return (v/1000).toFixed(0) + 'k'; },
+                            font: { size: 10 }
                         }
+                    },
+                    x: {
+                        ticks: { font: { size: 10 } }
                     }
                 }
             }
         });
     }
 
-    // Graphique des paiements par mode
-    const modeCtx = document.getElementById('modeChart').getContext('2d');
-    const modeLabels = [
-        {% for mode in paiements_par_mode %}
-            {% if mode.type_paiement == 'especes' %}
-                'Espèces',
-            {% elif mode.type_paiement == 'cheque' %}
-                'Chèque',
-            {% elif mode.type_paiement == 'virement' %}
-                'Virement',
-            {% elif mode.type_paiement == 'mobile_money' %}
-                'Mobile Money',
-            {% endif %}
-        {% endfor %}
-    ];
+    // ========== GRAPHIQUE PAR MODE ==========
+    const modeCtx = document.getElementById('modeChart')?.getContext('2d');
+    const modeLabels = [{% for mode in paiements_par_mode %}'{{ mode.type_paiement }}',{% endfor %}];
     const modeData = [{% for mode in paiements_par_mode %}{{ mode.total }},{% endfor %}];
-    const modeColors = ['#28a745', '#17a2b8', '#007bff', '#ffc107'];
+    const modeColors = ['#10b981', '#3b82f6', '#5b6abf', '#f59e0b'];
+    const modeIcons = { 'especes': '💵', 'cheque': '📝', 'virement': '🏦', 'mobile_money': '📱' };
     
-    if (modeLabels.length > 0) {
+    if (modeCtx && modeLabels.length > 0) {
         new Chart(modeCtx, {
             type: 'doughnut',
             data: {
-                labels: modeLabels,
+                labels: modeLabels.map(function(l) { 
+                    return (modeIcons[l] || '') + ' ' + l.replace('_', ' '); 
+                }),
                 datasets: [{
                     data: modeData,
                     backgroundColor: modeColors.slice(0, modeLabels.length),
-                    borderWidth: 0,
-                    hoverOffset: 4,
-                    radius: '75%',
-                    cutout: '60%'
+                    borderWidth: 3,
+                    borderColor: '#fff',
+                    hoverBorderWidth: 4,
+                    borderRadius: 4,
+                    spacing: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: { position: 'bottom' },
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyleWidth: 8,
+                            font: { size: 11 }
+                        }
+                    },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = ((context.raw / total) * 100).toFixed(1);
-                                return `${context.label}: ${context.raw.toLocaleString()} FCFA (${percentage}%)`;
+                            label: function(ctx) {
+                                const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                                const pct = ((ctx.raw/total)*100).toFixed(1);
+                                return new Intl.NumberFormat('fr-FR').format(ctx.raw) + ' FCFA (' + pct + '%)';
                             }
                         }
                     }
@@ -516,24 +1106,33 @@
         });
     }
 
-    // Fonctions d'export
-    function exporterExcel() {
-        alert('📊 Export Excel - Fonctionnalité à implémenter');
-        // window.location.href = '/rapports/export/excel';
+    // ========== FONCTIONS ==========
+    function changerPeriode(periode) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('periode', periode);
+        window.location.href = url.toString();
     }
-
+    
+    function imprimerRapport() {
+        window.print();
+    }
+    
+    function exporterExcel() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('export', 'excel');
+        window.location.href = url.toString();
+    }
+    
     function exporterPDF() {
-        alert('📄 Export PDF - Fonctionnalité à implémenter');
-        // window.location.href = '/rapports/export/pdf';
+        const url = new URL(window.location.href);
+        url.searchParams.set('export', 'pdf');
+        window.location.href = url.toString();
     }
     
     function exporterCSV() {
-        alert('📋 Export CSV - Fonctionnalité à implémenter');
-        // window.location.href = '/rapports/export/csv';
-    }
-    
-    function changerPeriode(periode) {
-        window.location.href = `/rapports?periode=${periode}`;
+        const url = new URL(window.location.href);
+        url.searchParams.set('export', 'csv');
+        window.location.href = url.toString();
     }
 </script>
 {% endblock %}

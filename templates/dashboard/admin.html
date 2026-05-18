@@ -1,458 +1,861 @@
 <!-- templates/dashboard/admin.html -->
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Tableau de bord{% endblock %}
 
-{% block page_title %}Dashboard{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
 
 {% block styles %}
+<!-- Google Fonts pour typographie premium -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-    .stat-card {
-        border-radius: 12px;
-        border: none;
-        transition: transform 0.2s;
+    /* ========== FONDATIONS TYPOGRAPHIQUES ========== */
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
     }
+    
+    :root {
+        --primary: #5b6abf;
+        --primary-light: #eeefff;
+        --success: #10b981;
+        --success-light: #ecfdf5;
+        --warning: #f59e0b;
+        --warning-light: #fffbeb;
+        --danger: #ef4444;
+        --danger-light: #fef2f2;
+        --info: #3b82f6;
+        --info-light: #eff6ff;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+        --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+        --radius-sm: 8px;
+        --radius: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 20px;
+        --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    body {
+        background: #f8f9fb;
+        letter-spacing: -0.01em;
+        font-weight: 400;
+        color: var(--gray-700);
+    }
+    
+    /* ========== CARTES STATISTIQUES ÉLÉGANTES ========== */
+    .stat-card {
+        background: white;
+        border: 1px solid var(--gray-100);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        cursor: default;
+    }
+    
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        opacity: 0;
+        transition: opacity 300ms ease;
+    }
+    
     .stat-card:hover {
         transform: translateY(-2px);
-    }
-    .stat-icon {
-        opacity: 0.7;
+        border-color: var(--gray-200);
     }
     
-    /* Filtres discrets en haut */
-    .filters-bar {
-        background: white;
-        border-radius: 10px;
-        padding: 8px 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    .stat-card:hover::after {
+        opacity: 1;
+    }
+    
+    .stat-card .stat-label {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+    }
+    
+    .stat-card .stat-subtitle {
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: var(--gray-400);
+        margin-top: 0.125rem;
+    }
+    
+    .stat-icon-wrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius);
         display: flex;
         align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
+        justify-content: center;
+        flex-shrink: 0;
     }
     
-    .filters-bar .btn-filter-toggle {
-        background: #f0f2f5;
-        border: 1px solid #e0e0e0;
-        border-radius: 20px;
-        padding: 6px 14px;
-        font-size: 0.8rem;
-        color: #555;
+    .stat-icon-wrapper.primary { background: var(--primary-light); }
+    .stat-icon-wrapper.success { background: var(--success-light); }
+    .stat-icon-wrapper.info { background: var(--info-light); }
+    .stat-icon-wrapper.warning { background: var(--warning-light); }
+    
+    .stat-icon-wrapper i {
+        font-size: 1.1rem;
+        opacity: 0.85;
+    }
+    
+    /* ========== BARRE DE FILTRES RAFFINÉE ========== */
+    .filters-container {
+        background: white;
+        border: 1px solid var(--gray-100);
+        border-radius: var(--radius-lg);
+        padding: 0.625rem 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .filter-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 1rem;
+        border-radius: 100px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--gray-600);
+        background: transparent;
+        border: 1.5px solid transparent;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: var(--transition);
+        white-space: nowrap;
+        letter-spacing: -0.005em;
+    }
+    
+    .filter-chip:hover {
+        background: var(--gray-50);
+        color: var(--gray-800);
+    }
+    
+    .filter-chip.active {
+        background: var(--primary-light);
+        color: var(--primary);
+        border-color: rgba(91, 106, 191, 0.2);
+        font-weight: 600;
+    }
+    
+    .filter-select {
+        padding: 0.5rem 2rem 0.5rem 0.875rem;
+        border-radius: 100px;
+        border: 1.5px solid var(--gray-200);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--gray-700);
+        background: var(--gray-50);
+        cursor: pointer;
+        transition: var(--transition);
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        letter-spacing: -0.005em;
+    }
+    
+    .filter-select:hover {
+        border-color: var(--gray-300);
+        background-color: white;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(91, 106, 191, 0.08);
+        background-color: white;
+    }
+    
+    .btn-reset {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--gray-400);
+        background: transparent;
+        border: 1.5px solid transparent;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .btn-reset:hover {
+        color: var(--danger);
+        background: var(--danger-light);
+        border-color: #fecaca;
+    }
+    
+    /* ========== CARTES DE CONTENU ÉPURÉES ========== */
+    .content-card {
+        background: white;
+        border: 1px solid var(--gray-100);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        height: 100%;
+    }
+    
+    .content-card .card-header {
+        background: transparent;
+        border-bottom: 1px solid var(--gray-100);
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--gray-800);
+        letter-spacing: -0.01em;
+    }
+    
+    /* ========== BARRES DE PROGRESSION MINIMALISTES ========== */
+    .progress {
+        height: 6px;
+        background: var(--gray-100);
+        border-radius: 100px;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        border-radius: 100px;
+        transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* ========== BADGES ÉLÉGANTS ========== */
+    .badge-premium {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 100px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        line-height: 1.4;
+    }
+    
+    .receipt-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--gray-600);
+        letter-spacing: 0.02em;
+        font-variant-numeric: tabular-nums;
         white-space: nowrap;
     }
     
-    .filters-bar .btn-filter-toggle:hover {
-        background: #667eea;
+    /* ========== TABLE DESIGN ÉPURÉ ========== */
+    .table-premium {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: auto;
+    }
+    
+    .table-premium thead th {
+        padding: 0.75rem 1rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--gray-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: var(--gray-50);
+        border-bottom: 1px solid var(--gray-100);
+        white-space: nowrap;
+    }
+    
+    .table-premium tbody td {
+        padding: 0.875rem 1rem;
+        font-size: 0.8125rem;
+        font-weight: 400;
+        color: var(--gray-700);
+        border-bottom: 1px solid var(--gray-50);
+        vertical-align: middle;
+        letter-spacing: -0.005em;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .table-premium tbody tr {
+        transition: background 150ms ease;
+    }
+    
+    .table-premium tbody tr:hover {
+        background: #fafbfd;
+    }
+    
+    .table-premium tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* ========== SCROLL VERTICAL POUR LE TABLEAU DES PAIEMENTS ========== */
+    .table-scroll-vertical {
+        max-height: 450px;
+        overflow-y: auto;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: var(--gray-300) transparent;
+        scroll-behavior: smooth;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+    
+    .table-scroll-vertical::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+    
+    .table-scroll-vertical::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 0 0 var(--radius-lg) 0;
+    }
+    
+    .table-scroll-vertical::-webkit-scrollbar-thumb {
+        background: var(--gray-300);
+        border-radius: 100px;
+    }
+    
+    .table-scroll-vertical::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-400);
+    }
+    
+    /* Sticky header */
+    .table-scroll-vertical thead {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+    }
+    
+    .table-scroll-vertical thead th {
+        background: var(--gray-50);
+        border-bottom: 2px solid var(--gray-200);
+    }
+    
+    /* Ajustement hauteur selon appareil */
+    @media (max-width: 480px) {
+        .table-scroll-vertical {
+            max-height: 400px;
+        }
+        .table-premium thead th,
+        .table-premium tbody td {
+            padding: 0.625rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        .receipt-badge {
+            font-size: 0.6875rem;
+            padding: 0.2rem 0.4rem;
+        }
+    }
+    
+    @media (min-width: 481px) and (max-width: 767px) {
+        .table-scroll-vertical {
+            max-height: 420px;
+        }
+    }
+    
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .table-scroll-vertical {
+            max-height: 430px;
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .table-scroll-vertical {
+            max-height: 500px;
+        }
+    }
+    
+    /* ========== LISTE TOP ÉLÉGANTE ========== */
+    .top-list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.875rem 1.25rem;
+        border-bottom: 1px solid var(--gray-50);
+        transition: background 150ms ease;
+    }
+    
+    .top-list-item:last-child {
+        border-bottom: none;
+    }
+    
+    .top-list-item:hover {
+        background: #fafbfd;
+    }
+    
+    .rank-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
         color: white;
-        border-color: #667eea;
+        flex-shrink: 0;
     }
     
-    .filters-bar .btn-filter-toggle.active {
-        background: #667eea;
-        color: white;
-        border-color: #667eea;
+    .rank-badge.gold { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .rank-badge.silver { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+    .rank-badge.bronze { background: linear-gradient(135deg, #d97706, #92400e); }
+    .rank-badge.default { background: var(--gray-300); color: var(--gray-600); }
+    
+    /* ========== ANIMATIONS ========== */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
-    .filters-bar .form-select-sm,
-    .filters-bar .form-control-sm {
-        border-radius: 20px;
-        font-size: 0.8rem;
-        padding: 6px 30px 6px 12px;
-        border: 1px solid #e0e0e0;
-        max-width: 140px;
+    .animate-in {
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
     }
     
-    .filters-bar .separator {
-        color: #ddd;
-        margin: 0 2px;
+    .animate-in:nth-child(1) { animation-delay: 0.05s; }
+    .animate-in:nth-child(2) { animation-delay: 0.1s; }
+    .animate-in:nth-child(3) { animation-delay: 0.15s; }
+    .animate-in:nth-child(4) { animation-delay: 0.2s; }
+    
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+        .stat-card {
+            padding: 1rem 1.25rem;
+        }
+        .stat-card .stat-value {
+            font-size: 1.5rem;
+        }
     }
     
-    .filters-bar .badge-filter {
-        background: #667eea;
-        color: white;
-        border-radius: 20px;
-        padding: 4px 10px;
-        font-size: 0.7rem;
-        cursor: pointer;
+    @media (max-width: 768px) {
+        .filters-container {
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius);
+        }
+        .filter-chip {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        .filter-select {
+            padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        .stat-card {
+            padding: 0.875rem 1rem;
+        }
+        .stat-card .stat-value {
+            font-size: 1.35rem;
+        }
+        .stat-icon-wrapper {
+            width: 36px;
+            height: 36px;
+        }
     }
     
-    .filters-bar .badge-filter:hover {
-        background: #dc3545;
-    }
-    
-    /* Bouton reset discret */
-    .btn-reset-filters {
-        color: #999;
-        font-size: 0.8rem;
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 15px;
-        transition: all 0.2s;
-    }
-    
-    .btn-reset-filters:hover {
-        color: #dc3545;
-        background: #fff5f5;
+    @media (max-width: 480px) {
+        .quick-filters-scroll {
+            display: flex;
+            gap: 0.375rem;
+            overflow-x: auto;
+            padding-bottom: 0.375rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .quick-filters-scroll::-webkit-scrollbar { display: none; }
+        
+        .filter-chip {
+            flex-shrink: 0;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .advanced-filters-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        
+        .filter-select {
+            width: 100%;
+            min-width: 0;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 1.2rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- ========== BARRE DE FILTRES DISCRÈTE ========== -->
-    <div class="filters-bar" id="filtersBar">
-        <i class="fas fa-filter text-muted me-1"></i>
-        
-        <!-- Toggle filtres rapides -->
-        <button class="btn-filter-toggle {% if not filtres_actifs %}active{% endif %}" 
-                onclick="quickFilter('')">
-            Tout
-        </button>
-        <button class="btn-filter-toggle {% if filters.statut == 'Impayé' %}active{% endif %}" 
-                onclick="quickFilter('?statut=Impayé')">
-            Impayés
-        </button>
-        <button class="btn-filter-toggle {% if filters.statut == 'Partiel' %}active{% endif %}" 
-                onclick="quickFilter('?statut=Partiel')">
-            Partiels
-        </button>
-        <button class="btn-filter-toggle {% if filters.affecte == '1' %}active{% endif %}" 
-                onclick="quickFilter('?affecte=1')">
-            Affectés
-        </button>
-        
-        <span class="separator">|</span>
-        
-        <!-- Genre -->
-        <select name="genre" class="form-select-sm" onchange="applyFilter('genre', this.value)">
-            <option value="">🚻 Genre</option>
-            <option value="M" {% if filters.genre == 'M' %}selected{% endif %}>👦 M</option>
-            <option value="F" {% if filters.genre == 'F' %}selected{% endif %}>👧 F</option>
-        </select>
-        
-        <!-- Classe -->
-        <select name="classe" class="form-select-sm" onchange="applyFilter('classe', this.value)">
-            <option value="">📚 Classe</option>
-            {% for c in classes %}
-            <option value="{{ c }}" {% if filters.classe == c %}selected{% endif %}>{{ c }}</option>
-            {% endfor %}
-        </select>
-        
-        <!-- Mois -->
-        <select name="mois" class="form-select-sm" onchange="applyFilter('mois', this.value)">
-            <option value="">📅 Mois</option>
-            <option value="1" {% if filters.mois == '1' %}selected{% endif %}>Janvier</option>
-            <option value="2" {% if filters.mois == '2' %}selected{% endif %}>Février</option>
-            <option value="3" {% if filters.mois == '3' %}selected{% endif %}>Mars</option>
-            <option value="4" {% if filters.mois == '4' %}selected{% endif %}>Avril</option>
-            <option value="5" {% if filters.mois == '5' %}selected{% endif %}>Mai</option>
-            <option value="6" {% if filters.mois == '6' %}selected{% endif %}>Juin</option>
-            <option value="7" {% if filters.mois == '7' %}selected{% endif %}>Juillet</option>
-            <option value="8" {% if filters.mois == '8' %}selected{% endif %}>Août</option>
-            <option value="9" {% if filters.mois == '9' %}selected{% endif %}>Septembre</option>
-            <option value="10" {% if filters.mois == '10' %}selected{% endif %}>Octobre</option>
-            <option value="11" {% if filters.mois == '11' %}selected{% endif %}>Novembre</option>
-            <option value="12" {% if filters.mois == '12' %}selected{% endif %}>Décembre</option>
-        </select>
-        
-        <!-- Periode -->
-        <select name="periode" class="form-select-sm" onchange="applyFilter('periode', this.value)">
-            <option value="">📅 Période</option>
-            {% for annee in annees_disponibles %}
-            <option value="{{ annee }}" {% if filters.periode == annee %}selected{% endif %}>
-                {{ annee }}
-                {% if annee == annee_active %}✓{% endif %}
-            </option>
-            {% endfor %}
-        </select>
-        
-        {% if filtres_actifs %}
-        <span class="btn-reset-filters" onclick="window.location='{{ url_for('dashboard') }}'" title="Réinitialiser">
-            <i class="fas fa-times-circle me-1"></i>Effacer
-        </span>
-        {% endif %}
-    </div>
-    
-    <!-- ========== CARTES STATISTIQUES ========== -->
-    <div class="row mb-3">
-        <div class="col-6 col-md-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted">Total Élèves</small>
-                            <h4 class="mb-0 text-primary">{{ total_eleves }}</h4>
-                        </div>
-                        <i class="fas fa-users fa-2x stat-icon text-primary"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted">Total Encaissé</small>
-                            <h4 class="mb-0 text-success">{{ "{:,.0f}".format(total_encaisse) }} F</h4>
-                        </div>
-                        <i class="fas fa-money-bill-wave fa-2x stat-icon text-success"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted">Aujourd'hui</small>
-                            <h4 class="mb-0 text-info">{{ "{:,.0f}".format(total_jour) }} F</h4>
-                            <small class="text-muted">{{ nb_paiements_jour }} paiements</small>
-                        </div>
-                        <i class="fas fa-calendar-day fa-2x stat-icon text-info"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted">Recouvrement</small>
-                            <h4 class="mb-0 text-warning">{{ taux_recouvrement }}%</h4>
-                        </div>
-                        <i class="fas fa-chart-pie fa-2x stat-icon text-warning"></i>
-                    </div>
-                    <div class="progress mt-2" style="height: 4px;">
-                        <div class="progress-bar bg-success" style="width: {{ taux_recouvrement }}%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="container-fluid px-3 px-md-4 py-3 py-md-4">
 
-    <!-- ========== STATUT PAIEMENTS & AFFECTATION ========== -->
-<div class="row mb-3">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white py-2">
-                <h6 class="mb-0"><i class="fas fa-chart-simple me-2"></i>Statut des paiements</h6>
-            </div>
-            <div class="card-body py-2">
-                <div class="mb-2">
-                    <div class="d-flex justify-content-between mb-1">
-                        <small><i class="fas fa-check-circle text-success me-1"></i> Payé</small>
-                        <small class="fw-bold">{{ eleves_payes }}</small>
-                    </div>
-                    <div class="progress" style="height: 6px;">
-                        <div class="progress-bar bg-success" style="width: {{ (eleves_payes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
-                    </div>
-                </div>
-                <div class="mb-2">
-                    <div class="d-flex justify-content-between mb-1">
-                        <small><i class="fas fa-clock text-warning me-1"></i> Partiel</small>
-                        <small class="fw-bold">{{ eleves_partiels }}</small>
-                    </div>
-                    <div class="progress" style="height: 6px;">
-                        <div class="progress-bar bg-warning" style="width: {{ (eleves_partiels/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <small><i class="fas fa-times-circle text-danger me-1"></i> Impayé</small>
-                        <small class="fw-bold">{{ eleves_impayes }}</small>
-                    </div>
-                    <div class="progress" style="height: 6px;">
-                        <div class="progress-bar bg-danger" style="width: {{ (eleves_impayes/total_eleves*100) if total_eleves > 0 else 0 }}%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 🔥 CARTE AFFECTATION ÉTAT AVEC MONTANT SUBVENTION 🔥 -->
-<div class="col-md-6">
-    <div class="card shadow-sm">
-        <div class="card-header bg-white py-2">
-            <h6 class="mb-0"><i class="fas fa-building me-2"></i>Affectation État</h6>
-        </div>
-        <div class="card-body py-2">
-            <!-- Nombre d'affectés -->
-            <div class="mb-2">
-                <div class="d-flex justify-content-between mb-1">
-                    <small><i class="fas fa-hand-holding-heart text-success me-1"></i> Affectés</small>
-                    <small class="fw-bold">{{ eleves_affectes }}</small>
-                </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-success" 
-                         style="width: {{ (eleves_affectes/total_eleves*100) if total_eleves > 0 else 0 }}%">
-                    </div>
-                </div>
+    <!-- ========== BARRE DE FILTRES ========== -->
+    <div class="filters-container">
+        <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 gap-md-3">
+            
+            <!-- Filtres rapides -->
+            <div class="quick-filters-scroll d-flex align-items-center gap-1">
+                <button class="filter-chip {% if not filtres_actifs %}active{% endif %}" onclick="quickFilter('')">
+                    <i class="fas fa-layer-group" style="font-size:0.7rem;"></i> Tous
+                </button>
+                <button class="filter-chip {% if filters.statut == 'Impayé' %}active{% endif %}" onclick="quickFilter('?statut=Impayé')">
+                    <i class="fas fa-circle" style="font-size:0.45rem; color:#ef4444;"></i> Impayés
+                </button>
+                <button class="filter-chip {% if filters.statut == 'Partiel' %}active{% endif %}" onclick="quickFilter('?statut=Partiel')">
+                    <i class="fas fa-circle-half-stroke" style="font-size:0.7rem;"></i> Partiels
+                </button>
+                <button class="filter-chip {% if filters.affecte == '1' %}active{% endif %}" onclick="quickFilter('?affecte=1')">
+                    <i class="fas fa-building" style="font-size:0.7rem;"></i> Affectés
+                </button>
             </div>
             
-            <!-- Nombre de non affectés -->
-            <div class="mb-3">
-                <div class="d-flex justify-content-between mb-1">
-                    <small><i class="fas fa-user text-secondary me-1"></i> Non affectés</small>
-                    <small class="fw-bold">{{ eleves_non_affectes }}</small>
-                </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-secondary" 
-                         style="width: {{ (eleves_non_affectes/total_eleves*100) if total_eleves > 0 else 0 }}%">
-                    </div>
-                </div>
-            </div>
+            <span class="d-none d-md-block text-muted opacity-25">|</span>
             
-            <!-- 🔥 MONTANT DÛ PAR L'ÉTAT 🔥 -->
-            <div class="mt-3 pt-2 border-top">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
-                        <small class="text-muted">
-                            <i class="fas fa-landmark text-danger me-1"></i>
-                            Montant dû par l'État
-                        </small>
-                    </div>
-                    <div class="text-end">
-                        <h4 class="mb-0 text-danger fw-bold" id="montantSubventionEtat">
-                            {% if subvention_totale is defined %}
-                                {{ "{:,.0f}".format(subvention_totale) }} FCFA
-                            {% else %}
-                                <span class="spinner-border spinner-border-sm text-danger"></span>
-                            {% endif %}
-                        </h4>
-                        {% if subvention_par_eleve is defined and subvention_par_eleve > 0 %}
-                        <small class="text-muted">
-                            ~{{ "{:,.0f}".format(subvention_par_eleve) }} FCFA/élève
-                        </small>
-                        {% endif %}
-                    </div>
-                </div>
+            <!-- Filtres avancés -->
+            <div class="advanced-filters-grid d-flex flex-wrap gap-1">
+                <select class="filter-select" onchange="applyFilter('genre', this.value)">
+                    <option value="">Genre</option>
+                    <option value="M" {% if filters.genre=='M' %}selected{% endif %}>Masculin</option>
+                    <option value="F" {% if filters.genre=='F' %}selected{% endif %}>Féminin</option>
+                </select>
                 
-                <!-- Mini barre de progression -->
-                <div class="progress mt-2" style="height: 4px;">
-                    <div class="progress-bar bg-danger" style="width: 100%"></div>
-                </div>
-                <small class="text-muted">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Différence entre tarif normal et tarif affecté
-                </small>
+                <select class="filter-select" onchange="applyFilter('classe', this.value)">
+                    <option value="">Classe</option>
+                    {% for c in classes %}
+                    <option value="{{ c }}" {% if filters.classe==c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+                
+                <select class="filter-select" onchange="applyFilter('mois', this.value)">
+                    <option value="">Mois</option>
+                    {% for i in range(1,13) %}
+                    <option value="{{ i }}" {% if filters.mois==i|string %}selected{% endif %}>
+                        {{ ['Janv.','Févr.','Mars','Avril','Mai','Juin','Juil.','Août','Sept.','Oct.','Nov.','Déc.'][i-1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+                
+                <select class="filter-select" onchange="applyFilter('periode', this.value)">
+                    <option value="">Année</option>
+                    {% for annee in annees_disponibles %}
+                    <option value="{{ annee }}" {% if filters.periode==annee %}selected{% endif %}>{{ annee }}</option>
+                    {% endfor %}
+                </select>
             </div>
+            
+            {% if filtres_actifs %}
+            <button class="btn-reset ms-md-auto" onclick="window.location='{{ url_for('dashboard') }}'" title="Réinitialiser les filtres">
+                <i class="fas fa-arrow-rotate-left"></i>
+            </button>
+            {% endif %}
         </div>
     </div>
-</div>
-    <!-- ========== TOP 5 ========== -->
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-2">
-                    <h6 class="mb-0"><i class="fas fa-trophy text-warning me-2"></i>Top 5 payeurs</h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        {% for eleve in top_payeurs %}
-                        <div class="list-group-item py-2 px-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>{{ eleve.prenom }} {{ eleve.nom }}</strong>
-                                    <small class="text-muted d-block">{{ eleve.classe }}</small>
-                                </div>
-                                <span class="text-success fw-bold">{{ "{:,.0f}".format(eleve.montant_paye) }} F</span>
-                            </div>
-                        </div>
-                        {% else %}
-                        <div class="list-group-item text-center text-muted py-3">Aucun paiement</div>
-                        {% endfor %}
+
+    <!-- ========== STATISTIQUES ========== -->
+    <div class="row g-2 g-md-3 mb-3 mb-md-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card animate-in">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Élèves</div>
+                        <div class="stat-value text-primary">{{ total_eleves }}</div>
+                        <div class="stat-subtitle">inscrits</div>
+                    </div>
+                    <div class="stat-icon-wrapper primary">
+                        <i class="fas fa-users text-primary"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-2">
-                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Top 5 débiteurs</h6>
+        <div class="col-6 col-md-3">
+            <div class="stat-card animate-in">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Encaissé</div>
+                        <div class="stat-value text-success">{{ "{:,.0f}".format(total_encaisse) }}</div>
+                        <div class="stat-subtitle">FCFA</div>
+                    </div>
+                    <div class="stat-icon-wrapper success">
+                        <i class="fas fa-chart-line text-success"></i>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        {% for eleve in top_dette %}
-                        <div class="list-group-item py-2 px-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>{{ eleve.prenom }} {{ eleve.nom }}</strong>
-                                    <small class="text-muted d-block">{{ eleve.classe }}</small>
-                                </div>
-                                <span class="text-danger fw-bold">{{ "{:,.0f}".format(eleve.solde) }} F</span>
-                            </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card animate-in">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Aujourd'hui</div>
+                        <div class="stat-value text-info">{{ "{:,.0f}".format(total_jour) }}</div>
+                        <div class="stat-subtitle">{{ nb_paiements_jour }} paiement(s)</div>
+                    </div>
+                    <div class="stat-icon-wrapper info">
+                        <i class="fas fa-calendar-day text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card animate-in">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Recouvrement</div>
+                        <div class="stat-value text-warning">{{ taux_recouvrement }}%</div>
+                        <div class="stat-subtitle">objectif</div>
+                    </div>
+                    <div class="stat-icon-wrapper warning">
+                        <i class="fas fa-bullseye text-warning"></i>
+                    </div>
+                </div>
+                <div class="progress mt-3">
+                    <div class="progress-bar bg-success" style="width:{{ taux_recouvrement }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== STATUTS & AFFECTATION ========== -->
+    <div class="row g-2 g-md-3 mb-3 mb-md-4">
+        <div class="col-md-6">
+            <div class="content-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie me-2 text-primary"></i>Statut des paiements
+                </div>
+                <div class="card-body p-3 p-md-4">
+                    {% set stats = [
+                        {'label':'Payé complet','icon':'fa-circle-check','color':'success','value':eleves_payes},
+                        {'label':'Paiement partiel','icon':'fa-circle-half-stroke','color':'warning','value':eleves_partiels},
+                        {'label':'Non payé','icon':'fa-circle-xmark','color':'danger','value':eleves_impayes}
+                    ] %}
+                    {% for s in stats %}
+                    <div class="{% if not loop.last %}mb-3{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="font-size:0.8125rem;font-weight:500;color:var(--gray-600);">
+                                <i class="fas {{ s.icon }} text-{{ s.color }} me-2" style="font-size:0.7rem;"></i>{{ s.label }}
+                            </span>
+                            <span class="badge-premium" 
+                                  style="background:var(--{{ s.color }}-light);color:var(--{{ s.color }});">
+                                {{ s.value }}
+                            </span>
                         </div>
-                        {% else %}
-                        <div class="list-group-item text-center text-muted py-3">Aucun débiteur</div>
-                        {% endfor %}
+                        <div class="progress">
+                            <div class="progress-bar bg-{{ s.color }}" 
+                                 style="width:{{ (s.value/total_eleves*100) if total_eleves>0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="content-card">
+                <div class="card-header">
+                    <i class="fas fa-landmark me-2 text-danger"></i>Affectation État
+                </div>
+                <div class="card-body p-3 p-md-4">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="font-size:0.8125rem;font-weight:500;color:var(--gray-600);">
+                                <i class="fas fa-check-circle text-success me-2" style="font-size:0.7rem;"></i>Affectés
+                            </span>
+                            <span class="badge-premium" style="background:var(--success-light);color:var(--success);">{{ eleves_affectes }}</span>
+                        </div>
+                        <div class="progress"><div class="progress-bar bg-success" style="width:{{ (eleves_affectes/total_eleves*100) if total_eleves>0 else 0 }}%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="font-size:0.8125rem;font-weight:500;color:var(--gray-600);">
+                                <i class="fas fa-user text-secondary me-2" style="font-size:0.7rem;"></i>Non affectés
+                            </span>
+                            <span class="badge-premium" style="background:var(--gray-100);color:var(--gray-500);">{{ eleves_non_affectes }}</span>
+                        </div>
+                        <div class="progress"><div class="progress-bar bg-secondary" style="width:{{ (eleves_non_affectes/total_eleves*100) if total_eleves>0 else 0 }}%"></div></div>
+                    </div>
+                    <div class="mt-4 p-3 rounded-3" style="background:var(--danger-light);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span style="font-size:0.75rem;font-weight:500;color:var(--danger);">Dû par l'État</span>
+                            <span style="font-size:1.25rem;font-weight:700;color:var(--danger);" id="montantSubventionEtat">
+                                {% if subvention_totale is defined %}
+                                    {{ "{:,.0f}".format(subvention_totale) }} FCFA
+                                {% else %}
+                                    <span class="spinner-border spinner-border-sm"></span>
+                                {% endif %}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ========== DERNIERS PAIEMENTS ========== -->
+    <!-- ========== TOP 5 ========== -->
+    <div class="row g-2 g-md-3 mb-3 mb-md-4">
+        <div class="col-md-6">
+            <div class="content-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-trophy text-warning me-2"></i>Top payeurs</span>
+                    <span class="badge-premium" style="background:var(--warning-light);color:var(--warning);">Top 5</span>
+                </div>
+                <div class="card-body p-0">
+                    {% for eleve in top_payeurs %}
+                    <div class="top-list-item">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rank-badge {% if loop.index==1 %}gold{% elif loop.index==2 %}silver{% elif loop.index==3 %}bronze{% else %}default{% endif %}">
+                                {{ loop.index }}
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.8125rem;color:var(--gray-800);">{{ eleve.prenom }} {{ eleve.nom }}</div>
+                                <div style="font-size:0.6875rem;color:var(--gray-400);">{{ eleve.classe }}</div>
+                            </div>
+                        </div>
+                        <span style="font-weight:700;font-size:0.8125rem;color:var(--success);">{{ "{:,.0f}".format(eleve.montant_paye) }} F</span>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted" style="font-size:0.8125rem;">Aucune donnée</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="content-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-exclamation-triangle text-danger me-2"></i>Top débiteurs</span>
+                    <span class="badge-premium" style="background:var(--danger-light);color:var(--danger);">Top 5</span>
+                </div>
+                <div class="card-body p-0">
+                    {% for eleve in top_dette %}
+                    <div class="top-list-item">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rank-badge default">{{ loop.index }}</div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.8125rem;color:var(--gray-800);">{{ eleve.prenom }} {{ eleve.nom }}</div>
+                                <div style="font-size:0.6875rem;color:var(--gray-400);">{{ eleve.classe }}</div>
+                            </div>
+                        </div>
+                        <span style="font-weight:700;font-size:0.8125rem;color:var(--danger);">{{ "{:,.0f}".format(eleve.solde) }} F</span>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted" style="font-size:0.8125rem;">Aucun débiteur</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== DERNIERS PAIEMENTS - TABLEAU AVEC SCROLL VERTICAL ========== -->
     <div class="row">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0"><i class="fas fa-history me-2"></i>Derniers paiements</h6>
+            <div class="content-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-clock-rotate-left me-2"></i>Derniers paiements</span>
+                    <span style="font-size:0.6875rem;color:var(--gray-400);">temps réel</span>
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light">
+                    <div class="table-scroll-vertical">
+                        <table class="table-premium">
+                            <thead>
                                 <tr>
                                     <th>N° Reçu</th>
                                     <th>Élève</th>
                                     <th>Classe</th>
                                     <th class="text-end">Montant</th>
-                                    <th>Date</th>
+                                    <th>Date & Heure</th>
                                     <th>Encaissé par</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for p in paiements_recents %}
                                 <tr>
-                                    <td><code>{{ p.recu }}</code></td>
-                                    <td>{{ p.eleve.prenom }} {{ p.eleve.nom }}</td>
-                                    <td>{{ p.eleve.classe }}</td>
-                                    <td class="text-end text-success fw-bold">{{ "{:,.0f}".format(p.montant) }} F</td>
-                                    <td>{{ p.date_paiement.strftime('%d/%m/%Y %H:%M') }}</td>
-                                    <td>{{ p.encaisse_par or '-' }}</td>
+                                    <td><span class="receipt-badge">#{{ p.recu }}</span></td>
+                                    <td style="font-weight:500;white-space:nowrap;">{{ p.eleve.prenom }} {{ p.eleve.nom }}</td>
+                                    <td style="white-space:nowrap;">
+                                        <span class="badge-premium" style="background:var(--gray-100);color:var(--gray-500);">
+                                            {{ p.eleve.classe }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end" style="font-weight:700;color:var(--success);white-space:nowrap;">
+                                        {{ "{:,.0f}".format(p.montant) }} 
+                                        <span style="font-weight:400;font-size:0.7rem;color:var(--gray-400);">FCFA</span>
+                                    </td>
+                                    <td style="font-size:0.75rem;white-space:nowrap;">{{ p.date_paiement.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td style="font-size:0.75rem;color:var(--gray-500);max-width:130px;">{{ p.encaisse_par or '—' }}</td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-3">Aucun paiement récent</td>
+                                    <td colspan="6" class="text-center py-5 text-muted" style="font-size:0.8125rem;">
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block" style="color:var(--gray-300);"></i>
+                                        Aucun paiement récent
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                    
+                    <!-- Indicateur de scroll (visible si contenu dépasse) -->
+                    {% if paiements_recents|length > 8 %}
+                    <div class="text-center py-2 border-top" style="background:var(--gray-50);border-radius:0 0 var(--radius-lg) var(--radius-lg);">
+                        <small style="font-size:0.6875rem;color:var(--gray-400);">
+                            <i class="fas fa-chevron-down me-1"></i>Faites défiler pour voir plus
+                        </small>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-    
+
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-// ========== FONCTIONS DE FILTRES ==========
 function applyFilter(param, value) {
-    var url = new URL(window.location.href);
-    if (value) {
-        url.searchParams.set(param, value);
-    } else {
-        url.searchParams.delete(param);
-    }
+    const url = new URL(window.location.href);
+    value ? url.searchParams.set(param, value) : url.searchParams.delete(param);
     window.location.href = url.toString();
 }
 
@@ -460,241 +863,28 @@ function quickFilter(queryString) {
     window.location.href = '{{ url_for("dashboard") }}' + queryString;
 }
 
-// ========== FORMATAGE MONTANT ==========
 function formatMontant(montant) {
     return new Intl.NumberFormat('fr-FR').format(Math.abs(montant || 0));
 }
 
-// ========== CHARGEMENT DES SUBVENTIONS ==========
 function chargerSubventions() {
-    console.log("🔍 Chargement des subventions..."); // Debug
-    
     fetch('/api/subventions-etat')
-    .then(function(response) {
-        console.log("📡 Réponse reçue:", response.status); // Debug
-        return response.json();
-    })
-    .then(function(result) {
-        console.log("📊 Données reçues:", result); // Debug
-        
+    .then(r => r.json())
+    .then(result => {
         if (result.success) {
-            const data = result.data;
-            
-            console.log("💰 Total subvention:", data.total_subvention); // Debug
-            console.log("👥 Élèves affectés:", data.eleves_affectes); // Debug
-            
-            // 🔥 Mise à jour des statistiques PRINCIPALES
-            $('#totalSubvention').text(formatMontant(data.total_subvention) + ' FCFA');
-            $('#nombreAffectes').text(data.eleves_affectes);
-            
-            // Calcul de la moyenne
-            const moyenne = data.eleves_affectes > 0 
-                ? Math.round(data.total_subvention / data.eleves_affectes) 
-                : 0;
-            $('#moyenneSubvention').text(formatMontant(moyenne) + ' FCFA');
-            
-            // Taux de recouvrement (à adapter selon votre logique métier)
-            const tauxRecouvrement = data.eleves_affectes > 0 ? 100 : 0;
-            $('#tauxRecouvrement').text(tauxRecouvrement + '%');
-            $('#pourcentageGlobal').text(tauxRecouvrement + '%');
-            $('#progressBarSubvention').css('width', tauxRecouvrement + '%');
-            
-            // 🔥 Répartition par niveau
-            let htmlNiveaux = '';
-            const niveaux = data.subvention_par_niveau;
-            
-            if (Object.keys(niveaux).length === 0) {
-                htmlNiveaux = '<div class="text-center py-2 text-muted">Aucune subvention à calculer</div>';
-            } else {
-                // Parcourir les niveaux
-                for (const [niveau, stats] of Object.entries(niveaux)) {
-                    const pourcentage = data.total_subvention > 0 
-                        ? ((stats.montant / data.total_subvention) * 100).toFixed(1) 
-                        : 0;
-                    
-                    htmlNiveaux += `
-                        <div class="niveau-subvention">
-                            <div>
-                                <span class="badge bg-secondary me-2">${niveau}</span>
-                                <small class="text-muted">${stats.nombre} élève(s)</small>
-                            </div>
-                            <div class="text-end">
-                                <strong class="text-danger">${formatMontant(stats.montant)} FCFA</strong>
-                                <small class="text-muted ms-2">(${pourcentage}%)</small>
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-            
-            $('#subventionsNiveaux').html(htmlNiveaux);
-            
-            // Stocker les données détaillées pour le modal
-            window.subventionDetail = data.subvention_detail;
-            
-            console.log("✅ Affichage terminé"); // Debug
-        } else {
-            console.error("❌ Erreur API:", result);
+            const el = document.getElementById('montantSubventionEtat');
+            if (el) el.textContent = formatMontant(result.data.total_subvention) + ' FCFA';
         }
     })
-    .catch(function(error) {
-        console.error('❌ Erreur chargement subventions:', error);
-        $('#totalSubvention').text('Erreur');
-        $('#subventionsNiveaux').html(`
-            <div class="alert alert-danger py-2 text-center">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Erreur lors du calcul: ${error.message}
-            </div>
-        `);
+    .catch(() => {
+        const el = document.getElementById('montantSubventionEtat');
+        if (el) el.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> Indisponible';
     });
 }
 
-// ========== CHARGER DÉTAIL PAR ÉLÈVE ==========
-function chargerDetailSubventions() {
-    if (!window.subventionDetail || window.subventionDetail.length === 0) {
-        // Recharger depuis l'API
-        fetch('/api/subventions-etat')
-        .then(response => response.json())
-        .then(result => {
-            if (result.success && result.data.subvention_detail) {
-                window.subventionDetail = result.data.subvention_detail;
-                afficherDetailSubventions(window.subventionDetail);
-            } else {
-                $('#bodyDetailSubventions').html(`
-                    <div class="alert alert-info text-center m-3">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Aucun élève affecté par l'État
-                    </div>
-                `);
-            }
-        });
-    } else {
-        afficherDetailSubventions(window.subventionDetail);
-    }
-}
-
-function afficherDetailSubventions(details) {
-    let html = `
-        <div class="table-responsive">
-            <table class="table table-sm table-hover mb-0">
-                <thead class="table-danger sticky-top">
-                    <tr>
-                        <th>Matricule</th>
-                        <th>Nom & Prénom</th>
-                        <th>Niveau</th>
-                        <th class="text-end">Tarif Normal</th>
-                        <th class="text-end">Tarif Affecté</th>
-                        <th class="text-end">Subvention État</th>
-                        <th class="text-center">% État</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-    
-    let totalGeneral = 0;
-    
-    details.forEach(function(item) {
-        totalGeneral += item.subvention;
-        const pourcentage = item.tarif_normal > 0 
-            ? ((item.subvention / item.tarif_normal) * 100).toFixed(1) 
-            : 0;
-        
-        html += `
-            <tr>
-                <td><code>${item.matricule || '-'}</code></td>
-                <td><strong>${item.nom}</strong></td>
-                <td><span class="badge bg-secondary">${item.niveau}</span></td>
-                <td class="text-end">${formatMontant(item.tarif_normal)} FCFA</td>
-                <td class="text-end">${formatMontant(item.tarif_affecte)} FCFA</td>
-                <td class="text-end fw-bold text-danger">${formatMontant(item.subvention)} FCFA</td>
-                <td class="text-center">
-                    <span class="badge bg-danger">${pourcentage}%</span>
-                </td>
-            </tr>
-        `;
-    });
-    
-    html += `
-                </tbody>
-                <tfoot class="table-light fw-bold">
-                    <tr>
-                        <td colspan="5" class="text-end">TOTAL GÉNÉRAL :</td>
-                        <td class="text-end text-danger">${formatMontant(totalGeneral)} FCFA</td>
-                        <td></td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-    `;
-    
-    $('#bodyDetailSubventions').html(html);
-}
-
-// ========== INITIALISATION ==========
-$(document).ready(function() {
-    console.log("🚀 Dashboard initialisé"); // Debug
-    
-    // Charger les subventions IMMÉDIATEMENT
+document.addEventListener('DOMContentLoaded', () => {
     chargerSubventions();
-    
-    // Rafraîchir toutes les 5 minutes
     setInterval(chargerSubventions, 300000);
-    
-    // Gérer le clic sur le bouton détail
-    $('#modalDetailSubventions').on('show.bs.modal', function() {
-        chargerDetailSubventions();
-    });
-});
-
-function mettreAJourMontantEtat() {
-    fetch('/api/subventions-etat')
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(result) {
-        if (result.success) {
-            var data = result.data;
-            var montantFormate = new Intl.NumberFormat('fr-FR').format(data.total_subvention);
-            
-            // Mettre à jour l'affichage
-            var el = document.getElementById('montantSubventionEtat');
-            if (el) {
-                el.textContent = montantFormate + ' FCFA';
-            }
-            
-            // Mettre à jour aussi la section détaillée si elle existe
-            if (typeof chargerSubventions === 'function') {
-                chargerSubventions();
-            }
-        }
-    })
-    .catch(function(error) {
-        console.error('Erreur mise à jour subventions:', error);
-    });
-}
-
-// Appliquer les filtres
-function applyFilter(param, value) {
-    var url = new URL(window.location.href);
-    if (value) {
-        url.searchParams.set(param, value);
-    } else {
-        url.searchParams.delete(param);
-    }
-    window.location.href = url.toString();
-}
-
-function quickFilter(queryString) {
-    window.location.href = '{{ url_for("dashboard") }}' + queryString;
-}
-
-// Initialisation
-$(document).ready(function() {
-    console.log("🚀 Dashboard admin initialisé");
-    
-    // Mettre à jour le montant État toutes les 5 minutes
-    mettreAJourMontantEtat();
-    setInterval(mettreAJourMontantEtat, 300000);
 });
 </script>
 {% endblock %}
