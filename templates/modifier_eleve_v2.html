@@ -18,6 +18,9 @@
     }
     .avatar-initials { font-size: 28px; color: white; font-weight: bold; }
     #soldeAlert { transition: all 0.3s ease; }
+    .section-parent {
+        border-left: 3px solid #6c757d;
+    }
 </style>
 {% endblock %}
 
@@ -46,7 +49,8 @@
                 </div>
                 <div class="card-body">
                     <form method="POST" id="eleveForm">
-                        <!-- Section 1: Informations personnelles -->
+                        
+                        <!-- ========== SECTION 1 : INFORMATIONS PERSONNELLES ========== -->
                         <h6 class="mb-3"><i class="fas fa-user me-2"></i>Informations personnelles</h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -60,49 +64,29 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Date de naissance</label>
                                 <input type="date" name="date_naissance" class="form-control" 
                                        value="{{ eleve.date_naissance.strftime('%Y-%m-%d') if eleve.date_naissance else '' }}">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Lieu de naissance</label>
-                                <input type="text" name="lieu_naissance" class="form-control" value="{{ eleve.lieu_naissance or '' }}">
+                                <input type="text" name="lieu_naissance" class="form-control" 
+                                       value="{{ eleve.lieu_naissance or '' }}">
                             </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Nom du Parent</label>
-                                <input type="text" name="nom_parent" class="form-control" value="{{ eleve.nom_parent or '' }}">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Téléphone parent</label>
-                                <input type="tel" name="telephone_parent" class="form-control" value="{{ eleve.telephone_parent or '' }}">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Profession parent</label>
-                                <input type="text" name="profession_parent" class="form-control">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Employeur</label>
-                                <input type="text" name="employeur" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label">Adresse</label>
-                                <textarea name="adresse" class="form-control" rows="2">{{ eleve.adresse or '' }}</textarea>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Genre</label>
+                                <select name="genre" class="form-select">
+                                    <option value="">-- Choisir --</option>
+                                    <option value="M" {% if eleve.genre == 'M' %}selected{% endif %}>👦 Masculin</option>
+                                    <option value="F" {% if eleve.genre == 'F' %}selected{% endif %}>👧 Féminin</option>
+                                </select>
                             </div>
                         </div>
 
                         <hr class="my-4">
 
-                        <!-- Section 2: Niveau scolaire -->
+                        <!-- ========== SECTION 2 : NIVEAU SCOLAIRE ========== -->
                         <h6 class="mb-3"><i class="fas fa-graduation-cap me-2"></i>Niveau scolaire</h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -143,7 +127,125 @@
 
                         <hr class="my-4">
 
-                        <!-- Section 3: Affectation État -->
+                        <!-- ========== SECTION 3 : PARENT 1 ========== -->
+                        <div class="card mb-3 border-secondary section-parent">
+                            <div class="card-header bg-secondary text-white py-2">
+                                <i class="fas fa-user me-2"></i>Parent 1 / Tuteur principal
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nom complet du parent</label>
+                                        <input type="text" name="nom_parent" class="form-control" 
+                                               value="{{ eleve.nom_parent or '' }}"
+                                               placeholder="Ex: KOUASSI Kouakou Paul">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Téléphone</label>
+                                        <input type="text" name="telephone_parent" class="form-control" 
+                                               value="{{ eleve.telephone_parent or '' }}"
+                                               placeholder="Ex: 0102030405">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Profession</label>
+                                        <input type="text" name="profession_parent" class="form-control" 
+                                               value="{{ eleve.profession_parent or '' }}"
+                                               placeholder="Ex: Enseignant">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Employeur</label>
+                                        <input type="text" name="employeur" class="form-control" 
+                                               value="{{ eleve.employeur or '' }}"
+                                               placeholder="Ex: Ministère de l'Éducation">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Lien de parenté / Affiliation</label>
+                                        <input type="text" name="affiliation" class="form-control" 
+                                               value="{{ eleve.affiliation or '' }}"
+                                               placeholder="Ex: Père, Mère, Tuteur...">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Adresse</label>
+                                        <input type="text" name="adresse" class="form-control" 
+                                               value="{{ eleve.adresse or '' }}"
+                                               placeholder="Adresse complète...">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Observation</label>
+                                        <textarea name="observation" class="form-control" rows="2" 
+                                                  placeholder="Observations concernant le parent 1...">{{ eleve.observation or '' }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========== SECTION 4 : PARENT 2 ========== -->
+                        <div class="card mb-3 border-secondary section-parent">
+                            <div class="card-header bg-secondary text-white py-2">
+                                <i class="fas fa-user-friends me-2"></i>Parent 2 (optionnel)
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nom complet du parent</label>
+                                        <input type="text" name="nom_parent1" class="form-control" 
+                                               value="{{ eleve.nom_parent1 or '' }}"
+                                               placeholder="Ex: KOUASSI Akissi Marie">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Téléphone</label>
+                                        <input type="text" name="telephone_parent2" class="form-control" 
+                                               value="{{ eleve.telephone_parent2 or '' }}"
+                                               placeholder="Ex: 0102030405">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Profession</label>
+                                        <input type="text" name="profession_parent1" class="form-control" 
+                                               value="{{ eleve.profession_parent1 or '' }}"
+                                               placeholder="Ex: Commerçante">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Employeur</label>
+                                        <input type="text" name="employeur2" class="form-control" 
+                                               value="{{ eleve.employeur2 or '' }}"
+                                               placeholder="Ex: Commerce général">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Lien de parenté / Affiliation</label>
+                                        <input type="text" name="affiliation1" class="form-control" 
+                                               value="{{ eleve.affiliation1 or '' }}"
+                                               placeholder="Ex: Mère, Oncle, Tutrice...">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Adresse (si différente)</label>
+                                        <input type="text" name="adresse1" class="form-control" 
+                                               value="{{ eleve.adresse1 or '' }}"
+                                               placeholder="Adresse complète (si différente)...">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Observation</label>
+                                        <textarea name="observation1" class="form-control" rows="2" 
+                                                  placeholder="Observations concernant le parent 2...">{{ eleve.observation1 or '' }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- ========== SECTION 5 : AFFECTATION ÉTAT ========== -->
                         <h6 class="mb-3"><i class="fas fa-hand-holding-heart me-2"></i>Affectation par l'État</h6>
                         <div class="row">
                             <div class="col-md-12 mb-3">
@@ -178,10 +280,10 @@
 
                         <hr class="my-4">
 
-                        <!-- Section 4: Options supplémentaires -->
+                        <!-- ========== SECTION 6 : OPTIONS SUPPLÉMENTAIRES ========== -->
                         <h6 class="mb-3"><i class="fas fa-bus me-2"></i>Options supplémentaires</h6>
                         
-                       <!-- Transport -->
+                        <!-- Transport -->
                         <div class="card mb-3 option-card" id="transportCard">
                             <div class="card-body py-2">
                                 <div class="form-check">
@@ -241,7 +343,7 @@
 
                         <hr class="my-4">
 
-                        <!-- Section 5: Récapitulatif des frais -->
+                        <!-- ========== SECTION 7 : RÉCAPITULATIF DES FRAIS ========== -->
                         <div id="fraisResume">
                             <h6 class="mb-3"><i class="fas fa-calculator me-2"></i>Récapitulatif des frais</h6>
                             <div class="table-responsive">
@@ -319,6 +421,7 @@
                             </div>
                         </div>
 
+                        <!-- ========== BOUTONS ========== -->
                         <div class="text-end mt-4">
                             <a href="{{ url_for('liste_eleves') }}" class="btn btn-secondary">
                                 <i class="fas fa-times me-1"></i>Annuler
@@ -332,22 +435,53 @@
             </div>
         </div>
 
+        <!-- ========== COLONNE DROITE : INFOS ========== -->
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h6></div>
                 <div class="card-body">
                     <div class="text-center mb-3">
-                        <div class="avatar-lg mx-auto mb-2"><span class="avatar-initials">{{ eleve.prenom[0]|upper }}{{ eleve.nom[0]|upper }}</span></div>
+                        <div class="avatar-lg mx-auto mb-2">
+                            <span class="avatar-initials">{{ eleve.prenom[0]|upper }}{{ eleve.nom[0]|upper }}</span>
+                        </div>
                         <h6 class="mb-1">{{ eleve.prenom }} {{ eleve.nom }}</h6>
                         <small class="text-muted">{{ eleve.matricule }}</small>
                     </div>
                     <hr>
                     <ul class="list-unstyled small">
-                        <li class="mb-2"><i class="fas fa-calendar-alt me-2 text-muted"></i><strong>Inscrit le :</strong><br>{{ eleve.date_inscription.strftime('%d/%m/%Y') if eleve.date_inscription else 'N/A' }}</li>
-                        <li class="mb-2"><i class="fas fa-chart-line me-2 text-muted"></i><strong>Taux de paiement :</strong><br>
-                            <div class="progress mt-1" style="height: 5px;"><div class="progress-bar bg-success" style="width: {{ eleve.taux_paiement }}%"></div></div>
+                        <li class="mb-2">
+                            <i class="fas fa-calendar-alt me-2 text-muted"></i>
+                            <strong>Inscrit le :</strong><br>
+                            {{ eleve.date_inscription.strftime('%d/%m/%Y') if eleve.date_inscription else 'N/A' }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-chart-line me-2 text-muted"></i>
+                            <strong>Taux de paiement :</strong><br>
+                            <div class="progress mt-1" style="height: 5px;">
+                                <div class="progress-bar bg-success" style="width: {{ eleve.taux_paiement }}%"></div>
+                            </div>
                             <span class="small">{{ eleve.taux_paiement }}%</span>
                         </li>
+                        {% if eleve.nom_parent %}
+                        <li class="mb-2">
+                            <i class="fas fa-user me-2 text-muted"></i>
+                            <strong>Parent 1 :</strong><br>
+                            {{ eleve.nom_parent }}
+                            {% if eleve.telephone_parent %}
+                            <br><small>📞 {{ eleve.telephone_parent }}</small>
+                            {% endif %}
+                        </li>
+                        {% endif %}
+                        {% if eleve.nom_parent1 %}
+                        <li class="mb-2">
+                            <i class="fas fa-user-friends me-2 text-muted"></i>
+                            <strong>Parent 2 :</strong><br>
+                            {{ eleve.nom_parent1 }}
+                            {% if eleve.telephone_parent2 %}
+                            <br><small>📞 {{ eleve.telephone_parent2 }}</small>
+                            {% endif %}
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -355,5 +489,47 @@
     </div>
 </div>
 
-<!-- Aucun JavaScript nécessaire -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ========== AFFICHER/MASQUER DÉTAILS AFFECTATION ==========
+    document.getElementById('estAffecteEtat').addEventListener('change', function() {
+        const details = document.getElementById('affectationDetails');
+        details.style.display = this.checked ? 'block' : 'none';
+    });
+    
+    // ========== CHARGEMENT DES NIVEAUX SELON LE GROUPE ==========
+    document.getElementById('groupe_id').addEventListener('change', function() {
+        const groupeId = this.value;
+        const sousGroupeSelect = document.getElementById('sous_groupe_id');
+        
+        if (!groupeId) {
+            sousGroupeSelect.innerHTML = '<option value="">Sélectionner d\'abord un groupe</option>';
+            return;
+        }
+        
+        sousGroupeSelect.innerHTML = '<option value="">Chargement...</option>';
+        
+        fetch(`/api/groupes/${groupeId}/sous-groupes`)
+            .then(response => response.json())
+            .then(data => {
+                sousGroupeSelect.innerHTML = '<option value="">-- Sélectionner un niveau --</option>';
+                data.forEach(sg => {
+                    const option = document.createElement('option');
+                    option.value = sg.id;
+                    option.textContent = sg.nom;
+                    // Présélectionner si correspond à la valeur actuelle
+                    if (sg.id == {{ eleve.sous_groupe_id or 0 }}) {
+                        option.selected = true;
+                    }
+                    sousGroupeSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                sousGroupeSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+            });
+    });
+</script>
 {% endblock %}

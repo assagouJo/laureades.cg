@@ -242,13 +242,24 @@ class Eleve(db.Model):
     lieu_naissance = db.Column(db.String(100))
     matricule = db.Column(db.String(50), unique=True, nullable=False)
     
-    # Informations parents
+    # Informations parents1
     nom_parent = db.Column(db.String(200))
     profession_parent = db.Column(db.String(200))
     employeur = db.Column(db.String(200))
     telephone_parent = db.Column(db.String(20))
     adresse = db.Column(db.String(200))
+    affiliation = db.Column(db.String(100))
+    observation = db.Column(db.String(200))
     
+    # Informations parents2
+    nom_parent1 = db.Column(db.String(200))
+    profession_parent1 = db.Column(db.String(200))
+    employeur2 = db.Column(db.String(200))
+    telephone_parent2 = db.Column(db.String(20))
+    adresse1 = db.Column(db.String(200))
+    affiliation1 = db.Column(db.String(100))
+    observation1 = db.Column(db.String(200))
+
     # Affectation par l'État
     est_affecte_etat = db.Column(db.Boolean, default=False)
     reference_affectation = db.Column(db.String(100))

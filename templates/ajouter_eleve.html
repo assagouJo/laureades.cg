@@ -24,6 +24,10 @@
     .required-star {
         color: #dc3545;
     }
+    
+    .section-parent {
+        border-left: 3px solid #6c757d;
+    }
 </style>
 {% endblock %}
 
@@ -109,7 +113,6 @@
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Groupe <span class="required-star">*</span></label>
                                 {% if dossier_actif %}
-                                <!-- Dossier actif : groupe verrouillé -->
                                 <select name="groupe_id" id="groupeSelect" class="form-select" disabled>
                                     {% for groupe in groupes %}
                                     <option value="{{ groupe.id }}" selected>{{ groupe.nom }}</option>
@@ -120,7 +123,6 @@
                                     <i class="fas fa-lock me-1"></i>Verrouillé au dossier {{ dossier_actif.capitalize() }}
                                 </small>
                                 {% else %}
-                                <!-- Aucun dossier : libre choix -->
                                 <select name="groupe_id" id="groupeSelect" class="form-select" required>
                                     <option value="">-- Sélectionner un groupe --</option>
                                     {% for groupe in groupes %}
@@ -131,7 +133,7 @@
                                 {% endif %}
                             </div>
                             
-                            <!-- CYCLE (apparaît uniquement pour le Secondaire) -->
+                            <!-- CYCLE -->
                             <div class="col-md-4 mb-3 d-none" id="cycleContainer">
                                 <label class="form-label">Cycle <span class="required-star">*</span></label>
                                 <select name="cycle_id" id="cycleSelect" class="form-select">
@@ -174,7 +176,7 @@
                     </div>
                 </div>
                 
-                <!-- ========== SECTION 3 : AFFECTATION ÉTAT (Secondaire uniquement) ========== -->
+                <!-- ========== SECTION 3 : AFFECTATION ÉTAT ========== -->
                 <div class="card mb-3 border-success d-none" id="affectationCard">
                     <div class="card-header bg-success text-white py-2">
                         <i class="fas fa-hand-holding-heart me-2"></i>Affectation par l'État
@@ -251,41 +253,105 @@
                     </div>
                 </div>
                 
-                <!-- ========== SECTION 5 : COORDONNÉES ========== -->
-                <div class="card mb-3 border-secondary">
+                <!-- ========== SECTION 5 : PARENT 1 ========== -->
+                <div class="card mb-3 border-secondary section-parent">
                     <div class="card-header bg-secondary text-white py-2">
-                        <i class="fas fa-address-book me-2"></i>Coordonnées
+                        <i class="fas fa-user me-2"></i>Parent 1 / Tuteur principal
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Nom du parent/tuteur</label>
+                                <label class="form-label">Nom complet du parent</label>
                                 <input type="text" name="nom_parent" class="form-control" 
-                                       placeholder="Nom complet du parent">
+                                       placeholder="Ex: KOUASSI Kouakou Paul">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Téléphone parent</label>
+                                <label class="form-label">Téléphone</label>
                                 <input type="text" name="telephone_parent" class="form-control" 
                                        placeholder="Ex: 0102030405">
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Profession</label>
-                                <input type="text" name="profession" class="form-control" 
-                                       placeholder="Ex: Docteur">
+                                <input type="text" name="profession_parent" class="form-control" 
+                                       placeholder="Ex: Enseignant">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Employeur</label>
-                                <input type="text" name="nom_employeur" class="form-control" 
-                                       placeholder="Ex: CEPICI">
+                                <input type="text" name="employeur" class="form-control" 
+                                       placeholder="Ex: Ministère de l'Éducation">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Lien de parenté / Affiliation</label>
+                                <input type="text" name="affiliation" class="form-control" 
+                                       placeholder="Ex: Père, Mère, Tuteur...">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label">Adresse</label>
-                                <textarea name="adresse" class="form-control" rows="2" 
-                                          placeholder="Adresse complète..."></textarea>
+                                <input type="text" name="adresse" class="form-control" 
+                                       placeholder="Adresse complète...">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Observation</label>
+                                <textarea name="observation" class="form-control" rows="3" 
+                                          placeholder="Observations concernant le parent 1..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== SECTION 6 : PARENT 2 ========== -->
+                <div class="card mb-3 border-secondary section-parent">
+                    <div class="card-header bg-secondary text-white py-2">
+                        <i class="fas fa-user-friends me-2"></i>Parent 2 (optionnel)
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nom complet du parent</label>
+                                <input type="text" name="nom_parent1" class="form-control" 
+                                       placeholder="Ex: KOUASSI Akissi Marie">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Téléphone</label>
+                                <input type="text" name="telephone_parent2" class="form-control" 
+                                       placeholder="Ex: 0102030405">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Profession</label>
+                                <input type="text" name="profession_parent1" class="form-control" 
+                                       placeholder="Ex: Commerçante">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Employeur</label>
+                                <input type="text" name="employeur2" class="form-control" 
+                                       placeholder="Ex: Commerce général">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Lien de parenté / Affiliation</label>
+                                <input type="text" name="affiliation1" class="form-control" 
+                                       placeholder="Ex: Mère, Oncle, Tutrice...">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Adresse</label>
+                                <input type="text" name="adresse1" class="form-control" 
+                                       placeholder="Adresse complète (si différente)...">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Observation</label>
+                                <textarea name="observation1" class="form-control" rows="3" 
+                                          placeholder="Observations concernant le parent 2..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -323,7 +389,6 @@
     // ========== INITIALISATION AUTO SI DOSSIER ACTIF ==========
     document.addEventListener('DOMContentLoaded', function() {
         if (dossierActif && groupeSelect.value) {
-            // Déclencher le chargement automatique
             groupeSelect.dispatchEvent(new Event('change'));
         }
     });
@@ -364,7 +429,7 @@
         sousGroupeSelect.disabled = false;
     }
     
-    // ========== CHARGER LES NIVEAUX (Maternelle/Primaire) ==========
+    // ========== CHARGER LES NIVEAUX ==========
     function chargerNiveaux(groupeId) {
         resetNiveauSelect();
         
@@ -401,21 +466,15 @@
     function chargerNiveauxParCycle(cycleCode) {
         resetNiveauSelect();
         
-        // Définir les niveaux selon le cycle
         const niveauxPremierCycle = ['6ème', '5ème', '4ème', '3ème'];
         const niveauxSecondCycle = ['Seconde', 'Première', 'Terminale'];
-        
         const niveaux = cycleCode === 'CYCLE_PREMIER' ? niveauxPremierCycle : niveauxSecondCycle;
-        
-        // Récupérer tous les sous-groupes du Secondaire puis filtrer
         const groupeId = groupeSelect.value;
         
         fetch(`/api/groupes/${groupeId}/sous-groupes/all`)
             .then(response => response.json())
             .then(data => {
                 sousGroupeSelect.innerHTML = '<option value="">-- Sélectionner un niveau --</option>';
-                
-                // Filtrer par les noms de niveau du cycle
                 const filtered = data.filter(sg => niveaux.includes(sg.nom));
                 
                 if (filtered.length > 0) {
@@ -446,8 +505,6 @@
     if (groupeSelect) {
         groupeSelect.addEventListener('change', function() {
             const groupeId = this.value;
-            
-            // Réinitialiser tout
             resetNiveauSelect();
             hideAffectation();
             
@@ -456,7 +513,6 @@
                 return;
             }
             
-            // SECONDaire (ID=3) : afficher le cycle
             if (groupeId === '3' || groupeId == 3) {
                 showCycle();
                 showAffectation();
@@ -465,7 +521,6 @@
                 niveauHelp.textContent = 'Veuillez sélectionner un cycle';
                 niveauHelp.className = 'text-muted';
             } else {
-                // Maternelle ou Primaire : charger directement les niveaux
                 hideCycle();
                 chargerNiveaux(groupeId);
             }
@@ -476,7 +531,6 @@
     if (cycleSelect) {
         cycleSelect.addEventListener('change', function() {
             const cycleCode = this.value;
-            
             if (cycleCode) {
                 chargerNiveauxParCycle(cycleCode);
             } else {
@@ -492,7 +546,6 @@
     function toggleAffectation() {
         const checked = document.getElementById('estAffecteEtat').checked;
         const details = document.getElementById('affectationDetails');
-        
         if (checked) {
             details.classList.remove('d-none');
         } else {

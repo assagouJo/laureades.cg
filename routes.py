@@ -1964,7 +1964,7 @@ def ajouter_eleve():
     
     if request.method == 'POST':
         try:
-            # Récupération des informations de base
+            # ========== INFORMATIONS DE BASE ==========
             nom = request.form.get('nom')
             prenom = request.form.get('prenom')
             genre = request.form.get('genre', '').upper()
@@ -1977,12 +1977,11 @@ def ajouter_eleve():
                 sous_groupe = SousGroupe.query.get(int(sous_groupe_id))
                 if sous_groupe and sous_groupe.groupe_parent:
                     nom_groupe_eleve = sous_groupe.groupe_parent.nom
-                    # Vérifier que le groupe correspond au dossier actif
                     if nom_groupe_eleve != groupe_dossier:
                         flash(f'Erreur : Vous ne pouvez pas ajouter un élève de {nom_groupe_eleve} depuis le dossier {dossier_actif}', 'danger')
                         return redirect(url_for('ajouter_eleve'))
             
-            # Nouvelles colonnes
+            # ========== INFOS ÉLÈVE ==========
             date_naissance_str = request.form.get('date_naissance', '').strip()
             date_naissance = None
             if date_naissance_str:
@@ -1990,28 +1989,54 @@ def ajouter_eleve():
                     date_naissance = datetime.strptime(date_naissance_str, '%Y-%m-%d').date()
                 except (ValueError, TypeError):
                     date_naissance = None
-            lieu_naissance = request.form.get('lieu_naissance', '')
-            adresse = request.form.get('adresse', '')
-            profession_parent = request.form.get('profession_parent', '')
-            employeur = request.form.get('employeur', '')
-            nom_parent = request.form.get('nom_parent', '')
-            telephone_parent = request.form.get('telephone_parent', '')
+            
+            lieu_naissance = request.form.get('lieu_naissance', '').strip() or None
+            
+            # ========== PARENT 1 (anciens champs renommés) ==========
+            nom_parent = request.form.get('nom_parent', '').strip() or None
+            telephone_parent = request.form.get('telephone_parent', '').strip() or None
+            profession_parent = request.form.get('profession_parent', '').strip() or None
+            employeur = request.form.get('employeur', '').strip() or None
+            adresse = request.form.get('adresse', '').strip() or None
+            affiliation = request.form.get('affiliation', '').strip() or None
+            observation = request.form.get('observation', '').strip() or None
+            
+            # ========== PARENT 2 ==========
+            nom_parent1 = request.form.get('nom_parent1', '').strip() or None
+            telephone_parent2 = request.form.get('telephone_parent2', '').strip() or None
+            profession_parent1 = request.form.get('profession_parent1', '').strip() or None
+            employeur2 = request.form.get('employeur2', '').strip() or None
+            adresse1 = request.form.get('adresse1', '').strip() or None
+            affiliation1 = request.form.get('affiliation1', '').strip() or None
+            observation1 = request.form.get('observation1', '').strip() or None
             
             # Générer le matricule automatiquement si vide
             if not matricule:
                 matricule = generate_matricule()
             
-            # Affectation État
+            # ========== AFFECTATION ÉTAT ==========
             est_affecte_etat = 'est_affecte_etat' in request.form
-            reference_affectation = request.form.get('reference_affectation') if est_affecte_etat else None
-            organisme_affectation = request.form.get('organisme_affectation', 'État')
+            reference_affectation = request.form.get('reference_affectation', '').strip() or None if est_affecte_etat else None
+            organisme_affectation = request.form.get('organisme_affectation', '').strip() or 'État'
             
-            # Options
+            # ========== OPTIONS ==========
             transport_option_id = request.form.get('transport_option_id') or None
             cantine_option_id = request.form.get('cantine_option_id') or None
             renforcement_inscrit = 'renforcement_inscrit' in request.form
+            frais_tenue = request.form.get('frais_tenue', '0').strip()
+            frais_droit_examen = request.form.get('frais_droit_examen', '0').strip()
             
-            # Calcul du montant total des frais
+            try:
+                frais_tenue = float(frais_tenue) if frais_tenue else 0
+            except (ValueError, TypeError):
+                frais_tenue = 0
+                
+            try:
+                frais_droit_examen = float(frais_droit_examen) if frais_droit_examen else 0
+            except (ValueError, TypeError):
+                frais_droit_examen = 0
+            
+            # ========== CALCUL DES FRAIS ==========
             frais_total = calculer_frais_total(
                 sous_groupe_id=sous_groupe_id,
                 est_affecte=est_affecte_etat,
@@ -2021,13 +2046,17 @@ def ajouter_eleve():
                 classe=classe
             )
             
-            # Validation du genre
+            # Ajouter les frais supplémentaires
+            frais_total += frais_tenue + frais_droit_examen
+            
+            # ========== VALIDATION DU GENRE ==========
             if genre and genre not in ['M', 'F']:
                 flash('Genre invalide', 'danger')
                 return redirect(url_for('ajouter_eleve'))
             
-            # Création de l'élève
+            # ========== CRÉATION DE L'ÉLÈVE ==========
             eleve = Eleve(
+                # Infos de base
                 nom=nom,
                 prenom=prenom,
                 genre=genre,
@@ -2036,23 +2065,53 @@ def ajouter_eleve():
                 matricule=matricule,
                 date_naissance=date_naissance,
                 lieu_naissance=lieu_naissance,
-                adresse=adresse,
+                
+                # Parent 1
                 nom_parent=nom_parent,
-                profession_parent=profession_parent,
-                employeur=employeur, 
                 telephone_parent=telephone_parent,
+                profession_parent=profession_parent,
+                employeur=employeur,
+                adresse=adresse,
+                affiliation=affiliation,
+                observation=observation,
+                
+                # Parent 2
+                nom_parent1=nom_parent1,
+                telephone_parent2=telephone_parent2,
+                profession_parent1=profession_parent1,
+                employeur2=employeur2,
+                adresse1=adresse1,
+                affiliation1=affiliation1,
+                observation1=observation1,
+                
+                # Affectation État
                 est_affecte_etat=est_affecte_etat,
                 reference_affectation=reference_affectation,
                 organisme_affectation=organisme_affectation,
+                
+                # Options
                 transport_option_id=transport_option_id,
                 cantine_option_id=cantine_option_id,
                 renforcement_inscrit=renforcement_inscrit,
+                frais_tenue=frais_tenue,
+                frais_droit_examen=frais_droit_examen,
+                
+                # Finances
                 frais_scolarite=frais_total,
                 montant_paye=0,
-                date_inscription=datetime.utcnow()
+                
+                # Dates
+                date_inscription=datetime.utcnow(),
+                annee_scolaire='2026-2027'
             )
 
-            print(f"🔍 AJOUT - Profession: '{profession_parent}' - Employeur: '{employeur}' - Nom parent: '{nom_parent}'")
+            # Debug
+            print(f"🔍 AJOUT ÉLÈVE:")
+            print(f"   Parent 1: nom={nom_parent}, tel={telephone_parent}, prof={profession_parent}, emp={employeur}")
+            print(f"   Parent 2: nom={nom_parent1}, tel={telephone_parent2}, prof={profession_parent1}, emp={employeur2}")
+            print(f"   Adresse: {adresse} | Adresse2: {adresse1}")
+            print(f"   Affiliation: {affiliation} | Affiliation2: {affiliation1}")
+            print(f"   Frais total: {frais_total}")
             
             db.session.add(eleve)
             db.session.commit()
@@ -2064,14 +2123,14 @@ def ajouter_eleve():
             
         except Exception as e:
             db.session.rollback()
+            import traceback
+            print(f"❌ ERREUR AJOUT ÉLÈVE: {traceback.format_exc()}")
             flash(f'Erreur lors de l\'ajout : {str(e)}', 'danger')
     
     # ========== GET : Filtrer les groupes selon le dossier actif ==========
     if dossier_actif and groupe_dossier:
-        # Afficher UNIQUEMENT le groupe correspondant au dossier actif
         groupes = GroupeScolaire.query.filter_by(nom=groupe_dossier).order_by(GroupeScolaire.ordre).all()
     else:
-        # Aucun dossier sélectionné : afficher tous les groupes
         groupes = GroupeScolaire.query.order_by(GroupeScolaire.ordre).all()
     
     transports = OptionTransport.query.filter_by(actif=True).order_by(OptionTransport.ordre).all()
@@ -2130,7 +2189,7 @@ def modifier_eleve(id):
                     flash(f'Le matricule {nouveau_matricule} existe déjà', 'danger')
                     return redirect(url_for('modifier_eleve', id=id))
             
-            # Infos de base
+            # ========== INFOS DE BASE ==========
             eleve.nom = request.form.get('nom')
             eleve.prenom = request.form.get('prenom')
             eleve.genre = request.form.get('genre', '').upper()
@@ -2149,19 +2208,32 @@ def modifier_eleve(id):
             else:
                 eleve.date_naissance = None
             
-            eleve.lieu_naissance = request.form.get('lieu_naissance', '')
-            eleve.adresse = request.form.get('adresse', '')
-            eleve.nom_parent = request.form.get('nom_parent', '')
-            eleve.profession_parent = request.form.get('profession_parent', '')
-            eleve.employeur = request.form.get('employeur', '')
-            eleve.telephone_parent = request.form.get('telephone_parent', '')
+            eleve.lieu_naissance = request.form.get('lieu_naissance', '').strip() or None
             
-            # Affectation État
+            # ========== PARENT 1 ==========
+            eleve.nom_parent = request.form.get('nom_parent', '').strip() or None
+            eleve.telephone_parent = request.form.get('telephone_parent', '').strip() or None
+            eleve.profession_parent = request.form.get('profession_parent', '').strip() or None
+            eleve.employeur = request.form.get('employeur', '').strip() or None
+            eleve.adresse = request.form.get('adresse', '').strip() or None
+            eleve.affiliation = request.form.get('affiliation', '').strip() or None
+            eleve.observation = request.form.get('observation', '').strip() or None
+            
+            # ========== PARENT 2 ==========
+            eleve.nom_parent1 = request.form.get('nom_parent1', '').strip() or None
+            eleve.telephone_parent2 = request.form.get('telephone_parent2', '').strip() or None
+            eleve.profession_parent1 = request.form.get('profession_parent1', '').strip() or None
+            eleve.employeur2 = request.form.get('employeur2', '').strip() or None
+            eleve.adresse1 = request.form.get('adresse1', '').strip() or None
+            eleve.affiliation1 = request.form.get('affiliation1', '').strip() or None
+            eleve.observation1 = request.form.get('observation1', '').strip() or None
+            
+            # ========== AFFECTATION ÉTAT ==========
             eleve.est_affecte_etat = 'est_affecte_etat' in request.form
-            eleve.reference_affectation = request.form.get('reference_affectation') if eleve.est_affecte_etat else None
-            eleve.organisme_affectation = request.form.get('organisme_affectation', 'État')
+            eleve.reference_affectation = request.form.get('reference_affectation', '').strip() or None if eleve.est_affecte_etat else None
+            eleve.organisme_affectation = request.form.get('organisme_affectation', '').strip() or 'État'
             
-            # 🔥 TRANSPORT : checkbox name="transport_actif"
+            # ========== TRANSPORT ==========
             transport_actif = request.form.get('transport_actif')
             if transport_actif == 'on':
                 transport_id = request.form.get('transport_option_id', '').strip()
@@ -2169,7 +2241,7 @@ def modifier_eleve(id):
             else:
                 eleve.transport_option_id = None
             
-            # 🔥 CANTINE : checkbox name="cantine_actif"
+            # ========== CANTINE ==========
             cantine_actif = request.form.get('cantine_actif')
             if cantine_actif == 'on':
                 cantine_id = request.form.get('cantine_option_id', '').strip()
@@ -2179,7 +2251,7 @@ def modifier_eleve(id):
             
             eleve.renforcement_inscrit = 'renforcement_inscrit' in request.form
             
-            # Calculer les frais de tenue
+            # ========== CALCUL FRAIS DE TENUE ==========
             frais_tenue = 0
             if eleve.sous_groupe_id:
                 sous_groupe = SousGroupe.query.get(int(eleve.sous_groupe_id))
@@ -2193,7 +2265,7 @@ def modifier_eleve(id):
                         frais_tenue = float(get_parametre('montant_tenue_secondaire', 20000))
             eleve.frais_tenue = frais_tenue
             
-            # Calculer les droits d'examen
+            # ========== CALCUL DROITS D'EXAMEN ==========
             frais_droit_examen = 0
             if eleve.classe == 'CM2':
                 frais_droit_examen = float(get_parametre('droit_examen_cm2_ministere', 5000)) + \
@@ -2206,7 +2278,7 @@ def modifier_eleve(id):
                                     float(get_parametre('droit_examen_tle_ecole', 7000))
             eleve.frais_droit_examen = frais_droit_examen
             
-            # Recalculer le total
+            # ========== RECALCUL DU TOTAL ==========
             nouveau_frais_total = calculer_frais_total(
                 sous_groupe_id=eleve.sous_groupe_id,
                 est_affecte=eleve.est_affecte_etat,
@@ -2218,12 +2290,21 @@ def modifier_eleve(id):
             
             eleve.frais_scolarite = nouveau_frais_total
             
-            print(f"✅ MODIFICATION - Transport: {eleve.transport_option_id} | Cantine: {eleve.cantine_option_id} | Total: {nouveau_frais_total}")
+            # ========== DATE DE MODIFICATION ==========
+            eleve.date_modification = datetime.utcnow()
+            
+            # Debug
+            print(f"✅ MODIFICATION ÉLÈVE #{id}:")
+            print(f"   Parent 1: nom={eleve.nom_parent}, tel={eleve.telephone_parent}, prof={eleve.profession_parent}")
+            print(f"   Parent 2: nom={eleve.nom_parent1}, tel={eleve.telephone_parent2}, prof={eleve.profession_parent1}")
+            print(f"   Transport: {eleve.transport_option_id} | Cantine: {eleve.cantine_option_id}")
+            print(f"   Frais total: {nouveau_frais_total} | Tenue: {frais_tenue} | Examen: {frais_droit_examen}")
             
             db.session.commit()
             
             log_action('MODIFIER_ELEVE', 
                        f"Modification de {eleve.nom_complet} - Classe: {eleve.classe} - "
+                       f"Parent1: {eleve.nom_parent} - Parent2: {eleve.nom_parent1} - "
                        f"Transport: {eleve.transport_option_id} - Cantine: {eleve.cantine_option_id} - "
                        f"Total: {nouveau_frais_total}")
             flash('Élève modifié avec succès !', 'success')
@@ -2231,10 +2312,11 @@ def modifier_eleve(id):
             
         except Exception as e:
             db.session.rollback()
-            app.logger.error(f"Erreur modification élève {id}: {str(e)}", exc_info=True)
+            import traceback
+            app.logger.error(f"Erreur modification élève {id}: {traceback.format_exc()}")
             flash(f'Erreur lors de la modification : {str(e)}', 'danger')
     
-    # GET
+    # ========== GET ==========
     groupes = GroupeScolaire.query.order_by(GroupeScolaire.ordre).all()
     transports = OptionTransport.query.filter_by(actif=True).order_by(OptionTransport.ordre).all()
     cantines = OptionCantine.query.filter_by(actif=True).all()
