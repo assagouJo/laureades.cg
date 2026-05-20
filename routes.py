@@ -695,6 +695,8 @@ def modifier_utilisateur(user_id):
                          utilisateurs_admin_count=utilisateurs_admin_count)  # ← AJOUTÉ
 
 
+
+
 @app.route('/utilisateurs/<int:user_id>/supprimer', methods=['POST'])
 @login_required
 @admin_required
@@ -757,6 +759,60 @@ def toggle_utilisateur(user_id):
         flash(f'Erreur lors du changement de statut: {str(e)}', 'danger')
     
     return redirect(url_for('liste_utilisateurs'))
+
+
+@app.route('/utilisateurs/<int:user_id>/reinitialiser-mot-de-passe', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def reinitialiser_mot_de_passe(user_id):
+    """Réinitialise le mot de passe d'un utilisateur avec le mot de passe par défaut (admin uniquement)"""
+    utilisateur = User.query.get_or_404(user_id)
+    
+    # Empêcher la réinitialisation de son propre mot de passe
+    if utilisateur.id == current_user.id:
+        flash('Vous ne pouvez pas réinitialiser votre propre mot de passe via cette fonction', 'warning')
+        return redirect(url_for('liste_utilisateurs'))
+    
+    if request.method == 'POST':
+        # Vérification de confirmation
+        confirmation = request.form.get('confirmation', '')
+        
+        if confirmation != 'CONFIRMER':
+            flash('Vous devez confirmer la réinitialisation en tapant CONFIRMER', 'danger')
+            return render_template('utilisateurs/reinitialiser_mot_de_passe.html', 
+                                 utilisateur=utilisateur)
+        
+        try:
+            # Mot de passe par défaut
+            mot_de_passe_defaut = "Nouveau@123"
+            
+            # Réinitialiser le mot de passe
+            utilisateur.set_password(mot_de_passe_defaut)
+            
+            # Forcer le changement de mot de passe à la prochaine connexion
+            if hasattr(utilisateur, 'must_change_password'):
+                utilisateur.must_change_password = True
+            
+            db.session.commit()
+            
+            # Afficher le mot de passe dans un message flash sécurisé
+            flash(f'✅ Le mot de passe de {utilisateur.nom_complet} a été réinitialisé avec succès.', 'success')
+            flash(f'🔑 Le nouveau mot de passe temporaire est : <strong>{mot_de_passe_defaut}</strong>', 'info')
+            flash('⚠️ Veuillez communiquer ce mot de passe à l\'utilisateur de manière sécurisée et lui demander de le changer immédiatement.', 'warning')
+            
+            # Journalisation
+            app.logger.info(f'Admin {current_user.username} a réinitialisé le mot de passe de {utilisateur.username}')
+            
+            return redirect(url_for('liste_utilisateurs'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erreur lors de la réinitialisation du mot de passe : {str(e)}', 'danger')
+            app.logger.error(f'Erreur réinitialisation mot de passe: {str(e)}')
+    
+    # GET : Afficher la page de confirmation
+    return render_template('utilisateurs/reinitialiser_mot_de_passe.html', 
+                         utilisateur=utilisateur)
 
 
 # ============ DASHBOARD ============

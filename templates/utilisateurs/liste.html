@@ -139,6 +139,12 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                                 {% endif %}
+                                <a href="{{ url_for('reinitialiser_mot_de_passe', user_id=user.id) }}" 
+                                    class="btn btn-warning btn-sm" 
+                                    title="Réinitialiser le mot de passe"
+                                    onclick="return confirm('Voulez-vous réinitialiser le mot de passe de {{ user.nom_complet }} ?')">
+                                     <i class="fas fa-sync-alt"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>
