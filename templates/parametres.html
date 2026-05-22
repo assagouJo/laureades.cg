@@ -126,7 +126,7 @@
             <div class="settings-section">
                 <h5 class="section-title"><i class="fas fa-cog"></i>Paramètres généraux</h5>
                 
-                <form method="POST" action="{{ url_for('sauvegarder_parametres_generaux') }}">
+                <form method="POST" action="{{ url_for('sauvegarder_tous_parametres') }}">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -281,7 +281,7 @@
                     Les frais de tenue sont ajoutés automatiquement selon le groupe de l'élève (Maternelle, Primaire, Secondaire).
                 </div>
                 
-                <form method="POST" action="{{ url_for('sauvegarder_parametres_generaux') }}">
+                <form method="POST" action="{{ url_for('sauvegarder_tous_parametres') }}">
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label"><span style="color: #e91e63;">🧸</span> Tenue Maternelle (FCFA)</label>
@@ -314,11 +314,11 @@
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label">Droit Ministère (FCFA)</label>
-                                    <input type="number" name="droit_examen_cm2_ministere" class="form-control" value="{{ parametres.get('droit_examen_cm2_ministere', 5000) }}" min="0" step="500">
+                                    <input type="number" name="droit_examen_cm2_ministere" class="form-control" value="{{ parametres.get('droit_examen_cm2_ministere', 5000) }}" min="0">
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label">Droit École (FCFA)</label>
-                                    <input type="number" name="droit_examen_cm2_ecole" class="form-control" value="{{ parametres.get('droit_examen_cm2_ecole', 3000) }}" min="0" step="500">
+                                    <input type="number" name="droit_examen_cm2_ecole" class="form-control" value="{{ parametres.get('droit_examen_cm2_ecole', 3000) }}" min="0">
                                 </div>
                             </div>
                             <div class="text-end">
@@ -338,11 +338,11 @@
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label">Droit Ministère (FCFA)</label>
-                                    <input type="number" name="droit_examen_3eme_ministere" class="form-control" value="{{ parametres.get('droit_examen_3eme_ministere', 8000) }}" min="0" step="500">
+                                    <input type="number" name="droit_examen_3eme_ministere" class="form-control" value="{{ parametres.get('droit_examen_3eme_ministere', 8000) }}" min="0">
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label">Droit École (FCFA)</label>
-                                    <input type="number" name="droit_examen_3eme_ecole" class="form-control" value="{{ parametres.get('droit_examen_3eme_ecole', 5000) }}" min="0" step="500">
+                                    <input type="number" name="droit_examen_3eme_ecole" class="form-control" value="{{ parametres.get('droit_examen_3eme_ecole', 5000) }}" min="0">
                                 </div>
                             </div>
                             <div class="text-end">
@@ -362,11 +362,11 @@
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label">Droit Ministère (FCFA)</label>
-                                    <input type="number" name="droit_examen_tle_ministere" class="form-control" value="{{ parametres.get('droit_examen_tle_ministere', 10000) }}" min="0" step="500">
+                                    <input type="number" name="droit_examen_tle_ministere" class="form-control" value="{{ parametres.get('droit_examen_tle_ministere', 10000) }}" min="0">
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label">Droit École (FCFA)</label>
-                                    <input type="number" name="droit_examen_tle_ecole" class="form-control" value="{{ parametres.get('droit_examen_tle_ecole', 7000) }}" min="0" step="500">
+                                    <input type="number" name="droit_examen_tle_ecole" class="form-control" value="{{ parametres.get('droit_examen_tle_ecole', 7000) }}" min="0">
                                 </div>
                             </div>
                             <div class="text-end">

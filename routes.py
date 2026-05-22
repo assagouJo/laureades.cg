@@ -1234,6 +1234,85 @@ def api_supprimer_sous_groupe(id):
     return jsonify({'success': True})
 
 
+@app.route('/parametres/sauvegarder-tout', methods=['POST'])
+@login_required
+def sauvegarder_tous_parametres():
+    """Sauvegarde TOUS les paramètres de l'application (généraux, tenues, droits examen)"""
+    if current_user.role != 'admin':
+        flash('Accès non autorisé', 'danger')
+        return redirect(url_for('parametres'))
+    
+    try:
+        # ========== 1. PARAMÈTRES GÉNÉRAUX ==========
+        params_generaux = {
+            'nom_ecole': request.form.get('nom_ecole', ''),
+            'devise': request.form.get('devise', 'FCFA'),
+            'annee_scolaire': request.form.get('annee_scolaire', '2025-2026'),
+            'frais_inscription': request.form.get('frais_inscription', '0'),
+            'delai_paiement': request.form.get('delai_paiement', '30'),
+            'penalite_retard': request.form.get('penalite_retard', '0'),
+            'email_notification': request.form.get('email_notification', ''),
+            'telephone_ecole': request.form.get('telephone_ecole', ''),
+            'adresse_ecole': request.form.get('adresse_ecole', ''),
+        }
+        
+        for cle, valeur in params_generaux.items():
+            Parametre.set(cle, valeur)
+        
+        # ========== 2. PARAMÈTRES DE PÉRIODES ==========
+        params_periodes = {
+            'annee_scolaire_active': request.form.get('annee_scolaire_active', ''),
+            'annees_scolaires': request.form.get('annees_scolaires', '2024-2025,2025-2026,2026-2027'),
+            'periode_debut': request.form.get('periode_debut', ''),
+            'periode_fin': request.form.get('periode_fin', ''),
+            'frais_reinscription': request.form.get('frais_reinscription', '0'),
+        }
+        
+        for cle, valeur in params_periodes.items():
+            if valeur:  # Ne pas écraser par vide si c'est optionnel
+                Parametre.set(cle, valeur)
+        
+        # ========== 3. TENUES OBLIGATOIRES ==========
+        params_tenues = {
+            'montant_tenue_maternelle': request.form.get('montant_tenue_maternelle', '15000'),
+            'montant_tenue_primaire': request.form.get('montant_tenue_primaire', '15000'),
+            'montant_tenue_secondaire': request.form.get('montant_tenue_secondaire', '20000'),
+        }
+        
+        for cle, valeur in params_tenues.items():
+            Parametre.set(cle, valeur)
+        
+        # ========== 4. DROITS D'EXAMEN ==========
+        params_examens = {
+            'droit_examen_cm2_ministere': request.form.get('droit_examen_cm2_ministere', '5000'),
+            'droit_examen_cm2_ecole': request.form.get('droit_examen_cm2_ecole', '3000'),
+            'droit_examen_3eme_ministere': request.form.get('droit_examen_3eme_ministere', '8000'),
+            'droit_examen_3eme_ecole': request.form.get('droit_examen_3eme_ecole', '5000'),
+            'droit_examen_tle_ministere': request.form.get('droit_examen_tle_ministere', '10000'),
+            'droit_examen_tle_ecole': request.form.get('droit_examen_tle_ecole', '7000'),
+        }
+        
+        for cle, valeur in params_examens.items():
+            Parametre.set(cle, valeur)
+        
+        db.session.commit()
+        
+        # Message personnalisé selon ce qui a été sauvegardé
+        if 'montant_tenue_maternelle' in request.form:
+            flash('✅ Tenues et droits d\'examen sauvegardés avec succès !', 'success')
+        elif 'nom_ecole' in request.form and 'montant_tenue_maternelle' not in request.form:
+            flash('✅ Paramètres généraux sauvegardés avec succès !', 'success')
+        else:
+            flash('✅ Paramètres sauvegardés avec succès !', 'success')
+        
+        log_action('PARAMETRES', 'Mise à jour des paramètres')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'❌ Erreur lors de la sauvegarde : {str(e)}', 'danger')
+    
+    return redirect(url_for('parametres'))
+
 
 @app.route('/parametres')
 @login_required
