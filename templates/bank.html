@@ -447,9 +447,19 @@ function voirDetailsDepot(depotId) {
     var modal = new bootstrap.Modal(document.getElementById('detailsDepotModal'));
     modal.show();
     
+    // CORRECTION : Utiliser la bonne URL
     fetch('/api/bank/depot/' + depotId + '/details')
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erreur HTTP ' + response.status);
+        }
+        return response.json();
+    })
     .then(data => {
+        if (!data.success) {
+            throw new Error(data.message || 'Erreur inconnue');
+        }
+        
         var html = '';
         
         html += '<div class="bg-light p-3 rounded mb-3">';
@@ -458,16 +468,20 @@ function voirDetailsDepot(depotId) {
         html += '<div class="col-md-3"><small>Date</small><br><strong>' + data.depot.date_depot + '</strong></div>';
         html += '<div class="col-md-3"><small>Montant total</small><br><strong class="text-success">' + formatMontant(data.depot.montant_total) + '</strong></div>';
         html += '<div class="col-md-3"><small>Statut</small><br><span class="badge badge-' + data.depot.statut + '">' + data.depot.statut + '</span></div>';
-        html += '<div class="col-md-3 mt-2"><small>Banque</small><br><strong>' + data.depot.banque + '</strong></div>';
-        html += '<div class="col-md-3 mt-2"><small>Réf. bancaire</small><br><strong>' + (data.depot.reference_banque || '-') + '</strong></div>';
-        html += '<div class="col-md-3 mt-2"><small>Effectué par</small><br><strong>' + data.depot.effectue_par + '</strong></div>';
-        if (data.depot.date_validation) {
-            html += '<div class="col-md-3 mt-2"><small>Date validation</small><br><strong>' + data.depot.date_validation + '</strong></div>';
-        }
-        if (data.depot.observations) {
-            html += '<div class="col-12 mt-2"><small>Observations</small><br><strong>' + data.depot.observations + '</strong></div>';
-        }
         html += '</div></div>';
+        
+        html += '<div class="row mb-3">';
+        html += '<div class="col-md-3"><small>Banque</small><br><strong>' + data.depot.banque + '</strong></div>';
+        html += '<div class="col-md-3"><small>Réf. bancaire</small><br><strong>' + (data.depot.reference_banque || '-') + '</strong></div>';
+        html += '<div class="col-md-3"><small>Effectué par</small><br><strong>' + data.depot.effectue_par + '</strong></div>';
+        if (data.depot.date_validation) {
+            html += '<div class="col-md-3"><small>Date validation</small><br><strong>' + data.depot.date_validation + '</strong></div>';
+        }
+        html += '</div>';
+        
+        if (data.depot.observations) {
+            html += '<div class="alert alert-info py-2"><small>📝 ' + data.depot.observations + '</small></div>';
+        }
         
         html += '<h6 class="mt-3"><i class="fas fa-receipt me-2"></i>Paiements inclus (' + data.depot.nombre_paiements + ')</h6>';
         html += '<div class="table-responsive">';
@@ -500,7 +514,7 @@ function voirDetailsDepot(depotId) {
     })
     .catch(error => {
         console.error('Erreur:', error);
-        $('#detailsDepotBody').html('<div class="alert alert-danger">Erreur lors du chargement</div>');
+        $('#detailsDepotBody').html('<div class="alert alert-danger">Erreur lors du chargement: ' + error.message + '</div>');
     });
 }
 
@@ -509,54 +523,106 @@ var currentDepotId = null;
 
 function validerDepot(depotId) {
     currentDepotId = depotId;
+    // Réinitialiser le formulaire
+    $('#formValiderDepot')[0].reset();
+    $('#validerErreur').addClass('d-none');
+    
     var modal = new bootstrap.Modal(document.getElementById('validerDepotModal'));
     modal.show();
-    
-    $('#formValiderDepot').off('submit').on('submit', function(e) {
-        e.preventDefault();
-        
-        var formData = new FormData(this);
-        
-        fetch('/bank/depot/' + currentDepotId + '/valider', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                $('#validerErreur').removeClass('d-none').text(data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Erreur réseau');
-        });
-    });
 }
+
+// Gestionnaire de soumission du formulaire de validation
+$('#formValiderDepot').on('submit', function(e) {
+    e.preventDefault();
+    
+    if (!currentDepotId) {
+        alert('Erreur: Aucun dépôt sélectionné');
+        return;
+    }
+    
+    var referenceBanque = $('input[name="reference_banque"]').val();
+    
+    // Créer FormData
+    var formData = new FormData();
+    formData.append('reference_banque', referenceBanque);
+    
+    // Désactiver le bouton
+    var btn = $(this).find('button[type="submit"]');
+    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Validation...');
+    
+    console.log('Validation du dépôt:', currentDepotId);
+    
+    fetch('/bank/depot/' + currentDepotId + '/valider', {
+        method: 'POST',
+        body: formData
+    })
+    .then(function(response) {
+        console.log('Status:', response.status);
+        // Vérifier si la réponse est OK
+        if (!response.ok) {
+            throw new Error('Erreur HTTP ' + response.status);
+        }
+        // Vérifier le type de contenu
+        var contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json();
+        } else {
+            return response.text().then(function(text) {
+                console.error('Réponse non JSON:', text);
+                throw new Error('Le serveur a renvoyé une réponse non JSON');
+            });
+        }
+    })
+    .then(function(data) {
+        console.log('Données reçues:', data);
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            $('#validerErreur').removeClass('d-none').text(data.message);
+            btn.prop('disabled', false).html('Confirmer la validation');
+        }
+    })
+    .catch(function(error) {
+        console.error('Erreur:', error);
+        $('#validerErreur').removeClass('d-none').text('Erreur: ' + error.message);
+        btn.prop('disabled', false).html('Confirmer la validation');
+    });
+});
 
 // Annuler un dépôt
 function annulerDepot(depotId) {
-    if (confirm('⚠️ Attention ! Annuler ce dépôt supprimera définitivement le lien entre les paiements et ce dépôt. Confirmez-vous ?')) {
-        fetch('/bank/depot/' + depotId + '/annuler', {
-            method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert('Erreur: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Erreur réseau');
-        });
+    if (!confirm('⚠️ Attention ! Annuler ce dépôt supprimera définitivement le lien entre les paiements et ce dépôt. Confirmez-vous ?')) {
+        return;
     }
+    
+    console.log('Annulation du dépôt:', depotId);
+    
+    fetch('/bank/depot/' + depotId + '/annuler', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Erreur HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Erreur: ' + data.message);
+        }
+    })
+    .catch(function(error) {
+        console.error('Erreur:', error);
+        alert('Erreur réseau: ' + error.message);
+    });
 }
 
 function formatMontant(m) {

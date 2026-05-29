@@ -554,10 +554,10 @@
                 {% endif %}
                 
                 {% if current_user.role in ['admin', 'comptable'] %}
-                <a class="nav-link {% if request.endpoint == 'rapports' %}active{% endif %}" 
+                <!-- <a class="nav-link {% if request.endpoint == 'rapports' %}active{% endif %}" 
                    href="{{ url_for('rapports') }}">
                     <i class="fas fa-chart-line"></i> Rapports
-                </a>
+                </a> -->
                 <a class="nav-link {% if request.endpoint == 'bank' %}active{% endif %}" 
                    href="{{ url_for('bank') }}">
                     <i class="fas fa-university"></i> Bank

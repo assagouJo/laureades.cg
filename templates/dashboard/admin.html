@@ -68,6 +68,7 @@
         position: relative;
         overflow: hidden;
         cursor: default;
+        height: 100%;
     }
     
     .stat-card::after {
@@ -93,7 +94,7 @@
     }
     
     .stat-card .stat-label {
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
         font-weight: 500;
         color: var(--gray-500);
         text-transform: uppercase;
@@ -102,7 +103,7 @@
     }
     
     .stat-card .stat-value {
-        font-size: 1rem;
+        font-size: 1.5rem;
         font-weight: 700;
         letter-spacing: -0.02em;
         line-height: 1.2;
@@ -129,6 +130,7 @@
     .stat-icon-wrapper.success { background: var(--success-light); }
     .stat-icon-wrapper.info { background: var(--info-light); }
     .stat-icon-wrapper.warning { background: var(--warning-light); }
+    .stat-icon-wrapper.danger { background: var(--danger-light); }
     
     .stat-icon-wrapper i {
         font-size: 1.1rem;
@@ -360,7 +362,6 @@
         background: var(--gray-400);
     }
     
-    /* Sticky header */
     .table-scroll-vertical thead {
         position: sticky;
         top: 0;
@@ -370,40 +371,6 @@
     .table-scroll-vertical thead th {
         background: var(--gray-50);
         border-bottom: 2px solid var(--gray-200);
-    }
-    
-    /* Ajustement hauteur selon appareil */
-    @media (max-width: 480px) {
-        .table-scroll-vertical {
-            max-height: 400px;
-        }
-        .table-premium thead th,
-        .table-premium tbody td {
-            padding: 0.625rem 0.75rem;
-            font-size: 0.75rem;
-        }
-        .receipt-badge {
-            font-size: 0.6875rem;
-            padding: 0.2rem 0.4rem;
-        }
-    }
-    
-    @media (min-width: 481px) and (max-width: 767px) {
-        .table-scroll-vertical {
-            max-height: 420px;
-        }
-    }
-    
-    @media (min-width: 768px) and (max-width: 1023px) {
-        .table-scroll-vertical {
-            max-height: 430px;
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        .table-scroll-vertical {
-            max-height: 500px;
-        }
     }
     
     /* ========== LISTE TOP ÉLÉGANTE ========== */
@@ -464,7 +431,7 @@
             padding: 1rem 1.25rem;
         }
         .stat-card .stat-value {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
     }
     
@@ -485,7 +452,7 @@
             padding: 0.875rem 1rem;
         }
         .stat-card .stat-value {
-            font-size: 1.35rem;
+            font-size: 1.2rem;
         }
         .stat-icon-wrapper {
             width: 36px;
@@ -522,7 +489,7 @@
         }
         
         .stat-card .stat-value {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
     }
 </style>
@@ -593,15 +560,16 @@
         </div>
     </div>
 
-    <!-- ========== STATISTIQUES ========== -->
+    <!-- ========== STATISTIQUES PRINCIPALES ========== -->
     <div class="row g-2 g-md-3 mb-3 mb-md-4">
+        <!-- Total élèves -->
         <div class="col-6 col-md-3">
             <div class="stat-card animate-in">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="stat-label">Élèves</div>
+                        <div class="stat-label">Total Élèves</div>
                         <div class="stat-value text-primary">{{ total_eleves }}</div>
-                        <div class="stat-subtitle">inscrits</div>
+                        <div class="stat-subtitle">inscrits {{ annee_scolaire }}</div>
                     </div>
                     <div class="stat-icon-wrapper primary">
                         <i class="fas fa-users text-primary"></i>
@@ -609,20 +577,62 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Total encaissé -->
         <div class="col-6 col-md-3">
             <div class="stat-card animate-in">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="stat-label">Encaissé</div>
+                        <div class="stat-label">Total Encaissé</div>
                         <div class="stat-value text-success">{{ "{:,.0f}".format(total_encaisse) }}</div>
                         <div class="stat-subtitle">FCFA</div>
                     </div>
                     <div class="stat-icon-wrapper success">
-                        <i class="fas fa-chart-line text-success"></i>
+                        <i class="fas fa-money-bill-wave text-success"></i>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- Reste à payer -->
+        <div class="col-6 col-md-3">
+            <div class="stat-card animate-in">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Reste à Payer</div>
+                        <div class="stat-value text-danger">{{ "{:,.0f}".format(reste_a_payer) }}</div>
+                        <div class="stat-subtitle">FCFA</div>
+                    </div>
+                    <div class="stat-icon-wrapper danger">
+                        <i class="fas fa-hand-holding-usd text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Taux de recouvrement -->
+        <div class="col-6 col-md-3">
+            <div class="stat-card animate-in">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Recouvrement</div>
+                        <div class="stat-value text-warning">{{ taux_recouvrement }}%</div>
+                        <div class="stat-subtitle">des frais totaux</div>
+                    </div>
+                    <div class="stat-icon-wrapper warning">
+                        <i class="fas fa-chart-pie text-warning"></i>
+                    </div>
+                </div>
+                <div class="progress mt-3">
+                    <div class="progress-bar bg-success" style="width:{{ taux_recouvrement }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== STATS DU JOUR ET MENSUELLES ========== -->
+    <div class="row g-2 g-md-3 mb-3 mb-md-4">
+        <!-- Aujourd'hui -->
         <div class="col-6 col-md-3">
             <div class="stat-card animate-in">
                 <div class="d-flex justify-content-between align-items-start">
@@ -637,20 +647,51 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Ce mois -->
         <div class="col-6 col-md-3">
             <div class="stat-card animate-in">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="stat-label">Recouvrement</div>
-                        <div class="stat-value text-warning">{{ taux_recouvrement }}%</div>
-                        <div class="stat-subtitle">objectif</div>
+                        <div class="stat-label">Ce Mois</div>
+                        <div class="stat-value text-primary">{{ "{:,.0f}".format(total_mois) }}</div>
+                        <div class="stat-subtitle">{{ nb_paiements_mois }} paiement(s)</div>
                     </div>
-                    <div class="stat-icon-wrapper warning">
-                        <i class="fas fa-bullseye text-warning"></i>
+                    <div class="stat-icon-wrapper primary">
+                        <i class="fas fa-calendar-alt text-primary"></i>
                     </div>
                 </div>
-                <div class="progress mt-3">
-                    <div class="progress-bar bg-success" style="width:{{ taux_recouvrement }}%"></div>
+            </div>
+        </div>
+        
+        <!-- Élèves payés -->
+        <div class="col-6 col-md-3">
+            <div class="stat-card animate-in">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Payé Complet</div>
+                        <div class="stat-value text-success">{{ eleves_payes }}</div>
+                        <div class="stat-subtitle">élèves</div>
+                    </div>
+                    <div class="stat-icon-wrapper success">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Élèves impayés -->
+        <div class="col-6 col-md-3">
+            <div class="stat-card animate-in">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Non Payé</div>
+                        <div class="stat-value text-danger">{{ eleves_impayes }}</div>
+                        <div class="stat-subtitle">élèves</div>
+                    </div>
+                    <div class="stat-icon-wrapper danger">
+                        <i class="fas fa-exclamation-circle text-danger"></i>
+                    </div>
                 </div>
             </div>
         </div>
@@ -661,31 +702,49 @@
         <div class="col-md-6">
             <div class="content-card">
                 <div class="card-header">
-                    <i class="fas fa-chart-pie me-2 text-primary"></i>Statut des paiements
+                    <i class="fas fa-chart-pie me-2 text-primary"></i>Répartition des paiements
                 </div>
                 <div class="card-body p-3 p-md-4">
-                    {% set stats = [
-                        {'label':'Payé complet','icon':'fa-circle-check','color':'success','value':eleves_payes},
-                        {'label':'Paiement partiel','icon':'fa-circle-half-stroke','color':'warning','value':eleves_partiels},
-                        {'label':'Non payé','icon':'fa-circle-xmark','color':'danger','value':eleves_impayes}
-                    ] %}
-                    {% for s in stats %}
-                    <div class="{% if not loop.last %}mb-3{% endif %}">
+                    {% set total = total_eleves if total_eleves > 0 else 1 %}
+                    <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span style="font-size:0.8125rem;font-weight:500;color:var(--gray-600);">
-                                <i class="fas {{ s.icon }} text-{{ s.color }} me-2" style="font-size:0.7rem;"></i>{{ s.label }}
+                                <i class="fas fa-check-circle text-success me-2" style="font-size:0.7rem;"></i>Payé complet
                             </span>
-                            <span class="badge-premium" 
-                                  style="background:var(--{{ s.color }}-light);color:var(--{{ s.color }});">
-                                {{ s.value }}
+                            <span class="badge-premium" style="background:var(--success-light);color:var(--success);">
+                                {{ eleves_payes }} ({{ ((eleves_payes/total)*100)|round(1) }}%)
                             </span>
                         </div>
                         <div class="progress">
-                            <div class="progress-bar bg-{{ s.color }}" 
-                                 style="width:{{ (s.value/total_eleves*100) if total_eleves>0 else 0 }}%"></div>
+                            <div class="progress-bar bg-success" style="width:{{ (eleves_payes/total*100)|round(1) }}%"></div>
                         </div>
                     </div>
-                    {% endfor %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="font-size:0.8125rem;font-weight:500;color:var(--gray-600);">
+                                <i class="fas fa-circle-half-stroke text-warning me-2" style="font-size:0.7rem;"></i>Partiel
+                            </span>
+                            <span class="badge-premium" style="background:var(--warning-light);color:var(--warning);">
+                                {{ eleves_partiels }} ({{ ((eleves_partiels/total)*100)|round(1) }}%)
+                            </span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width:{{ (eleves_partiels/total*100)|round(1) }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="font-size:0.8125rem;font-weight:500;color:var(--gray-600);">
+                                <i class="fas fa-circle-xmark text-danger me-2" style="font-size:0.7rem;"></i>Impayé
+                            </span>
+                            <span class="badge-premium" style="background:var(--danger-light);color:var(--danger);">
+                                {{ eleves_impayes }} ({{ ((eleves_impayes/total)*100)|round(1) }}%)
+                            </span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" style="width:{{ (eleves_impayes/total*100)|round(1) }}%"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -699,11 +758,13 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span style="font-size:0.8125rem;font-weight:500;color:var(--gray-600);">
-                                <i class="fas fa-check-circle text-success me-2" style="font-size:0.7rem;"></i>Affectés
+                                <i class="fas fa-building text-success me-2" style="font-size:0.7rem;"></i>Affectés État
                             </span>
                             <span class="badge-premium" style="background:var(--success-light);color:var(--success);">{{ eleves_affectes }}</span>
                         </div>
-                        <div class="progress"><div class="progress-bar bg-success" style="width:{{ (eleves_affectes/total_eleves*100) if total_eleves>0 else 0 }}%"></div></div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width:{{ (eleves_affectes/total*100)|round(1) if total_eleves>0 else 0 }}%"></div>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -712,17 +773,15 @@
                             </span>
                             <span class="badge-premium" style="background:var(--gray-100);color:var(--gray-500);">{{ eleves_non_affectes }}</span>
                         </div>
-                        <div class="progress"><div class="progress-bar bg-secondary" style="width:{{ (eleves_non_affectes/total_eleves*100) if total_eleves>0 else 0 }}%"></div></div>
+                        <div class="progress">
+                            <div class="progress-bar bg-secondary" style="width:{{ (eleves_non_affectes/total*100)|round(1) if total_eleves>0 else 0 }}%"></div>
+                        </div>
                     </div>
                     <div class="mt-4 p-3 rounded-3" style="background:var(--danger-light);">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span style="font-size:0.75rem;font-weight:500;color:var(--danger);">Dû par l'État</span>
+                            <span style="font-size:0.75rem;font-weight:500;color:var(--danger);">Subvention État estimée</span>
                             <span style="font-size:1rem;font-weight:700;color:var(--danger);" id="montantSubventionEtat">
-                                {% if subvention_totale is defined %}
-                                    {{ "{:,.0f}".format(subvention_totale) }} FCFA
-                                {% else %}
-                                    <span class="spinner-border spinner-border-sm"></span>
-                                {% endif %}
+                                {{ "{:,.0f}".format(subvention_totale) if subvention_totale is defined else 'Calcul...' }} FCFA
                             </span>
                         </div>
                     </div>
@@ -736,7 +795,7 @@
         <div class="col-md-6">
             <div class="content-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-trophy text-warning me-2"></i>Top payeurs</span>
+                    <span><i class="fas fa-trophy text-warning me-2"></i>Top 5 - Meilleurs payeurs</span>
                     <span class="badge-premium" style="background:var(--warning-light);color:var(--warning);">Top 5</span>
                 </div>
                 <div class="card-body p-0">
@@ -751,7 +810,7 @@
                                 <div style="font-size:0.6875rem;color:var(--gray-400);">{{ eleve.classe }}</div>
                             </div>
                         </div>
-                        <span style="font-weight:700;font-size:0.8125rem;color:var(--success);">{{ "{:,.0f}".format(eleve.montant_paye) }} F</span>
+                        <span style="font-weight:700;font-size:0.8125rem;color:var(--success);">{{ "{:,.0f}".format(eleve.montant_paye_reel) }} F</span>
                     </div>
                     {% else %}
                     <div class="text-center py-4 text-muted" style="font-size:0.8125rem;">Aucune donnée</div>
@@ -762,7 +821,7 @@
         <div class="col-md-6">
             <div class="content-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-exclamation-triangle text-danger me-2"></i>Top débiteurs</span>
+                    <span><i class="fas fa-exclamation-triangle text-danger me-2"></i>Top 5 - Plus gros débiteurs</span>
                     <span class="badge-premium" style="background:var(--danger-light);color:var(--danger);">Top 5</span>
                 </div>
                 <div class="card-body p-0">
@@ -791,7 +850,7 @@
             <div class="content-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-clock-rotate-left me-2"></i>Derniers paiements</span>
-                    <span style="font-size:0.6875rem;color:var(--gray-400);">temps réel</span>
+                    <span style="font-size:0.6875rem;color:var(--gray-400);">{{ paiements_recents|length }} paiement(s)</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-scroll-vertical">
@@ -803,7 +862,7 @@
                                     <th>Classe</th>
                                     <th class="text-end">Montant</th>
                                     <th>Date & Heure</th>
-                                    <th>Encaissé par</th>
+                                    <th>Mode</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -821,7 +880,13 @@
                                         <span style="font-weight:400;font-size:0.7rem;color:var(--gray-400);">FCFA</span>
                                     </td>
                                     <td style="font-size:0.75rem;white-space:nowrap;">{{ p.date_paiement.strftime('%d/%m/%Y %H:%M') }}</td>
-                                    <td style="font-size:0.75rem;color:var(--gray-500);max-width:130px;">{{ p.encaisse_par or '—' }}</td>
+                                    <td style="font-size:0.75rem;color:var(--gray-500);">
+                                        {% if p.type_paiement == 'especes' %}💵 Espèces
+                                        {% elif p.type_paiement == 'cheque' %}📝 Chèque
+                                        {% elif p.type_paiement == 'virement' %}🏦 Virement
+                                        {% elif p.type_paiement == 'mobile_money' %}📱 Mobile
+                                        {% else %}{{ p.type_paiement }}{% endif %}
+                                    </td>
                                 </tr>
                                 {% else %}
                                 <tr>
@@ -835,7 +900,6 @@
                         </table>
                     </div>
                     
-                    <!-- Indicateur de scroll (visible si contenu dépasse) -->
                     {% if paiements_recents|length > 8 %}
                     <div class="text-center py-2 border-top" style="background:var(--gray-50);border-radius:0 0 var(--radius-lg) var(--radius-lg);">
                         <small style="font-size:0.6875rem;color:var(--gray-400);">
@@ -867,24 +931,18 @@ function formatMontant(montant) {
     return new Intl.NumberFormat('fr-FR').format(Math.abs(montant || 0));
 }
 
-function chargerSubventions() {
-    fetch('/api/subventions-etat')
-    .then(r => r.json())
-    .then(result => {
-        if (result.success) {
-            const el = document.getElementById('montantSubventionEtat');
-            if (el) el.textContent = formatMontant(result.data.total_subvention) + ' FCFA';
-        }
-    })
-    .catch(() => {
-        const el = document.getElementById('montantSubventionEtat');
-        if (el) el.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> Indisponible';
+// Mise à jour automatique des stats toutes les 5 minutes
+setInterval(function() {
+    fetch(window.location.href)
+    .then(r => r.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        // Mettre à jour les stats
+        document.querySelector('.stat-value.text-primary').textContent = doc.querySelector('.stat-value.text-primary').textContent;
+        document.querySelector('.stat-value.text-success').textContent = doc.querySelector('.stat-value.text-success').textContent;
+        document.querySelector('.stat-value.text-danger').textContent = doc.querySelector('.stat-value.text-danger').textContent;
     });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    chargerSubventions();
-    setInterval(chargerSubventions, 300000);
-});
+}, 300000);
 </script>
 {% endblock %}

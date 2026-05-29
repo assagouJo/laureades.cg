@@ -13,14 +13,6 @@
         font-weight: 500;
     }
     
-    #cycleContainer {
-        transition: all 0.3s ease;
-    }
-    
-    #affectationCard {
-        transition: all 0.3s ease;
-    }
-    
     .required-star {
         color: #dc3545;
     }
@@ -40,7 +32,7 @@
         <div class="card-body">
             
             <!-- INDICATEUR DOSSIER ACTIF -->
-            {% if dossier_actif %}
+            {% if dossier_actif and dossier_actif != 'tous' %}
             <div class="alert alert-info py-2 mb-3">
                 <i class="fas fa-info-circle me-2"></i>
                 <strong>Dossier actif :</strong> 
@@ -107,105 +99,111 @@
                         <i class="fas fa-school me-2"></i>Scolarité
                     </div>
                     <div class="card-body">
-                        <div class="row align-items-end">
+                        <div class="row">
                             
                             <!-- GROUPE -->
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Groupe <span class="required-star">*</span></label>
-                                {% if dossier_actif %}
-                                <select name="groupe_id" id="groupeSelect" class="form-select" disabled>
-                                    {% for groupe in groupes %}
-                                    <option value="{{ groupe.id }}" selected>{{ groupe.nom }}</option>
-                                    {% endfor %}
+                                
+                                {# Sélectionner les groupes selon le dossier actif #}
+                                <select name="groupe_id" id="groupeSelect" class="form-select" required>
+                                    {% if dossier_actif == 'secondaire' %}
+                                        <option value="">-- Sélectionner un cycle --</option>
+                                        {% for groupe in groupes %}
+                                            {% if groupe.nom in ['Premier Cycle', 'Second Cycle'] %}
+                                                <option value="{{ groupe.id }}">{{ groupe.nom }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% elif dossier_actif == 'primaire' %}
+                                        {% for groupe in groupes %}
+                                            {% if groupe.nom == 'Primaire' %}
+                                                <option value="{{ groupe.id }}" selected>Primaire</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% elif dossier_actif == 'maternelle' %}
+                                        {% for groupe in groupes %}
+                                            {% if groupe.nom == 'Maternelle' %}
+                                                <option value="{{ groupe.id }}" selected>Maternelle</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <option value="">-- Sélectionner un groupe --</option>
+                                        {% for groupe in groupes %}
+                                            <option value="{{ groupe.id }}">{{ groupe.nom }}</option>
+                                        {% endfor %}
+                                    {% endif %}
                                 </select>
-                                <input type="hidden" name="groupe_id" value="{{ groupes[0].id if groupes else '' }}">
+                                
+                                {% if dossier_actif == 'primaire' or dossier_actif == 'maternelle' %}
                                 <small class="text-info">
                                     <i class="fas fa-lock me-1"></i>Verrouillé au dossier {{ dossier_actif.capitalize() }}
                                 </small>
+                                {% elif dossier_actif == 'secondaire' %}
+                                <small class="text-muted">Choisissez Premier Cycle (6ème→3ème) ou Second Cycle (Seconde→Terminale)</small>
                                 {% else %}
-                                <select name="groupe_id" id="groupeSelect" class="form-select" required>
-                                    <option value="">-- Sélectionner un groupe --</option>
-                                    {% for groupe in groupes %}
-                                    <option value="{{ groupe.id }}">{{ groupe.nom }}</option>
-                                    {% endfor %}
-                                </select>
                                 <small class="text-muted invisible">Placeholder</small>
                                 {% endif %}
                             </div>
                             
-                            <!-- CYCLE -->
-                            <div class="col-md-4 mb-3 d-none" id="cycleContainer">
-                                <label class="form-label">Cycle <span class="required-star">*</span></label>
-                                <select name="cycle_id" id="cycleSelect" class="form-select">
-                                    <option value="">-- Sélectionner un cycle --</option>
-                                    <option value="CYCLE_PREMIER">🏫 Premier Cycle (6ème → 3ème)</option>
-                                    <option value="CYCLE_SECOND">🎓 Second Cycle (Seconde → Terminale)</option>
-                                </select>
-                                <small class="text-muted">Collège ou Lycée</small>
-                            </div>
-                            
                             <!-- NIVEAU -->
-                            <div class="col-md-4 mb-3" id="niveauContainer">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Niveau <span class="required-star">*</span></label>
                                 <select name="sous_groupe_id" id="sousGroupeSelect" class="form-select" required disabled>
-                                    <option value="">
-                                        {% if dossier_actif %}
-                                        -- Sélectionner un niveau --
-                                        {% else %}
-                                        -- Choisir d'abord un groupe --
-                                        {% endif %}
-                                    </option>
+                                    <option value="">-- Sélectionner un niveau --</option>
                                 </select>
-                                <small class="text-muted" id="niveauHelp">
-                                    {% if dossier_actif %}
-                                    Sélectionnez un niveau
-                                    {% else %}
-                                    Veuillez d'abord sélectionner un groupe
-                                    {% endif %}
-                                </small>
+                                <small class="text-muted" id="niveauHelp">Choisissez d'abord un groupe</small>
                             </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
+                            
+                            <!-- CLASSE -->
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Classe <span class="required-star">*</span></label>
                                 <input type="text" name="classe" class="form-control" required 
-                                       placeholder="Ex: CP1 A, 6ème B, Tle C...">
+                                       placeholder="Ex: 6ème A, Seconde C, Terminale D...">
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- ========== SECTION 3 : AFFECTATION ÉTAT ========== -->
-                <div class="card mb-3 border-success d-none" id="affectationCard">
+                <!-- ========== SECTION 3 : AFFECTATION PAR L'ÉTAT ========== -->
+                <div class="card mb-3 border-success" id="affectationCard">
                     <div class="card-header bg-success text-white py-2">
                         <i class="fas fa-hand-holding-heart me-2"></i>Affectation par l'État
                     </div>
                     <div class="card-body">
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="estAffecteEtat" 
-                                   name="est_affecte_etat" onchange="toggleAffectation()">
-                            <label class="form-check-label" for="estAffecteEtat">
-                                <strong>Cet élève est affecté par l'État</strong>
-                            </label>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="estAffecteEtat" name="est_affecte_etat">
+                                    <label class="form-check-label fw-bold" for="estAffecteEtat">Élève affecté par l'État</label>
+                                </div>
+                            </div>
                         </div>
                         
                         <div id="affectationDetails" class="d-none">
+                            <div class="alert alert-info py-2 small mb-3">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Les élèves affectés par l'État bénéficient d'un tarif réduit sur la scolarité.
+                            </div>
                             <div class="row">
-                                <div class="col-md-6 mb-2">
+                                <div class="col-md-6 mb-3">
                                     <label class="form-label">Référence d'affectation</label>
                                     <input type="text" name="reference_affectation" class="form-control" 
-                                           placeholder="N° de décision...">
+                                           placeholder="N° de décision, numéro d'arrêté...">
+                                    <small class="text-muted">Numéro de référence officiel</small>
                                 </div>
-                                <div class="col-md-6 mb-2">
-                                    <label class="form-label">Organisme</label>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Organisme affectateur</label>
                                     <input type="text" name="organisme_affectation" class="form-control" 
-                                           value="État">
+                                           value="État" placeholder="Ex: État, Ministère...">
+                                    <small class="text-muted">Organisme qui a octroyé l'affectation</small>
                                 </div>
                             </div>
-                            <div class="alert alert-info py-2 small mt-2 mb-0">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Tarif réduit appliqué pour les élèves affectés par l'État
+                            <div class="row">
+                                <div class="col-md-12 mb-2">
+                                    <label class="form-label">Observations sur l'affectation</label>
+                                    <textarea name="observation_affectation" class="form-control" rows="2" 
+                                              placeholder="Informations complémentaires sur l'affectation..."></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -376,51 +374,28 @@
 <script>
     // ========== ÉLÉMENTS DU DOM ==========
     const groupeSelect = document.getElementById('groupeSelect');
-    const cycleContainer = document.getElementById('cycleContainer');
-    const cycleSelect = document.getElementById('cycleSelect');
     const sousGroupeSelect = document.getElementById('sousGroupeSelect');
-    const niveauContainer = document.getElementById('niveauContainer');
     const niveauHelp = document.getElementById('niveauHelp');
-    const affectationCard = document.getElementById('affectationCard');
+    const estAffecteEtat = document.getElementById('estAffecteEtat');
+    const affectationDetails = document.getElementById('affectationDetails');
     
     // ========== DÉTECTER LE DOSSIER ACTIF ==========
     const dossierActif = '{{ dossier_actif }}';
     
-    // ========== INITIALISATION AUTO SI DOSSIER ACTIF ==========
+    // ========== INITIALISATION ==========
     document.addEventListener('DOMContentLoaded', function() {
-        if (dossierActif && groupeSelect.value) {
-            groupeSelect.dispatchEvent(new Event('change'));
+        // Si un groupe est déjà sélectionné (cas primaire/maternelle), charger les niveaux
+        if (groupeSelect && groupeSelect.value && groupeSelect.value !== '') {
+            chargerNiveaux(groupeSelect.value);
         }
+        toggleAffectation();
     });
-    
-    // ========== AFFICHER/MASQUER CYCLE ==========
-    function showCycle() {
-        cycleContainer.classList.remove('d-none');
-        cycleSelect.setAttribute('required', 'required');
-    }
-    
-    function hideCycle() {
-        cycleContainer.classList.add('d-none');
-        cycleSelect.removeAttribute('required');
-        cycleSelect.value = '';
-    }
-    
-    // ========== AFFICHER/MASQUER AFFECTATION ==========
-    function showAffectation() {
-        affectationCard.classList.remove('d-none');
-    }
-    
-    function hideAffectation() {
-        affectationCard.classList.add('d-none');
-        document.getElementById('estAffecteEtat').checked = false;
-        document.getElementById('affectationDetails').classList.add('d-none');
-    }
     
     // ========== RÉINITIALISER LE SELECT NIVEAU ==========
     function resetNiveauSelect() {
-        sousGroupeSelect.innerHTML = '<option value="">-- Chargement...</option>';
+        sousGroupeSelect.innerHTML = '<option value="">-- Sélectionner un niveau --</option>';
         sousGroupeSelect.disabled = true;
-        niveauHelp.textContent = 'Chargement des niveaux...';
+        niveauHelp.textContent = 'Choisissez d\'abord un groupe';
         niveauHelp.className = 'text-muted';
     }
     
@@ -432,6 +407,10 @@
     // ========== CHARGER LES NIVEAUX ==========
     function chargerNiveaux(groupeId) {
         resetNiveauSelect();
+        
+        if (!groupeId) {
+            return;
+        }
         
         fetch(`/api/groupes/${groupeId}/sous-groupes`)
             .then(response => response.json())
@@ -450,107 +429,44 @@
                     niveauHelp.className = 'text-success';
                 } else {
                     sousGroupeSelect.innerHTML = '<option value="">Aucun niveau trouvé</option>';
-                    niveauHelp.textContent = 'Aucun niveau disponible';
+                    niveauHelp.textContent = 'Aucun niveau disponible pour ce groupe';
                     niveauHelp.className = 'text-danger';
                 }
             })
             .catch(error => {
                 console.error('Erreur:', error);
                 sousGroupeSelect.innerHTML = '<option value="">Erreur de chargement</option>';
-                niveauHelp.textContent = 'Erreur lors du chargement';
+                niveauHelp.textContent = 'Erreur lors du chargement des niveaux';
                 niveauHelp.className = 'text-danger';
             });
     }
     
-    // ========== CHARGER LES NIVEAUX PAR CYCLE (Secondaire) ==========
-    function chargerNiveauxParCycle(cycleCode) {
-        resetNiveauSelect();
-        
-        const niveauxPremierCycle = ['6ème', '5ème', '4ème', '3ème'];
-        const niveauxSecondCycle = ['Seconde', 'Première', 'Terminale'];
-        const niveaux = cycleCode === 'CYCLE_PREMIER' ? niveauxPremierCycle : niveauxSecondCycle;
-        const groupeId = groupeSelect.value;
-        
-        fetch(`/api/groupes/${groupeId}/sous-groupes/all`)
-            .then(response => response.json())
-            .then(data => {
-                sousGroupeSelect.innerHTML = '<option value="">-- Sélectionner un niveau --</option>';
-                const filtered = data.filter(sg => niveaux.includes(sg.nom));
-                
-                if (filtered.length > 0) {
-                    filtered.forEach(sg => {
-                        const option = document.createElement('option');
-                        option.value = sg.id;
-                        option.textContent = sg.nom;
-                        sousGroupeSelect.appendChild(option);
-                    });
-                    enableNiveauSelect();
-                    niveauHelp.textContent = `${filtered.length} niveau(x) disponible(s)`;
-                    niveauHelp.className = 'text-success';
-                } else {
-                    sousGroupeSelect.innerHTML = '<option value="">Aucun niveau trouvé</option>';
-                    niveauHelp.textContent = 'Aucun niveau pour ce cycle';
-                    niveauHelp.className = 'text-danger';
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                sousGroupeSelect.innerHTML = '<option value="">Erreur de chargement</option>';
-                niveauHelp.textContent = 'Erreur lors du chargement';
-                niveauHelp.className = 'text-danger';
-            });
+    // ========== AFFICHER/MASQUER DÉTAILS AFFECTATION ==========
+    function toggleAffectation() {
+        if (estAffecteEtat && affectationDetails) {
+            if (estAffecteEtat.checked) {
+                affectationDetails.classList.remove('d-none');
+            } else {
+                affectationDetails.classList.add('d-none');
+            }
+        }
     }
     
     // ========== ÉVÉNEMENT : CHANGEMENT DE GROUPE ==========
     if (groupeSelect) {
         groupeSelect.addEventListener('change', function() {
             const groupeId = this.value;
-            resetNiveauSelect();
-            hideAffectation();
-            
-            if (!groupeId) {
-                hideCycle();
-                return;
-            }
-            
-            if (groupeId === '3' || groupeId == 3) {
-                showCycle();
-                showAffectation();
-                cycleSelect.value = '';
-                sousGroupeSelect.innerHTML = '<option value="">-- Sélectionner d\'abord un cycle --</option>';
-                niveauHelp.textContent = 'Veuillez sélectionner un cycle';
-                niveauHelp.className = 'text-muted';
-            } else {
-                hideCycle();
+            if (groupeId) {
                 chargerNiveaux(groupeId);
-            }
-        });
-    }
-    
-    // ========== ÉVÉNEMENT : CHANGEMENT DE CYCLE ==========
-    if (cycleSelect) {
-        cycleSelect.addEventListener('change', function() {
-            const cycleCode = this.value;
-            if (cycleCode) {
-                chargerNiveauxParCycle(cycleCode);
             } else {
-                sousGroupeSelect.innerHTML = '<option value="">-- Sélectionner d\'abord un cycle --</option>';
-                sousGroupeSelect.disabled = true;
-                niveauHelp.textContent = 'Veuillez sélectionner un cycle';
-                niveauHelp.className = 'text-muted';
+                resetNiveauSelect();
             }
         });
     }
     
-    // ========== AFFICHER/MASQUER DÉTAILS AFFECTATION ==========
-    function toggleAffectation() {
-        const checked = document.getElementById('estAffecteEtat').checked;
-        const details = document.getElementById('affectationDetails');
-        if (checked) {
-            details.classList.remove('d-none');
-        } else {
-            details.classList.add('d-none');
-        }
+    // ========== ÉVÉNEMENT : CHANGEMENT AFFECTATION ==========
+    if (estAffecteEtat) {
+        estAffecteEtat.addEventListener('change', toggleAffectation);
     }
 </script>
 {% endblock %}

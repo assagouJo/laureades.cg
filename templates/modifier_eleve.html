@@ -1,3 +1,4 @@
+<!-- templates/modifier_eleve.html -->
 {% extends "base.html" %}
 
 {% block title %}Modifier l'Élève - {{ eleve.prenom }} {{ eleve.nom }}{% endblock %}
@@ -17,9 +18,21 @@
         display: inline-flex; align-items: center; justify-content: center;
     }
     .avatar-initials { font-size: 28px; color: white; font-weight: bold; }
-    #soldeAlert { transition: all 0.3s ease; }
-    .section-parent {
-        border-left: 3px solid #6c757d;
+    .section-parent { border-left: 3px solid #6c757d; }
+    .badge-affecte { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .badge-non-affecte { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+    .spinner-sm {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #3498db;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 {% endblock %}
@@ -284,16 +297,16 @@
                         <h6 class="mb-3"><i class="fas fa-bus me-2"></i>Options supplémentaires</h6>
                         
                         <!-- Transport -->
-                        <div class="card mb-3 option-card" id="transportCard">
+                        <div class="card mb-3 option-card">
                             <div class="card-body py-2">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="transportCheckbox" name="transport_actif"
                                         {% if eleve.transport_option_id %}checked{% endif %}
-                                        onchange="document.getElementById('transportOptions').style.display = this.checked ? 'block' : 'none'">
+                                        onchange="toggleTransport()">
                                     <label class="form-check-label fw-bold" for="transportCheckbox">Transport scolaire</label>
                                 </div>
                                 <div id="transportOptions" style="display: {% if eleve.transport_option_id %}block{% else %}none{% endif %};" class="mt-2">
-                                    <select class="form-select" id="transport_option" name="transport_option_id">
+                                    <select class="form-select" id="transport_option" name="transport_option_id" onchange="recalculerFrais()">
                                         <option value="">Aucun</option>
                                         {% for transport in transports %}
                                             <option value="{{ transport.id }}" data-montant="{{ transport.montant_supplement }}"
@@ -307,16 +320,16 @@
                         </div>
 
                         <!-- Cantine -->
-                        <div class="card mb-3 option-card" id="cantineCard">
+                        <div class="card mb-3 option-card">
                             <div class="card-body py-2">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="cantineCheckbox" name="cantine_actif"
                                         {% if eleve.cantine_option_id %}checked{% endif %}
-                                        onchange="document.getElementById('cantineOptions').style.display = this.checked ? 'block' : 'none'">
+                                        onchange="toggleCantine()">
                                     <label class="form-check-label fw-bold" for="cantineCheckbox">Cantine scolaire</label>
                                 </div>
                                 <div id="cantineOptions" style="display: {% if eleve.cantine_option_id %}block{% else %}none{% endif %};" class="mt-2">
-                                    <select class="form-select" id="cantine_option" name="cantine_option_id">
+                                    <select class="form-select" id="cantine_option" name="cantine_option_id" onchange="recalculerFrais()">
                                         <option value="">Aucune</option>
                                         {% for cantine in cantines %}
                                             <option value="{{ cantine.id }}" data-montant="{{ cantine.montant }}"
@@ -330,14 +343,14 @@
                         </div>
 
                         <!-- Renforcement -->
-                        <div class="card mb-3 option-card" id="renforcementCard" style="display: none;">
+                        <div class="card mb-3 option-card">
                             <div class="card-body py-2">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="renforcementCheckbox" name="renforcement_inscrit"
-                                           {% if eleve.renforcement_inscrit %}checked{% endif %}>
+                                           {% if eleve.renforcement_inscrit %}checked{% endif %}
+                                           onchange="recalculerFrais()">
                                     <label class="form-check-label fw-bold" for="renforcementCheckbox">Cours de renforcement</label>
                                 </div>
-                                <div id="renforcementInfo" class="mt-2 small text-muted"></div>
                             </div>
                         </div>
 
@@ -350,55 +363,51 @@
                                 <table class="table table-sm table-bordered">
                                     <tbody>
                                         <tr>
-                                            <td width="60%">Scolarité de base</td>
+                                            <td width="60%">📚 Scolarité annuelle</td>
                                             <td class="text-end">
-                                                <strong>{{ "{:,.0f}".format(eleve.frais_scolarite_base) }}</strong> FCFA
+                                                <strong id="fraisScolariteBase">0</strong> FCFA
                                             </td>
                                         </tr>
-                                        {% if eleve.transport_option_id %}
                                         <tr>
-                                            <td>Transport scolaire</td>
+                                            <td>📋 Frais d'inscription</td>
                                             <td class="text-end">
-                                                <strong>{{ "{:,.0f}".format(eleve.frais_transport) }}</strong> FCFA
+                                                <strong id="fraisInscription">0</strong> FCFA
                                             </td>
                                         </tr>
-                                        {% endif %}
-                                        {% if eleve.cantine_option_id %}
                                         <tr>
-                                            <td>Cantine scolaire</td>
+                                            <td>👕 Tenue scolaire</td>
                                             <td class="text-end">
-                                                <strong>{{ "{:,.0f}".format(eleve.frais_cantine) }}</strong> FCFA
+                                                <strong id="fraisTenue">0</strong> FCFA
                                             </td>
                                         </tr>
-                                        {% endif %}
-                                        {% if eleve.renforcement_inscrit or eleve.est_renforcement_obligatoire %}
-                                        <tr>
-                                            <td>Cours de renforcement</td>
+                                        <tr id="transportRow" style="display:none;">
+                                            <td>🚌 Transport scolaire</td>
                                             <td class="text-end">
-                                                <strong>{{ "{:,.0f}".format(eleve.frais_renforcement) }}</strong> FCFA
+                                                <strong id="fraisTransport">0</strong> FCFA
                                             </td>
                                         </tr>
-                                        {% endif %}
-                                        {% if eleve.frais_tenue > 0 %}
-                                        <tr>
-                                            <td>Tenue scolaire</td>
+                                        <tr id="cantineRow" style="display:none;">
+                                            <td>🍽️ Cantine scolaire</td>
                                             <td class="text-end">
-                                                <strong>{{ "{:,.0f}".format(eleve.frais_tenue) }}</strong> FCFA
+                                                <strong id="fraisCantine">0</strong> FCFA
                                             </td>
                                         </tr>
-                                        {% endif %}
-                                        {% if eleve.frais_droit_examen > 0 %}
-                                        <tr>
-                                            <td>Droit d'examen</td>
+                                        <tr id="renforcementRow" style="display:none;">
+                                            <td>📚 Cours de renforcement</td>
                                             <td class="text-end">
-                                                <strong>{{ "{:,.0f}".format(eleve.frais_droit_examen) }}</strong> FCFA
+                                                <strong id="fraisRenforcement">0</strong> FCFA
                                             </td>
                                         </tr>
-                                        {% endif %}
+                                        <tr id="examenRow" style="display:none;">
+                                            <td>📝 Droit d'examen</td>
+                                            <td class="text-end">
+                                                <strong id="fraisExamen">0</strong> FCFA
+                                            </td>
+                                        </tr>
                                         <tr class="table-primary">
                                             <td><strong>TOTAL ANNUEL</strong></td>
                                             <td class="text-end">
-                                                <strong>{{ "{:,.0f}".format(eleve.frais_scolarite_total) }}</strong> FCFA
+                                                <strong id="totalFrais">0</strong> FCFA
                                             </td>
                                         </tr>
                                     </tbody>
@@ -407,19 +416,14 @@
                             
                             <div class="alert alert-warning" id="soldeAlert">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                Montant déjà payé: <strong>{{ "{:,.0f}".format(eleve.montant_paye) }} FCFA</strong>
+                                Montant déjà payé: <strong id="montantPaye">{{ "{:,.0f}".format(eleve.montant_paye) }} FCFA</strong>
                                 <br>
-                                <small>
-                                    {% if eleve.solde > 0 %}
-                                        <span class="text-danger">Reste à payer: <strong>{{ "{:,.0f}".format(eleve.solde) }}</strong> FCFA</span>
-                                    {% elif eleve.solde == 0 %}
-                                        <span class="text-success">✅ Compte soldé</span>
-                                    {% else %}
-                                        <span class="text-info">Trop perçu: <strong>{{ "{:,.0f}".format(eleve.solde|abs) }}</strong> FCFA</span>
-                                    {% endif %}
-                                </small>
+                                <small id="soldeInfo"></small>
                             </div>
                         </div>
+
+                        <!-- Champ caché pour le montant total recalculé -->
+                        <input type="hidden" name="frais_scolarite" id="frais_scolarite_hidden" value="{{ eleve.frais_scolarite }}">
 
                         <!-- ========== BOUTONS ========== -->
                         <div class="text-end mt-4">
@@ -455,12 +459,13 @@
                             {{ eleve.date_inscription.strftime('%d/%m/%Y') if eleve.date_inscription else 'N/A' }}
                         </li>
                         <li class="mb-2">
-                            <i class="fas fa-chart-line me-2 text-muted"></i>
-                            <strong>Taux de paiement :</strong><br>
-                            <div class="progress mt-1" style="height: 5px;">
-                                <div class="progress-bar bg-success" style="width: {{ eleve.taux_paiement }}%"></div>
-                            </div>
-                            <span class="small">{{ eleve.taux_paiement }}%</span>
+                            <i class="fas fa-tag me-2 text-muted"></i>
+                            <strong>Statut affectation :</strong><br>
+                            {% if eleve.est_affecte_etat %}
+                                <span class="badge-affecte badge">✅ Affecté par l'État</span>
+                            {% else %}
+                                <span class="badge-non-affecte badge">Non affecté</span>
+                            {% endif %}
                         </li>
                         {% if eleve.nom_parent %}
                         <li class="mb-2">
@@ -488,48 +493,265 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // ========== AFFICHER/MASQUER DÉTAILS AFFECTATION ==========
-    document.getElementById('estAffecteEtat').addEventListener('change', function() {
-        const details = document.getElementById('affectationDetails');
-        details.style.display = this.checked ? 'block' : 'none';
-    });
+    // ========== ÉLÉMENTS DU DOM ==========
+    const groupeSelect = document.getElementById('groupe_id');
+    const sousGroupeSelect = document.getElementById('sous_groupe_id');
+    const estAffecteCheckbox = document.getElementById('estAffecteEtat');
+    const transportCheckbox = document.getElementById('transportCheckbox');
+    const transportSelect = document.getElementById('transport_option');
+    const cantineCheckbox = document.getElementById('cantineCheckbox');
+    const cantineSelect = document.getElementById('cantine_option');
+    const renforcementCheckbox = document.getElementById('renforcementCheckbox');
     
-    // ========== CHARGEMENT DES NIVEAUX SELON LE GROUPE ==========
-    document.getElementById('groupe_id').addEventListener('change', function() {
-        const groupeId = this.value;
-        const sousGroupeSelect = document.getElementById('sous_groupe_id');
+    // Éléments d'affichage des frais
+    const fraisScolariteSpan = document.getElementById('fraisScolariteBase');
+    const fraisInscriptionSpan = document.getElementById('fraisInscription');
+    const fraisTenueSpan = document.getElementById('fraisTenue');
+    const fraisTransportSpan = document.getElementById('fraisTransport');
+    const fraisCantineSpan = document.getElementById('fraisCantine');
+    const fraisRenforcementSpan = document.getElementById('fraisRenforcement');
+    const fraisExamenSpan = document.getElementById('fraisExamen');
+    const totalFraisSpan = document.getElementById('totalFrais');
+    const soldeInfoSpan = document.getElementById('soldeInfo');
+    const soldeAlert = document.getElementById('soldeAlert');
+    
+    // Montant déjà payé (fixe, vient du serveur)
+    const montantPayeInitial = {{ eleve.montant_paye|default(0) }};
+    
+    // ========== FONCTIONS ==========
+    function formatMontant(montant) {
+        return new Intl.NumberFormat('fr-FR').format(montant || 0);
+    }
+    
+    function toggleTransport() {
+        const options = document.getElementById('transportOptions');
+        if (transportCheckbox && transportCheckbox.checked) {
+            if (options) options.style.display = 'block';
+            if (transportSelect && !transportSelect.value && transportSelect.options.length > 1) {
+                transportSelect.selectedIndex = 1;
+            }
+        } else {
+            if (options) options.style.display = 'none';
+            if (transportSelect) transportSelect.value = '';
+        }
+        recalculerFrais();
+    }
+    
+    function toggleCantine() {
+        const options = document.getElementById('cantineOptions');
+        if (cantineCheckbox && cantineCheckbox.checked) {
+            if (options) options.style.display = 'block';
+            if (cantineSelect && !cantineSelect.value && cantineSelect.options.length > 1) {
+                cantineSelect.selectedIndex = 1;
+            }
+        } else {
+            if (options) options.style.display = 'none';
+            if (cantineSelect) cantineSelect.value = '';
+        }
+        recalculerFrais();
+    }
+    
+    // ========== AFFICHER/MASQUER DÉTAILS AFFECTATION ==========
+    if (estAffecteCheckbox) {
+        estAffecteCheckbox.addEventListener('change', function() {
+            const details = document.getElementById('affectationDetails');
+            if (details) details.style.display = this.checked ? 'block' : 'none';
+            recalculerFrais();
+        });
+    }
+    
+    // ========== CHARGEMENT DES NIVEAUX ==========
+    if (groupeSelect) {
+        groupeSelect.addEventListener('change', function() {
+            const groupeId = this.value;
+            if (!groupeId) {
+                sousGroupeSelect.innerHTML = '<option value="">Sélectionner d\'abord un groupe</option>';
+                return;
+            }
+            
+            sousGroupeSelect.innerHTML = '<option value="">Chargement...</option>';
+            
+            fetch(`/api/groupes/${groupeId}/sous-groupes`)
+                .then(response => response.json())
+                .then(data => {
+                    sousGroupeSelect.innerHTML = '<option value="">-- Sélectionner un niveau --</option>';
+                    const currentSousGroupeId = {{ eleve.sous_groupe_id|default(0) }};
+                    data.forEach(sg => {
+                        const option = document.createElement('option');
+                        option.value = sg.id;
+                        option.textContent = sg.nom;
+                        if (sg.id == currentSousGroupeId) {
+                            option.selected = true;
+                        }
+                        sousGroupeSelect.appendChild(option);
+                    });
+                    recalculerFrais();
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    sousGroupeSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                });
+        });
+    }
+    
+    // ========== RECALCULER LES FRAIS ==========
+    function recalculerFrais() {
+        const sousGroupeId = sousGroupeSelect ? sousGroupeSelect.value : null;
+        const estAffecte = estAffecteCheckbox ? estAffecteCheckbox.checked : false;
         
-        if (!groupeId) {
-            sousGroupeSelect.innerHTML = '<option value="">Sélectionner d\'abord un groupe</option>';
+        if (!sousGroupeId) {
             return;
         }
         
-        sousGroupeSelect.innerHTML = '<option value="">Chargement...</option>';
+        // Récupérer les montants des options
+        let transportMontant = 0;
+        let cantineMontant = 0;
+        let renforcementActif = renforcementCheckbox ? renforcementCheckbox.checked : false;
         
-        fetch(`/api/groupes/${groupeId}/sous-groupes`)
+        if (transportCheckbox && transportCheckbox.checked && transportSelect && transportSelect.value) {
+            const selectedOption = transportSelect.options[transportSelect.selectedIndex];
+            transportMontant = parseFloat(selectedOption.getAttribute('data-montant')) || 0;
+        }
+        
+        if (cantineCheckbox && cantineCheckbox.checked && cantineSelect && cantineSelect.value) {
+            const selectedOption = cantineSelect.options[cantineSelect.selectedIndex];
+            cantineMontant = parseFloat(selectedOption.getAttribute('data-montant')) || 0;
+        }
+        
+        // Afficher un indicateur de chargement
+        if (totalFraisSpan) totalFraisSpan.innerHTML = '<span class="spinner-sm"></span>';
+        
+        // Appel API pour calculer les frais
+        fetch(`/api/calcul-frais/${sousGroupeId}?est_affecte=${estAffecte}&transport=${transportMontant}&cantine=${cantineMontant}&renforcement=${renforcementActif}`)
             .then(response => response.json())
             .then(data => {
-                sousGroupeSelect.innerHTML = '<option value="">-- Sélectionner un niveau --</option>';
-                data.forEach(sg => {
-                    const option = document.createElement('option');
-                    option.value = sg.id;
-                    option.textContent = sg.nom;
-                    // Présélectionner si correspond à la valeur actuelle
-                    if (sg.id == {{ eleve.sous_groupe_id or 0 }}) {
-                        option.selected = true;
+                if (data.success) {
+                    // Mettre à jour l'affichage
+                    if (fraisScolariteSpan) fraisScolariteSpan.textContent = formatMontant(data.frais_scolarite_base);
+                    if (fraisInscriptionSpan) fraisInscriptionSpan.textContent = formatMontant(data.frais_inscription);
+                    if (fraisTenueSpan) fraisTenueSpan.textContent = formatMontant(data.frais_tenue);
+                    if (fraisTransportSpan) fraisTransportSpan.textContent = formatMontant(data.frais_transport || transportMontant);
+                    if (fraisCantineSpan) fraisCantineSpan.textContent = formatMontant(data.frais_cantine || cantineMontant);
+                    if (fraisRenforcementSpan) fraisRenforcementSpan.textContent = formatMontant(data.frais_renforcement);
+                    if (fraisExamenSpan) fraisExamenSpan.textContent = formatMontant(data.frais_droit_examen);
+                    if (totalFraisSpan) totalFraisSpan.textContent = formatMontant(data.total);
+                    
+                    // Mettre à jour le champ caché
+                    const hiddenInput = document.getElementById('frais_scolarite_hidden');
+                    if (hiddenInput) hiddenInput.value = data.total;
+                    
+                    // Mettre à jour le solde
+                    const nouveauSolde = data.total - montantPayeInitial;
+                    if (soldeInfoSpan) {
+                        if (nouveauSolde > 0) {
+                            soldeInfoSpan.innerHTML = `<span class="text-danger">Reste à payer: <strong>${formatMontant(nouveauSolde)}</strong> FCFA</span>`;
+                            if (soldeAlert) soldeAlert.className = 'alert alert-warning';
+                        } else if (nouveauSolde === 0) {
+                            soldeInfoSpan.innerHTML = `<span class="text-success">✅ Compte soldé</span>`;
+                            if (soldeAlert) soldeAlert.className = 'alert alert-success';
+                        } else {
+                            soldeInfoSpan.innerHTML = `<span class="text-info">Trop perçu: <strong>${formatMontant(Math.abs(nouveauSolde))}</strong> FCFA</span>`;
+                            if (soldeAlert) soldeAlert.className = 'alert alert-info';
+                        }
                     }
-                    sousGroupeSelect.appendChild(option);
-                });
+                    
+                    // Afficher/masquer les lignes
+                    const transportRow = document.getElementById('transportRow');
+                    if (transportRow) transportRow.style.display = (data.frais_transport || transportMontant) > 0 ? 'table-row' : 'none';
+                    
+                    const cantineRow = document.getElementById('cantineRow');
+                    if (cantineRow) cantineRow.style.display = (data.frais_cantine || cantineMontant) > 0 ? 'table-row' : 'none';
+                    
+                    const renforcementRow = document.getElementById('renforcementRow');
+                    if (renforcementRow) renforcementRow.style.display = (data.frais_renforcement > 0) ? 'table-row' : 'none';
+                    
+                    const examenRow = document.getElementById('examenRow');
+                    if (examenRow) examenRow.style.display = (data.frais_droit_examen > 0) ? 'table-row' : 'none';
+                }
             })
             .catch(error => {
-                console.error('Erreur:', error);
-                sousGroupeSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                console.error('Erreur lors du calcul des frais:', error);
+                if (totalFraisSpan) totalFraisSpan.textContent = 'Erreur';
             });
+    }
+    
+    // ========== ÉVÉNEMENTS ==========
+    if (sousGroupeSelect) {
+        sousGroupeSelect.addEventListener('change', recalculerFrais);
+    }
+    
+    if (transportSelect) {
+        transportSelect.addEventListener('change', recalculerFrais);
+    }
+    
+    if (cantineSelect) {
+        cantineSelect.addEventListener('change', recalculerFrais);
+    }
+    
+    if (renforcementCheckbox) {
+        renforcementCheckbox.addEventListener('change', recalculerFrais);
+    }
+    
+    // ========== INITIALISATION ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialiser les toggles
+        if (transportCheckbox) toggleTransport();
+        if (cantineCheckbox) toggleCantine();
+        
+        // Initialiser les valeurs initiales du récapitulatif
+        const initialScolarite = {{ eleve.frais_scolarite_base|default(0) }};
+        const initialInscription = {{ eleve.frais_inscription_montant|default(0) }};
+        const initialTenue = {{ eleve.frais_tenue_montant|default(0) }};
+        const initialTransport = {{ eleve.frais_transport|default(0) }};
+        const initialCantine = {{ eleve.frais_cantine|default(0) }};
+        const initialRenforcement = {{ eleve.frais_renforcement|default(0) }};
+        const initialExamen = {{ eleve.frais_droit_examen_montant|default(0) }};
+        const initialTotal = {{ eleve.frais_scolarite_total|default(0) }};
+        
+        if (fraisScolariteSpan) fraisScolariteSpan.textContent = formatMontant(initialScolarite);
+        if (fraisInscriptionSpan) fraisInscriptionSpan.textContent = formatMontant(initialInscription);
+        if (fraisTenueSpan) fraisTenueSpan.textContent = formatMontant(initialTenue);
+        if (fraisTransportSpan) fraisTransportSpan.textContent = formatMontant(initialTransport);
+        if (fraisCantineSpan) fraisCantineSpan.textContent = formatMontant(initialCantine);
+        if (fraisRenforcementSpan) fraisRenforcementSpan.textContent = formatMontant(initialRenforcement);
+        if (fraisExamenSpan) fraisExamenSpan.textContent = formatMontant(initialExamen);
+        if (totalFraisSpan) totalFraisSpan.textContent = formatMontant(initialTotal);
+        
+        const transportRow = document.getElementById('transportRow');
+        if (transportRow) transportRow.style.display = initialTransport > 0 ? 'table-row' : 'none';
+        
+        const cantineRow = document.getElementById('cantineRow');
+        if (cantineRow) cantineRow.style.display = initialCantine > 0 ? 'table-row' : 'none';
+        
+        const renforcementRow = document.getElementById('renforcementRow');
+        if (renforcementRow) renforcementRow.style.display = initialRenforcement > 0 ? 'table-row' : 'none';
+        
+        const examenRow = document.getElementById('examenRow');
+        if (examenRow) examenRow.style.display = initialExamen > 0 ? 'table-row' : 'none';
+        
+        // Solde initial
+        const nouveauSolde = initialTotal - montantPayeInitial;
+        if (soldeInfoSpan) {
+            if (nouveauSolde > 0) {
+                soldeInfoSpan.innerHTML = `<span class="text-danger">Reste à payer: <strong>${formatMontant(nouveauSolde)}</strong> FCFA</span>`;
+                if (soldeAlert) soldeAlert.className = 'alert alert-warning';
+            } else if (nouveauSolde === 0) {
+                soldeInfoSpan.innerHTML = `<span class="text-success">✅ Compte soldé</span>`;
+                if (soldeAlert) soldeAlert.className = 'alert alert-success';
+            } else {
+                soldeInfoSpan.innerHTML = `<span class="text-info">Trop perçu: <strong>${formatMontant(Math.abs(nouveauSolde))}</strong> FCFA</span>`;
+                if (soldeAlert) soldeAlert.className = 'alert alert-info';
+            }
+        }
+        
+        // Recalculer les frais si un niveau est déjà sélectionné
+        if (sousGroupeSelect && sousGroupeSelect.value) {
+            setTimeout(recalculerFrais, 100);
+        }
     });
 </script>
 {% endblock %}

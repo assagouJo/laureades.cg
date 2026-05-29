@@ -128,7 +128,94 @@
             margin-top: 5px;
         }
         
-        /* TABLEAU PAIEMENT */
+        /* TABLEAU DÉTAILS RUBRIQUES */
+        .rubriques-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            padding-left: 5px;
+        }
+        
+        .table-rubriques {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .table-rubriques thead th {
+            background: #f0fdf4;
+            padding: 10px 15px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #16a34a;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #bbf7d0;
+            text-align: left;
+        }
+        
+        .table-rubriques thead th:last-child {
+            text-align: right;
+        }
+        
+        .table-rubriques tbody td {
+            padding: 10px 15px;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+        }
+        
+        .table-rubriques tbody td:last-child {
+            text-align: right;
+            font-weight: 600;
+            color: #28a745;
+        }
+        
+        .table-rubriques tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table-rubriques .rubrique-obligatoire {
+            color: #dc2626;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .table-rubriques .rubrique-optionnelle {
+            color: #9ca3af;
+            font-size: 10px;
+        }
+        
+        /* TOTAL */
+        .table-total {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        
+        .table-total td {
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .table-total td:first-child {
+            color: #28a745;
+            text-align: right;
+            width: 70%;
+        }
+        
+        .table-total td:last-child {
+            color: #28a745;
+            text-align: right;
+            width: 30%;
+            font-size: 18px;
+        }
+        
+        /* TABLEAU PAIEMENT (INFOS GÉNÉRALES) */
         .table-paiement {
             width: 100%;
             border-collapse: collapse;
@@ -273,6 +360,7 @@
             .no-print { display: none; }
             .montant-section { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .recu-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .table-rubriques thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -329,18 +417,119 @@
                 </tr>
                 {% endif %}
                 <tr>
+                    <th>📅 Date de paiement</th>
+                    <td>{{ paiement.date_paiement.strftime('%d/%m/%Y') }}</td>
+                </tr>
+                <tr>
+                    <th>💳 Mode de paiement</th>
+                    <td>
+                        {% if paiement.type_paiement == 'especes' %}💵 Espèces
+                        {% elif paiement.type_paiement == 'cheque' %}📝 Chèque
+                        {% elif paiement.type_paiement == 'virement' %}🏦 Virement bancaire
+                        {% elif paiement.type_paiement == 'mobile_money' %}📱 Mobile Money
+                        {% else %}{{ paiement.type_paiement|capitalize }}{% endif %}
+                    </td>
+                </tr>
+                {% if paiement.reference %}
+                <tr>
+                    <th>🔖 Référence</th>
+                    <td>{{ paiement.reference }}</td>
+                </tr>
+                {% endif %}
+                <tr>
                     <th>🕐 Date d'édition</th>
                     <td>{{ date_edition.strftime('%d/%m/%Y à %H:%M') }}</td>
                 </tr>
             </table>
             
-            <!-- MONTANT PAYÉ -->
+            <!-- MONTANT TOTAL PAYÉ -->
             <div class="montant-section">
-                <div class="label">Montant payé</div>
+                <div class="label">Montant total payé</div>
                 <div class="valeur">{{ "{:,.0f}".format(paiement.montant) }} {{ parametres_ecole.get('devise', 'FCFA') }}</div>
             </div>
             
-            <!-- TABLEAU DÉTAILS PAIEMENT -->
+            <!-- ========== DÉTAIL DES RUBRIQUES PAYÉES ========== -->
+            {% set details = paiement.details if paiement.details else {} %}
+            {% if details and (details.get('inscription', 0) > 0 or details.get('tenue', 0) > 0 or details.get('examen', 0) > 0 or details.get('scolarite', 0) > 0 or details.get('transport', 0) > 0 or details.get('cantine', 0) > 0 or details.get('renforcement', 0) > 0) %}
+            
+            <div class="rubriques-title">📋 Détail des rubriques payées</div>
+            <table class="table-rubriques">
+                <thead>
+                    <tr>
+                        <th>Rubrique</th>
+                        <th>Type</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if details.get('inscription', 0) > 0 %}
+                    <tr>
+                        <td>📋 Frais d'inscription</td>
+                        <td><span class="rubrique-obligatoire">OBLIGATOIRE</span></td>
+                        <td>{{ "{:,.0f}".format(details.get('inscription', 0)) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if details.get('tenue', 0) > 0 %}
+                    <tr>
+                        <td>👕 Tenue scolaire</td>
+                        <td><span class="rubrique-obligatoire">OBLIGATOIRE</span></td>
+                        <td>{{ "{:,.0f}".format(details.get('tenue', 0)) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if details.get('examen', 0) > 0 %}
+                    <tr>
+                        <td>📝 Droit d'examen</td>
+                        <td><span class="rubrique-obligatoire">OBLIGATOIRE</span></td>
+                        <td>{{ "{:,.0f}".format(details.get('examen', 0)) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if details.get('scolarite', 0) > 0 %}
+                    <tr>
+                        <td>📚 Scolarité annuelle</td>
+                        <td><span class="rubrique-optionnelle">OPTIONNEL</span></td>
+                        <td>{{ "{:,.0f}".format(details.get('scolarite', 0)) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if details.get('transport', 0) > 0 %}
+                    <tr>
+                        <td>🚌 Transport</td>
+                        <td><span class="rubrique-optionnelle">OPTIONNEL</span></td>
+                        <td>{{ "{:,.0f}".format(details.get('transport', 0)) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if details.get('cantine', 0) > 0 %}
+                    <tr>
+                        <td>🍽️ Cantine</td>
+                        <td><span class="rubrique-optionnelle">OPTIONNEL</span></td>
+                        <td>{{ "{:,.0f}".format(details.get('cantine', 0)) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if details.get('renforcement', 0) > 0 %}
+                    <tr>
+                        <td>📚 Renforcement scolaire</td>
+                        <td><span class="rubrique-optionnelle">OPTIONNEL</span></td>
+                        <td>{{ "{:,.0f}".format(details.get('renforcement', 0)) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            
+            <!-- TOTAL DES RUBRIQUES -->
+            <table class="table-total">
+                <tr>
+                    <td>TOTAL PAYÉ</td>
+                    <td>{{ "{:,.0f}".format(paiement.montant) }} {{ parametres_ecole.get('devise', 'FCFA') }}</td>
+                </tr>
+            </table>
+            
+            {% else %}
+            <!-- ANCIEN SYSTÈME : Pas de détails, affichage simple -->
             <table class="table-paiement">
                 <thead>
                     <tr>
@@ -361,23 +550,10 @@
                     </tr>
                 </tfoot>
             </table>
+            {% endif %}
             
-            <!-- TABLEAU AUTRES DÉTAILS -->
+            <!-- INFORMATIONS COMPLÉMENTAIRES -->
             <table class="table-infos" style="margin-top: 25px;">
-                <tr>
-                    <th>📅 Date de paiement</th>
-                    <td>{{ paiement.date_paiement.strftime('%d/%m/%Y') }}</td>
-                </tr>
-                <tr>
-                    <th>💳 Mode de paiement</th>
-                    <td>{{ paiement.type_paiement|capitalize }}</td>
-                </tr>
-                {% if paiement.reference %}
-                <tr>
-                    <th>🔖 Référence</th>
-                    <td>{{ paiement.reference }}</td>
-                </tr>
-                {% endif %}
                 {% if paiement.description %}
                 <tr>
                     <th>📝 Observations</th>

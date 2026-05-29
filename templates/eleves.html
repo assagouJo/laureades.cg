@@ -59,35 +59,16 @@
         box-shadow: 0 4px 12px rgba(91,106,191,0.1);
     }
     
-    .stats-badge i { 
-        font-size: 1.1rem; 
-    }
+    .stats-badge i { font-size: 1.1rem; }
+    .stats-badge strong { font-size: 1rem; font-weight: 700; color: var(--gray-700); }
+    .stats-badge small { font-size: 0.7rem; color: var(--gray-400); display: block; font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; }
     
-    .stats-badge strong { 
-        font-size: 1rem; 
-        font-weight: 700; 
-        color: var(--gray-700);
-    }
-    
-    .stats-badge small { 
-        font-size: 0.7rem; 
-        color: var(--gray-400); 
-        display: block; 
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-    }
-    
-    /* Couleurs stats */
     .stat-date { background: #f0fdf4; border-color: #bbf7d0; }
     .stat-date i, .stat-date strong { color: #16a34a; }
-    
     .stat-inscrits { background: var(--primary-light); border-color: #c7d2fe; }
     .stat-inscrits i, .stat-inscrits strong { color: var(--primary); }
-    
     .stat-montant { background: var(--success-light); border-color: #a7f3d0; }
     .stat-montant i, .stat-montant strong { color: var(--success); }
-    
     .stat-paiements { background: #eff6ff; border-color: #bfdbfe; }
     .stat-paiements i, .stat-paiements strong { color: #3b82f6; }
     
@@ -110,110 +91,26 @@
         text-decoration: none;
     }
     
-    .btn-export-excel:hover {
-        background: #059669;
-        color: white;
-        border-color: #059669;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
-    }
+    .btn-export-excel:hover { background: #059669; color: white; border-color: #059669; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(5,150,105,0.3); }
+    .btn-export-excel:active { transform: scale(0.97); }
     
-    .btn-export-excel:active {
-        transform: scale(0.97);
-    }
+    /* ========== TABLEAU ========== */
+    .table-container { border-radius: var(--radius-lg); border: 1px solid var(--gray-200); overflow: hidden; background: white; }
+    .table-scroll-wrapper { overflow-x: auto; overflow-y: visible; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--gray-300) transparent; max-height: 65vh; overflow-y: auto; }
+    .table-scroll-wrapper::-webkit-scrollbar { height: 6px; width: 6px; }
+    .table-scroll-wrapper::-webkit-scrollbar-track { background: var(--gray-50); }
+    .table-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 100px; }
+    .table-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
     
-    /* ========== TABLEAU AVEC SCROLL HORIZONTAL ========== */
-    .table-container {
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--gray-200);
-        overflow: hidden;
-        background: white;
-    }
-    
-    .table-scroll-wrapper {
-        overflow-x: auto;
-        overflow-y: visible;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin;
-        scrollbar-color: var(--gray-300) transparent;
-        max-height: 65vh;
-        overflow-y: auto;
-    }
-    
-    .table-scroll-wrapper::-webkit-scrollbar {
-        height: 6px;
-        width: 6px;
-    }
-    
-    .table-scroll-wrapper::-webkit-scrollbar-track {
-        background: var(--gray-50);
-    }
-    
-    .table-scroll-wrapper::-webkit-scrollbar-thumb {
-        background: var(--gray-300);
-        border-radius: 100px;
-    }
-    
-    .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-        background: var(--gray-400);
-    }
-    
-    .table-scroll-wrapper::-webkit-scrollbar-corner {
-        background: transparent;
-    }
-    
-    .table-premium {
-        width: 100%;
-        min-width: 1000px;
-        border-collapse: separate;
-        border-spacing: 0;
-        table-layout: auto;
-    }
-    
-    .table-premium thead {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-    
-    .table-premium thead th {
-        background: var(--gray-50);
-        padding: 0.75rem 0.875rem;
-        font-size: 0.6875rem;
-        font-weight: 700;
-        color: var(--gray-500);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 2px solid var(--gray-200);
-        white-space: nowrap;
-        text-align: left;
-    }
-    
+    .table-premium { width: 100%; min-width: 1000px; border-collapse: separate; border-spacing: 0; table-layout: auto; }
+    .table-premium thead { position: sticky; top: 0; z-index: 10; }
+    .table-premium thead th { background: var(--gray-50); padding: 0.75rem 0.875rem; font-size: 0.6875rem; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--gray-200); white-space: nowrap; text-align: left; }
     .table-premium thead th.text-center { text-align: center; }
     .table-premium thead th.text-end { text-align: right; }
+    .table-premium tbody td { padding: 0.75rem 0.875rem; font-size: 0.8125rem; color: var(--gray-700); border-bottom: 1px solid var(--gray-100); vertical-align: middle; white-space: nowrap; }
+    .table-premium tbody tr:hover { background: #fafbfd; }
+    .table-premium tbody tr:last-child td { border-bottom: none; }
     
-    .table-premium tbody td {
-        padding: 0.75rem 0.875rem;
-        font-size: 0.8125rem;
-        color: var(--gray-700);
-        border-bottom: 1px solid var(--gray-100);
-        vertical-align: middle;
-        white-space: nowrap;
-    }
-    
-    .table-premium tbody tr {
-        transition: background 150ms ease;
-    }
-    
-    .table-premium tbody tr:hover {
-        background: #fafbfd;
-    }
-    
-    .table-premium tbody tr:last-child td {
-        border-bottom: none;
-    }
-    
-    /* Colonnes spécifiques */
     .col-matricule { min-width: 100px; }
     .col-nom { min-width: 180px; }
     .col-classe { min-width: 100px; }
@@ -226,95 +123,22 @@
     .col-reinscrit { min-width: 100px; }
     .col-actions { min-width: 170px; }
     
-    /* ========== BOUTONS D'ACTION EN LIGNE ========== */
-    .actions-group {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        flex-wrap: nowrap;
-    }
-    
-    .btn-action {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        padding: 0;
-        border-radius: 6px;
-        border: 1px solid transparent;
-        cursor: pointer;
-        transition: all 150ms ease;
-        font-size: 0.75rem;
-        flex-shrink: 0;
-        text-decoration: none;
-    }
-    
-    .btn-action:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    
-    .btn-action:active {
-        transform: scale(0.95);
-    }
-    
-    .btn-payer {
-        background: var(--success-light);
-        color: var(--success);
-        border-color: #a7f3d0;
-    }
-    
-    .btn-payer:hover {
-        background: var(--success);
-        color: white;
-    }
-    
-    .btn-historique {
-        background: #eff6ff;
-        color: #3b82f6;
-        border-color: #bfdbfe;
-    }
-    
-    .btn-historique:hover {
-        background: #3b82f6;
-        color: white;
-    }
-    
-    .btn-modifier {
-        background: var(--warning-light);
-        color: #d97706;
-        border-color: #fde68a;
-    }
-    
-    .btn-modifier:hover {
-        background: #d97706;
-        color: white;
-    }
-    
-    .btn-supprimer {
-        background: var(--danger-light);
-        color: var(--danger);
-        border-color: #fecaca;
-    }
-    
-    .btn-supprimer:hover {
-        background: var(--danger);
-        color: white;
-    }
+    /* ========== BOUTONS D'ACTION ========== */
+    .actions-group { display: flex; align-items: center; gap: 0.25rem; flex-wrap: nowrap; }
+    .btn-action { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border-radius: 6px; border: 1px solid transparent; cursor: pointer; transition: all 150ms ease; font-size: 0.75rem; flex-shrink: 0; text-decoration: none; }
+    .btn-action:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .btn-action:active { transform: scale(0.95); }
+    .btn-payer { background: var(--success-light); color: var(--success); border-color: #a7f3d0; }
+    .btn-payer:hover { background: var(--success); color: white; }
+    .btn-historique { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+    .btn-historique:hover { background: #3b82f6; color: white; }
+    .btn-modifier { background: var(--warning-light); color: #d97706; border-color: #fde68a; }
+    .btn-modifier:hover { background: #d97706; color: white; }
+    .btn-supprimer { background: var(--danger-light); color: var(--danger); border-color: #fecaca; }
+    .btn-supprimer:hover { background: var(--danger); color: white; }
     
     /* ========== BADGES ========== */
-    .badge-statut {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.25rem 0.625rem;
-        border-radius: 100px;
-        font-size: 0.6875rem;
-        font-weight: 600;
-        letter-spacing: 0.01em;
-        white-space: nowrap;
-    }
-    
+    .badge-statut { display: inline-flex; align-items: center; padding: 0.25rem 0.625rem; border-radius: 100px; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; }
     .badge-paye { background: var(--success-light); color: #059669; }
     .badge-partiel { background: var(--warning-light); color: #b45309; }
     .badge-impaye { background: var(--danger-light); color: #dc2626; }
@@ -322,178 +146,38 @@
     .badge-non-affecte { background: var(--gray-100); color: var(--gray-500); }
     .badge-avoir { background: #fff7ed; color: #ea580c; font-size: 0.65rem !important; }
     .badge-annule { background: #fef2f2; color: #dc2626; font-size: 0.65rem !important; }
+    .classe-examen-badge { background: #ffc107; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
     
     /* ========== MODALS ========== */
-    .modal-content {
-        border: none;
-        border-radius: var(--radius-lg);
-        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-    }
+    .modal-content { border: none; border-radius: var(--radius-lg); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+    .modal-header { border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 0.875rem 1.25rem; }
+    .notification-toast { position: fixed; top: 1rem; right: 1rem; z-index: 9999; min-width: 300px; max-width: 450px; animation: slideIn 0.3s ease-out; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: none; border-radius: var(--radius); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     
-    .modal-header {
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        padding: 0.875rem 1.25rem;
-    }
-    
-    .notification-toast {
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        z-index: 9999;
-        min-width: 300px;
-        max-width: 450px;
-        animation: slideIn 0.3s ease-out;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        border: none;
-        border-radius: var(--radius);
-    }
-    
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    
-    /* Lignes avoir/annulé */
     .table-avoir { background: #fff7ed; }
     .table-annule { background: #f9fafb; opacity: 0.7; }
     .table-annule td { text-decoration: line-through; }
     
-    /* ========== RESPONSIVE ========== */
-    @media (max-width: 1024px) {
-        .table-scroll-wrapper {
-            max-height: 60vh;
-        }
-        .btn-export-excel {
-            padding: 0.4rem 1rem;
-            font-size: 0.8rem;
-        }
-    }
+    .modal-detail-summary { background: #f8f9fa; border-radius: 8px; padding: 10px; font-size: 0.85rem; }
+    .modal-detail-summary .detail-line { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed #e0e0e0; }
+    .modal-detail-summary .detail-line:last-child { border-bottom: none; }
     
-    @media (max-width: 768px) {
-        .container-fluid {
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
-        }
-        
-        .stats-badge {
-            padding: 0.625rem 0.875rem;
-            margin-right: 0.25rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .stats-badge strong {
-            font-size: 0.875rem;
-        }
-        
-        .stats-badge small {
-            font-size: 0.65rem;
-        }
-        
-        .table-premium {
-            min-width: 850px;
-        }
-        
-        .table-premium thead th,
-        .table-premium tbody td {
-            padding: 0.5rem 0.625rem;
-            font-size: 0.75rem;
-        }
-        
-        .btn-action {
-            width: 28px;
-            height: 28px;
-            font-size: 0.7rem;
-        }
-        
-        .actions-group {
-            gap: 0.15rem;
-        }
-        
-        .notification-toast {
-            left: 1rem;
-            right: 1rem;
-            min-width: auto;
-            max-width: none;
-        }
-        
-        .modal-dialog {
-            margin: 0.5rem;
-        }
-        
-        .btn-export-excel {
-            padding: 0.35rem 0.875rem;
-            font-size: 0.75rem;
-        }
-    }
+    .payment-input-group { background: #f8f9fa; border-radius: 10px; padding: 12px; margin-bottom: 12px; border: 1px solid #e5e7eb; transition: all 0.2s ease; }
+    .payment-input-group:hover { border-color: #667eea; box-shadow: 0 2px 8px rgba(102,126,234,0.1); }
+    .payment-input-group label { font-weight: 600; font-size: 0.85rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .payment-input-group .input-wrapper { display: flex; align-items: center; gap: 10px; }
+    .payment-input-group .input-wrapper input { flex: 1; border-radius: 8px; border: 1px solid #d1d5db; padding: 8px 12px; font-size: 0.9rem; }
+    .payment-input-group .input-wrapper input:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+    .payment-input-group .badge-obligatoire { background: #dc2626; color: white; font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; }
+    .payment-input-group .badge-option { background: #9ca3af; color: white; font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; }
+    .payment-summary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; padding: 15px; margin-bottom: 20px; }
+    .payment-summary .total-amount { font-size: 1.8rem; font-weight: bold; }
+    .obligatoire-warning { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 10px; margin-bottom: 15px; font-size: 0.8rem; }
     
-    @media (max-width: 576px) {
-        .container-fluid {
-            padding-left: 0.25rem !important;
-            padding-right: 0.25rem !important;
-        }
-        
-        .stats-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.375rem;
-        }
-        
-        .stats-badge {
-            margin-right: 0;
-            margin-bottom: 0;
-            width: 100%;
-            justify-content: flex-start;
-        }
-        
-        .table-premium {
-            min-width: 750px;
-        }
-        
-        .table-premium thead th,
-        .table-premium tbody td {
-            padding: 0.375rem 0.5rem;
-            font-size: 0.7rem;
-        }
-        
-        .btn-action {
-            width: 26px;
-            height: 26px;
-            font-size: 0.65rem;
-            border-radius: 5px;
-        }
-        
-        .actions-group {
-            gap: 0.1rem;
-        }
-        
-        .badge-statut {
-            font-size: 0.625rem;
-            padding: 0.2rem 0.5rem;
-        }
-        
-        .btn-export-excel {
-            padding: 0.3rem 0.75rem;
-            font-size: 0.7rem;
-        }
-    }
-    
-    @media (max-width: 400px) {
-        .table-premium {
-            min-width: 700px;
-        }
-        
-        .table-premium thead th,
-        .table-premium tbody td {
-            padding: 0.3rem 0.375rem;
-            font-size: 0.675rem;
-        }
-        
-        .btn-action {
-            width: 24px;
-            height: 24px;
-            font-size: 0.6rem;
-        }
-    }
+    @media (max-width: 1024px) { .table-scroll-wrapper { max-height: 60vh; } .btn-export-excel { padding: 0.4rem 1rem; font-size: 0.8rem; } }
+    @media (max-width: 768px) { .container-fluid { padding-left: 0.5rem !important; padding-right: 0.5rem !important; } .stats-badge { padding: 0.625rem 0.875rem; margin-right: 0.25rem; margin-bottom: 0.25rem; } .stats-badge strong { font-size: 0.875rem; } .stats-badge small { font-size: 0.65rem; } .table-premium { min-width: 850px; } .table-premium thead th, .table-premium tbody td { padding: 0.5rem 0.625rem; font-size: 0.75rem; } .btn-action { width: 28px; height: 28px; font-size: 0.7rem; } .actions-group { gap: 0.15rem; } .notification-toast { left: 1rem; right: 1rem; min-width: auto; max-width: none; } .modal-dialog { margin: 0.5rem; } .btn-export-excel { padding: 0.35rem 0.875rem; font-size: 0.75rem; } }
+    @media (max-width: 576px) { .container-fluid { padding-left: 0.25rem !important; padding-right: 0.25rem !important; } .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.375rem; } .stats-badge { margin-right: 0; margin-bottom: 0; width: 100%; justify-content: flex-start; } .table-premium { min-width: 750px; } .table-premium thead th, .table-premium tbody td { padding: 0.375rem 0.5rem; font-size: 0.7rem; } .btn-action { width: 26px; height: 26px; font-size: 0.65rem; border-radius: 5px; } .actions-group { gap: 0.1rem; } .badge-statut { font-size: 0.625rem; padding: 0.2rem 0.5rem; } .btn-export-excel { padding: 0.3rem 0.75rem; font-size: 0.7rem; } }
+    @media (max-width: 400px) { .table-premium { min-width: 700px; } .table-premium thead th, .table-premium tbody td { padding: 0.3rem 0.375rem; font-size: 0.675rem; } .btn-action { width: 24px; height: 24px; font-size: 0.6rem; } }
 </style>
 {% endblock %}
 
@@ -504,41 +188,28 @@
     <div class="d-flex flex-wrap align-items-center mb-3 stats-row">
         <div class="stats-badge stat-date">
             <i class="fas fa-calendar-day"></i>
-            <div>
+            <div style="width: 100px;">
                 <strong id="dateAujourdhui">{{ date_aujourdhui }}</strong>
                 <small>Aujourd'hui</small>
             </div>
         </div>
-        
         <div class="stats-badge stat-inscrits">
             <i class="fas fa-user-plus"></i>
-            <div>
+            <div style="width: 100px;display: flex; align-items: center;">
                 <strong id="elevesInscrits">{{ eleves_inscrits_aujourdhui }}</strong>
-                <small>Inscrits</small>
+                <small style="margin-left: 5px;">Inscrits</small>
             </div>
         </div>
-        
         <div class="stats-badge stat-montant">
             <i class="fas fa-money-bill-wave"></i>
-            <div>
-                <strong id="montantTotalPaye">{{ "{:,.0f}".format(montant_total_paye_aujourdhui) }}</strong>
-                <small>Total payé</small>
+            <div style="width: 180px; display: flex; align-items: center;">
+                <strong id="montantTotalPaye">{{ "{:,.0f}".format(montant_total_paye_aujourdhui|default(0)) }}</strong>
+                <small style="margin-left: 5px; font-weight: 700;">Total payé</small>
             </div>
         </div>
-        
-        <div class="stats-badge stat-paiements">
-            <i class="fas fa-receipt"></i>
-            <div>
-                <strong id="nombrePaiements">{{ nombre_paiements_aujourdhui }}</strong>
-                <small>Paiements</small>
-            </div>
-        </div>
-        
-        <!-- 🔥 BOUTON EXPORT EXCEL 🔥 -->
         <button style="margin-right: 2px;" class="btn-export-excel ms-auto" onclick="exporterTableauExcel()" title="Exporter le tableau en Excel">
             <i class="fas fa-file-excel"></i> Exporter Excel
         </button>
-        
         {% if current_user.role in ['admin', 'comptable'] %}
         <a href="{{ url_for('ajouter_eleve') }}" class="btn btn-primary" style="border-radius:100px;padding:0.5rem 1.25rem;font-weight:600;font-size:0.875rem;">
             <i class="fas fa-plus me-1"></i>Nouvel Élève
@@ -569,7 +240,12 @@
                     {% for eleve in eleves %}
                     <tr id="row{{ eleve.id }}">
                         <td><span class="fw-bold">{{ eleve.matricule }}</span></td>
-                        <td>{{ eleve.genre_icon if eleve.genre else '👤' }} {{ eleve.prenom }} {{ eleve.nom }}</td>
+                        <td>
+                            {{ eleve.genre_icon if eleve.genre else '👤' }} {{ eleve.prenom }} {{ eleve.nom }}
+                            {% if eleve.classe in ['CM2', '3ème', 'Terminale'] %}
+                            <span class="classe-examen-badge ms-1">📚 Examen</span>
+                            {% endif %}
+                        </td>
                         <td>{{ eleve.classe }}</td>
                         <td>{% if eleve.sous_groupe %}<span class="badge-statut" style="background:var(--gray-100);color:var(--gray-600);">{{ eleve.sous_groupe.nom }}</span>{% else %}<span style="color:var(--gray-400);">—</span>{% endif %}</td>
                         <td>
@@ -580,7 +256,7 @@
                             {% endif %}
                         </td>
                         <td class="text-end">{{ "{:,.0f}".format(eleve.frais_scolarite_total) }}</td>
-                        <td class="text-end fw-bold" style="color:var(--success);" id="paye{{ eleve.id }}">{{ "{:,.0f}".format(eleve.montant_paye) }}</td>
+                        <td class="text-end fw-bold" style="color:var(--success);" id="paye{{ eleve.id }}">{{ "{:,.0f}".format(eleve.montant_paye_reel) }}</td>
                         <td class="text-end fw-bold" id="solde{{ eleve.id }}" style="color: {% if eleve.solde > 0 %}var(--danger){% else %}var(--success){% endif %};">
                             {{ "{:,.0f}".format(eleve.solde) }}
                         </td>
@@ -595,9 +271,7 @@
                         </td>
                         <td class="text-center">
                             {% if eleve.reinscrit %}
-                                <span class="badge-statut" style="background:#f0fdf4;color:#16a34a;">
-                                    ✅ {{ eleve.annee_scolaire }}
-                                </span>
+                                <span class="badge-statut" style="background:#f0fdf4;color:#16a34a;">✅ {{ eleve.annee_scolaire }}</span>
                             {% else %}
                                 <span style="color:var(--gray-400);">—</span>
                             {% endif %}
@@ -605,32 +279,20 @@
                         <td class="text-center" data-export="false">
                             <div class="actions-group">
                                 {% if current_user.role in ['admin', 'comptable'] %}
-                                <button type="button" class="btn-action btn-payer btn-paiement" 
-                                        data-eleve-id="{{ eleve.id }}"
-                                        title="Enregistrer un paiement">
+                                <button type="button" class="btn-action btn-payer btn-paiement" data-eleve-id="{{ eleve.id }}" title="Enregistrer un paiement">
                                     <i class="fas fa-money-bill-wave"></i>
                                 </button>
                                 {% endif %}
-                                
-                                <button type="button" class="btn-action btn-historique" 
-                                        onclick="voirPaiements({{ eleve.id }})" 
-                                        title="Historique des paiements">
+                                <button type="button" class="btn-action btn-historique" onclick="voirPaiements({{ eleve.id }})" title="Historique des paiements">
                                     <i class="fas fa-history"></i>
                                 </button>
-                                
                                 {% if current_user.role in ['admin', 'comptable'] %}
-                                <a href="{{ url_for('modifier_eleve', id=eleve.id) }}" 
-                                   class="btn-action btn-modifier" 
-                                   title="Modifier l'élève">
+                                <a href="{{ url_for('modifier_eleve', id=eleve.id) }}" class="btn-action btn-modifier" title="Modifier l'élève">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 {% endif %}
-                                
                                 {% if current_user.role == 'admin' %}
-                                <a href="{{ url_for('supprimer_eleve', id=eleve.id) }}" 
-                                   class="btn-action btn-supprimer" 
-                                   onclick="return confirm('Supprimer {{ eleve.prenom }} {{ eleve.nom }} ?')" 
-                                   title="Supprimer l'élève">
+                                <a href="{{ url_for('supprimer_eleve', id=eleve.id) }}" class="btn-action btn-supprimer" onclick="return confirm('Supprimer {{ eleve.prenom }} {{ eleve.nom }} ?')" title="Supprimer l'élève">
                                     <i class="fas fa-trash-alt"></i>
                                 </a>
                                 {% endif %}
@@ -641,8 +303,6 @@
                 </tbody>
             </table>
         </div>
-        
-        <!-- Indicateur de scroll horizontal -->
         <div class="text-center py-2 border-top" style="background:var(--gray-50);">
             <small style="font-size:0.6875rem;color:var(--gray-400);">
                 <i class="fas fa-arrows-left-right me-1"></i>Faites défiler horizontalement pour voir toutes les colonnes
@@ -651,50 +311,385 @@
     </div>
 </div>
 
-<!-- ========== MODAL PAIEMENT ========== -->
+<!-- ========== MODAL PAIEMENT AVEC INPUTS INDIVIDUELS ========== -->
 {% for eleve in eleves %}
 <div class="modal fade" id="paiementModal{{ eleve.id }}" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <form id="paiementForm{{ eleve.id }}" class="paiement-ajax-form" data-eleve-id="{{ eleve.id }}">
                 <div class="modal-header bg-success text-white py-2">
-                    <h6 class="modal-title"><i class="fas fa-money-bill-wave me-2"></i>Paiement - {{ eleve.prenom }} {{ eleve.nom }}</h6>
+                    <h6 class="modal-title">
+                        <i class="fas fa-money-bill-wave me-2"></i>
+                        Paiement - {{ eleve.prenom }} {{ eleve.nom }}
+                        {% if eleve.classe in ['CM2', '3eme', 'Tle'] %}
+                        <span class="badge bg-warning text-dark ms-2">📚 Classe d'examen</span>
+                        {% endif %}
+                    </h6>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="bg-light p-3 rounded mb-3">
-                        <div class="row">
-                            <div class="col-6"><small class="text-muted">Frais total</small><h6>{{ "{:,.0f}".format(eleve.frais_scolarite_total) }}</h6></div>
-                            <div class="col-6"><small class="text-muted">Déjà payé</small><h6 class="text-success" id="modalPaye{{ eleve.id }}">{{ "{:,.0f}".format(eleve.montant_paye) }}</h6></div>
+                    <!-- Résumé des frais -->
+                    <div class="row mb-3">
+                        <div class="col-md-7">
+                            <div class="bg-light p-3 rounded">
+                                <h6 class="mb-2">📊 État des paiements</h6>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Frais total</small>
+                                        <strong>{{ "{:,.0f}".format(eleve.frais_scolarite_total) }} FCFA</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Déjà payé</small>
+                                        <strong class="text-success" id="modalPaye{{ eleve.id }}">{{ "{:,.0f}".format(eleve.montant_paye_reel) }} FCFA</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Reste à payer</small>
+                                        <strong class="text-danger" id="modalSolde{{ eleve.id }}">{{ "{:,.0f}".format(eleve.solde) }} FCFA</strong>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mt-2"><small class="text-muted">Reste à payer</small><h5 class="text-danger" id="modalSolde{{ eleve.id }}">{{ "{:,.0f}".format(eleve.solde) }}</h5></div>
+                        <div class="col-md-5">
+                            <div class="bg-light p-3 rounded modal-detail-summary">
+                                <h6 class="mb-2">📋 Détail des frais</h6>
+                                <div class="detail-line">
+                                    <span>📚 Scolarité annuelle</span>
+                                    <strong>{{ "{:,.0f}".format(eleve.frais_scolarite_base or 0) }}</strong>
+                                </div>
+                                <div class="detail-line">
+                                    <span>📋 Frais d'inscription</span>
+                                    <strong>{{ "{:,.0f}".format(eleve.frais_inscription_montant or 0) }}</strong>
+                                </div>
+                                {% if eleve.frais_tenue_montant and eleve.frais_tenue_montant > 0 %}
+                                <div class="detail-line">
+                                    <span>👕 Tenue scolaire</span>
+                                    <strong>{{ "{:,.0f}".format(eleve.frais_tenue_montant or 0) }}</strong>
+                                </div>
+                                {% endif %}
+                                {% if eleve.est_classe_examen and eleve.frais_droit_examen_montant > 0 %}
+                                <div class="detail-line">
+                                    <span>📝 Droits d'examen</span>
+                                    <strong>{{ "{:,.0f}".format(eleve.frais_droit_examen_montant or 0) }}</strong>
+                                </div>
+                                {% endif %}
+                                {% if eleve.transport_option %}
+                                <div class="detail-line">
+                                    <span>🚌 Transport</span>
+                                    <strong>{{ "{:,.0f}".format(eleve.frais_transport or 0) }}</strong>
+                                </div>
+                                {% endif %}
+                                {% if eleve.cantine_option %}
+                                <div class="detail-line">
+                                    <span>🍽️ Cantine</span>
+                                    <strong>{{ "{:,.0f}".format(eleve.frais_cantine or 0) }}</strong>
+                                </div>
+                                {% endif %}
+                                {% if eleve.renforcement_inscrit %}
+                                <div class="detail-line">
+                                    <span>📚 Renforcement</span>
+                                    <strong>{{ "{:,.0f}".format(eleve.frais_renforcement or 0) }}</strong>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="alert alert-danger py-2 d-none" id="erreur{{ eleve.id }}"></div>
                     <div class="alert alert-success py-2 d-none" id="succes{{ eleve.id }}"></div>
                     
-                    <div class="mb-3">
-                        <label class="form-label">Montant à payer <span class="text-danger">*</span></label>
-                        <input type="number" name="montant" class="form-control" step="500" min="500" max="{{ eleve.solde }}" value="{{ eleve.solde if eleve.solde < 50000 else 50000 }}" required>
+                    <div class="obligatoire-warning">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        <strong>⚠️ Frais obligatoires :</strong> 
+                        L'inscription et la tenue scolaire sont obligatoires.
+                        {% if eleve.est_classe_examen %}
+                        Le droit d'examen est également obligatoire pour cette classe.
+                        {% endif %}
+                    </div>
+                    
+                    <!-- ========== INPUTS INDIVIDUELS PAR RUBRIQUE ========== -->
+
+                    <!-- 1. FRAIS D'INSCRIPTION (OBLIGATOIRE) -->
+                {% set inscription_montant = eleve.frais_inscription_montant %}
+                {% set inscription_reste = inscription_montant - (eleve.montant_paye_inscription or 0) %}
+                <div class="payment-input-group">
+                    <label>
+                        <i class="fas fa-file-invoice text-info"></i>
+                        Frais d'inscription
+                        <span class="badge-obligatoire">OBLIGATOIRE</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                            class="form-control montant-input" 
+                            name="montant_inscription" 
+                            id="montantInscription{{ eleve.id }}"
+                            value="0"
+                            min="0"
+                            max="{{ inscription_reste if inscription_reste > 0 else 0 }}"
+                            data-rubrique="inscription"
+                            data-max="{{ inscription_reste if inscription_reste > 0 else 0 }}"
+                            data-obligatoire="true"
+                            {% if inscription_reste <= 0 %}disabled{% endif %}
+                            oninput="calculerTotalPaiement({{ eleve.id }})">
+                        <span class="text-muted">FCFA</span>
+                    </div>
+                    <small class="text-muted">
+                        {% if inscription_reste <= 0 %}
+                            ✅ Frais d'inscription soldé
+                        {% else %}
+                            Montant maximum: <strong>{{ "{:,.0f}".format(inscription_reste) }} FCFA</strong>
+                            <br><span class="text-info">💡 Défini dans Paramètres → Tarifs par Groupe → Inscription</span>
+                        {% endif %}
+                    </small>
+                </div>
+
+                <!-- 2. TENUE SCOLAIRE (OBLIGATOIRE) -->
+                {% set tenue_montant = eleve.frais_tenue_montant %}
+                {% set tenue_reste = tenue_montant - (eleve.montant_paye_tenue or 0) %}
+                {% if tenue_montant and tenue_montant > 0 %}
+                <div class="payment-input-group">
+                    <label>
+                        <i class="fas fa-tshirt text-danger"></i>
+                        Tenue scolaire
+                        <span class="badge-obligatoire">OBLIGATOIRE</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                            class="form-control montant-input" 
+                            name="montant_tenue" 
+                            id="montantTenue{{ eleve.id }}"
+                            value="0"
+                            min="0"
+                            max="{{ tenue_reste if tenue_reste > 0 else 0 }}"
+                            data-rubrique="tenue"
+                            data-max="{{ tenue_reste if tenue_reste > 0 else 0 }}"
+                            data-obligatoire="true"
+                            {% if tenue_reste <= 0 %}disabled{% endif %}
+                            oninput="calculerTotalPaiement({{ eleve.id }})">
+                        <span class="text-muted">FCFA</span>
+                    </div>
+                    <small class="text-muted">
+                        {% if tenue_reste <= 0 %}
+                            ✅ Tenue scolaire soldée
+                        {% else %}
+                            Montant maximum: <strong>{{ "{:,.0f}".format(tenue_reste) }} FCFA</strong>
+                            <br><span class="text-info">💡 Défini dans Paramètres → Tenues & Examens selon le groupe</span>
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+
+                <!-- 3. DROIT D'EXAMEN (OBLIGATOIRE pour classes examen) -->
+                {% if eleve.est_classe_examen %}
+                {% set examen_montant = eleve.frais_droit_examen_montant %}
+                {% set examen_reste = examen_montant - (eleve.montant_paye_examen or 0) %}
+                {% if examen_montant and examen_montant > 0 %}
+                <div class="payment-input-group">
+                    <label>
+                        <i class="fas fa-file-alt text-warning"></i>
+                        Droit d'examen ({{ eleve.classe }})
+                        <span class="badge-obligatoire">OBLIGATOIRE</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                            class="form-control montant-input" 
+                            name="montant_examen" 
+                            id="montantExamen{{ eleve.id }}"
+                            value="0"
+                            min="0"
+                            max="{{ examen_reste if examen_reste > 0 else 0 }}"
+                            data-rubrique="droit_examen"
+                            data-max="{{ examen_reste if examen_reste > 0 else 0 }}"
+                            data-obligatoire="true"
+                            {% if examen_reste <= 0 %}disabled{% endif %}
+                            oninput="calculerTotalPaiement({{ eleve.id }})">
+                        <span class="text-muted">FCFA</span>
+                    </div>
+                    <small class="text-muted">
+                        {% if examen_reste <= 0 %}
+                            ✅ Droit d'examen soldé
+                        {% else %}
+                            Montant maximum: <strong>{{ "{:,.0f}".format(examen_reste) }} FCFA</strong>
+                            <br><span class="text-info">💡 Défini dans Paramètres → Tenues & Examens → Droit d'examen</span>
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                <!-- 4. SCOLAIRITÉ (OPTIONNELLE) -->
+                {% set scolarite_reste = eleve.frais_scolarite_base - (eleve.montant_paye_scolarite or 0) %}
+                <div class="payment-input-group">
+                    <label>
+                        <i class="fas fa-graduation-cap text-primary"></i>
+                        Scolarité annuelle
+                        <span class="badge-option">OPTIONNEL</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                            class="form-control montant-input" 
+                            name="montant_scolarite" 
+                            id="montantScolarite{{ eleve.id }}"
+                            value="0"
+                            min="0"
+                            max="{{ scolarite_reste if scolarite_reste > 0 else 0 }}"
+                            data-rubrique="scolarite"
+                            data-max="{{ scolarite_reste if scolarite_reste > 0 else 0 }}"
+                            data-obligatoire="false"
+                            {% if scolarite_reste <= 0 %}disabled{% endif %}
+                            oninput="calculerTotalPaiement({{ eleve.id }})">
+                        <span class="text-muted">FCFA</span>
+                    </div>
+                    <small class="text-muted">
+                        {% if scolarite_reste <= 0 %}
+                            ✅ Scolarité soldée
+                        {% else %}
+                            Montant maximum: <strong>{{ "{:,.0f}".format(scolarite_reste) }} FCFA</strong>
+                            <br><span class="text-info">💡 Défini dans Paramètres → Tarifs par Groupe → {{ "Affecté" if eleve.est_affecte_etat else "Non Affecté" }}</span>
+                        {% endif %}
+                    </small>
+                </div>
+
+                <!-- 5. TRANSPORT (OPTIONNEL) -->
+                {% if eleve.transport_option %}
+                {% set transport_reste = eleve.frais_transport - (eleve.montant_paye_transport or 0) %}
+                <div class="payment-input-group">
+                    <label>
+                        <i class="fas fa-bus text-secondary"></i>
+                        Transport ({{ eleve.transport_option.nom }})
+                        <span class="badge-option">OPTIONNEL</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                            class="form-control montant-input" 
+                            name="montant_transport" 
+                            id="montantTransport{{ eleve.id }}"
+                            value="0"
+                            min="0"
+                            max="{{ transport_reste if transport_reste > 0 else 0 }}"
+                            data-rubrique="transport"
+                            data-max="{{ transport_reste if transport_reste > 0 else 0 }}"
+                            data-obligatoire="false"
+                            {% if transport_reste <= 0 %}disabled{% endif %}
+                            oninput="calculerTotalPaiement({{ eleve.id }})">
+                        <span class="text-muted">FCFA</span>
+                    </div>
+                    <small class="text-muted">
+                        {% if transport_reste <= 0 %}
+                            ✅ Transport soldé
+                        {% else %}
+                            Montant maximum: <strong>{{ "{:,.0f}".format(transport_reste) }} FCFA</strong>
+                            <br><span class="text-info">💡 Défini dans Paramètres → Transport</span>
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+
+                <!-- 6. CANTINE (OPTIONNEL) -->
+                {% if eleve.cantine_option %}
+                {% set cantine_reste = eleve.frais_cantine - (eleve.montant_paye_cantine or 0) %}
+                <div class="payment-input-group">
+                    <label>
+                        <i class="fas fa-utensils text-success"></i>
+                        Cantine ({{ eleve.cantine_option.nom }})
+                        <span class="badge-option">OPTIONNEL</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                            class="form-control montant-input" 
+                            name="montant_cantine" 
+                            id="montantCantine{{ eleve.id }}"
+                            value="0"
+                            min="0"
+                            max="{{ cantine_reste if cantine_reste > 0 else 0 }}"
+                            data-rubrique="cantine"
+                            data-max="{{ cantine_reste if cantine_reste > 0 else 0 }}"
+                            data-obligatoire="false"
+                            {% if cantine_reste <= 0 %}disabled{% endif %}
+                            oninput="calculerTotalPaiement({{ eleve.id }})">
+                        <span class="text-muted">FCFA</span>
+                    </div>
+                    <small class="text-muted">
+                        {% if cantine_reste <= 0 %}
+                            ✅ Cantine soldée
+                        {% else %}
+                            Montant maximum: <strong>{{ "{:,.0f}".format(cantine_reste) }} FCFA</strong>
+                            <br><span class="text-info">💡 Défini dans Paramètres → Cantine</span>
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+
+                <!-- 7. RENFORCEMENT (OPTIONNEL) -->
+                {% if eleve.renforcement_inscrit %}
+                {% set renforcement_reste = eleve.frais_renforcement - (eleve.montant_paye_renforcement or 0) %}
+                <div class="payment-input-group">
+                    <label>
+                        <i class="fas fa-chalkboard-user text-dark"></i>
+                        Renforcement scolaire
+                        <span class="badge-option">OPTIONNEL</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                            class="form-control montant-input" 
+                            name="montant_renforcement" 
+                            id="montantRenforcement{{ eleve.id }}"
+                            value="0"
+                            min="0"
+                            max="{{ renforcement_reste if renforcement_reste > 0 else 0 }}"
+                            data-rubrique="renforcement"
+                            data-max="{{ renforcement_reste if renforcement_reste > 0 else 0 }}"
+                            data-obligatoire="false"
+                            {% if renforcement_reste <= 0 %}disabled{% endif %}
+                            oninput="calculerTotalPaiement({{ eleve.id }})">
+                        <span class="text-muted">FCFA</span>
+                    </div>
+                    <small class="text-muted">
+                        {% if renforcement_reste <= 0 %}
+                            ✅ Renforcement soldé
+                        {% else %}
+                            Montant maximum: <strong>{{ "{:,.0f}".format(renforcement_reste) }} FCFA</strong>
+                            <br><span class="text-info">💡 Défini dans Paramètres → Tarifs</span>
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+                    
+                    <!-- TOTAL À PAYER -->
+                    <div class="payment-summary">
+                        <div class="row align-items-center">
+                            <div class="col-6"><h6 class="mb-0">💰 TOTAL À PAYER</h6></div>
+                            <div class="col-6 text-end">
+                                <span class="total-amount" id="totalPaiement{{ eleve.id }}">0</span>
+                                <small>FCFA</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mode de paiement <span class="text-danger">*</span></label>
+                            <select name="type_paiement" class="form-select" required>
+                                <option value="especes">💵 Espèces</option>
+                                <option value="cheque">📝 Chèque</option>
+                                <option value="virement">🏦 Virement bancaire</option>
+                                <option value="mobile_money">📱 Mobile Money</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Référence (optionnel)</label>
+                            <input type="text" name="reference" class="form-control" placeholder="N° chèque, référence transaction...">
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Mode de paiement <span class="text-danger">*</span></label>
-                        <select name="type_paiement" class="form-select" required>
-                            <option value="especes">💵 Espèces</option>
-                            <option value="cheque">📝 Chèque</option>
-                            <option value="virement">🏦 Virement</option>
-                            <option value="mobile_money">📱 Mobile Money</option>
-                        </select>
+                        <label class="form-label">Bank (optionnel)</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="Note éventuelle..."></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Référence</label>
-                        <input type="text" name="reference" class="form-control" placeholder="N° chèque, transaction...">
-                    </div>
+                    <input type="hidden" name="montant_total" id="montantTotal{{ eleve.id }}" value="0">
                 </div>
                 <div class="modal-footer py-2">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
                     <button type="submit" class="btn btn-success btn-sm btn-submit-paiement" id="btnSubmit{{ eleve.id }}">
-                        <i class="fas fa-save me-1"></i>Enregistrer
+                        <i class="fas fa-save me-1"></i>Enregistrer le paiement
                     </button>
                 </div>
             </form>
@@ -711,9 +706,7 @@
                 <h6 class="modal-title"><i class="fas fa-history me-2"></i>Historique des paiements</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="recusModalBody">
-                <div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2">Chargement...</p></div>
-            </div>
+            <div class="modal-body" id="recusModalBody"><div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2">Chargement...</p></div></div>
         </div>
     </div>
 </div>
@@ -752,14 +745,10 @@
                 <h6 class="modal-title"><i class="fas fa-receipt me-2"></i>Reçu de paiement</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-0" id="recuModalBody">
-                <div class="text-center py-4"><div class="spinner-border text-success"></div><p class="mt-2">Chargement du reçu...</p></div>
-            </div>
+            <div class="modal-body p-0" id="recuModalBody"><div class="text-center py-4"><div class="spinner-border text-success"></div><p class="mt-2">Chargement du reçu...</p></div></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                <button type="button" class="btn btn-primary" onclick="imprimerRecuDepuisModal()">
-                    <i class="fas fa-print me-2"></i>Imprimer
-                </button>
+                <button type="button" class="btn btn-primary" onclick="imprimerRecuDepuisModal()"><i class="fas fa-print me-2"></i>Imprimer</button>
             </div>
         </div>
     </div>
@@ -767,32 +756,20 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Librairie SheetJS pour l'export Excel -->
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-
 <script>
 // ========== FONCTIONS UTILITAIRES ==========
-function formatMontant(m) { 
-    return new Intl.NumberFormat('fr-FR').format(Math.abs(m||0)); 
-}
-
-function formatDate(d) { 
-    if(!d) return '-'; 
-    return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}); 
-}
+function formatMontant(m) { return new Intl.NumberFormat('fr-FR').format(Math.abs(m||0)); }
+function formatDate(d) { if(!d) return '-'; return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}); }
 
 function showNotification(type, message) {
     var bg = type === 'success' ? 'bg-success' : (type === 'warning' ? 'bg-warning' : 'bg-danger');
     var icon = type === 'success' ? 'fa-check-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : 'fa-times-circle');
     var html = '<div class="notification-toast alert ' + bg + ' text-white alert-dismissible fade show d-flex align-items-center">';
-    html += '<i class="fas ' + icon + ' me-2"></i>';
-    html += '<span>' + message + '</span>';
-    html += '<button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button>';
-    html += '</div>';
+    html += '<i class="fas ' + icon + ' me-2"></i><span>' + message + '</span>';
+    html += '<button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button></div>';
     $('body').append(html);
-    setTimeout(function() {
-        $('.notification-toast').fadeOut('slow', function() { $(this).remove(); });
-    }, 4000);
+    setTimeout(function() { $('.notification-toast').fadeOut('slow', function() { $(this).remove(); }); }, 4000);
 }
 
 function nettoyerBackdrop() {
@@ -802,89 +779,66 @@ function nettoyerBackdrop() {
     document.querySelectorAll('.modal-backdrop').forEach(function(b) { b.remove(); });
 }
 
-// ========== EXPORT EXCEL ==========
+function calculerTotalPaiement(eleveId) {
+    var total = 0;
+    total += parseFloat($('#montantInscription' + eleveId).val()) || 0;
+    total += parseFloat($('#montantTenue' + eleveId).val()) || 0;
+    total += parseFloat($('#montantExamen' + eleveId).val()) || 0;
+    total += parseFloat($('#montantScolarite' + eleveId).val()) || 0;
+    total += parseFloat($('#montantTransport' + eleveId).val()) || 0;
+    total += parseFloat($('#montantCantine' + eleveId).val()) || 0;
+    total += parseFloat($('#montantRenforcement' + eleveId).val()) || 0;
+    $('#totalPaiement' + eleveId).text(formatMontant(total));
+    $('#montantTotal' + eleveId).val(total);
+    return total;
+}
+
 function exporterTableauExcel() {
     var table = document.getElementById('elevesTable');
-    if (!table) {
-        showNotification('danger', 'Tableau introuvable !');
-        return;
-    }
-    
-    // Cloner le tableau pour l'export (enlever la colonne actions)
+    if (!table) { showNotification('danger', 'Tableau introuvable !'); return; }
     var clonedTable = table.cloneNode(true);
-    
-    // Supprimer la colonne "Actions" du clone
     var headers = clonedTable.querySelectorAll('thead th');
     var actionColIndex = -1;
-    
-    headers.forEach(function(th, index) {
-        if (th.getAttribute('data-export') === 'false') {
-            actionColIndex = index;
-        }
-    });
-    
-    // Supprimer la colonne d'actions dans le thead
+    headers.forEach(function(th, index) { if (th.getAttribute('data-export') === 'false') actionColIndex = index; });
     if (actionColIndex >= 0) {
         var theadRow = clonedTable.querySelector('thead tr');
-        if (theadRow && theadRow.children[actionColIndex]) {
-            theadRow.removeChild(theadRow.children[actionColIndex]);
-        }
-        
-        // Supprimer la colonne d'actions dans le tbody
+        if (theadRow && theadRow.children[actionColIndex]) theadRow.removeChild(theadRow.children[actionColIndex]);
         var tbodyRows = clonedTable.querySelectorAll('tbody tr');
-        tbodyRows.forEach(function(row) {
-            if (row.children[actionColIndex]) {
-                row.removeChild(row.children[actionColIndex]);
-            }
-        });
+        tbodyRows.forEach(function(row) { if (row.children[actionColIndex]) row.removeChild(row.children[actionColIndex]); });
     }
-    
-    // Créer le workbook
     var wb = XLSX.utils.book_new();
     var ws = XLSX.utils.table_to_sheet(clonedTable, { raw: true });
-    
-    // Ajuster la largeur des colonnes
     var colWidths = [];
     var range = XLSX.utils.decode_range(ws['!ref']);
-    
     for (var C = range.s.c; C <= range.e.c; C++) {
         var maxWidth = 10;
         for (var R = range.s.r; R <= range.e.r; R++) {
             var cellRef = XLSX.utils.encode_cell({ r: R, c: C });
             var cell = ws[cellRef];
-            if (cell && cell.v) {
-                var width = cell.v.toString().length;
-                if (width > maxWidth) maxWidth = width;
-            }
+            if (cell && cell.v) { var width = cell.v.toString().length; if (width > maxWidth) maxWidth = width; }
         }
         colWidths.push({ wch: maxWidth + 2 });
     }
     ws['!cols'] = colWidths;
-    
-    // Nom du fichier avec la date
     var today = new Date();
     var dateStr = today.toISOString().slice(0, 10);
     var dossier = '{{ dossier_actif if dossier_actif else "tous" }}';
     var fileName = 'Eleves_' + dossier + '_' + dateStr + '.xlsx';
-    
     XLSX.utils.book_append_sheet(wb, ws, 'Élèves');
     XLSX.writeFile(wb, fileName);
-    
     showNotification('success', 'Export Excel réussi !');
 }
 
-// ========== METTRE À JOUR LIGNE ==========
 function mettreAJourLigneEleve(eleveId) {
     fetch('/api/eleve/' + eleveId + '/paiements')
     .then(function(r) { return r.json(); })
     .then(function(data) {
         var e = data.eleve;
-        $('#paye' + eleveId).text(formatMontant(e.montant_paye));
+        $('#paye' + eleveId).text(formatMontant(e.montant_paye_reel));
         $('#solde' + eleveId).text(formatMontant(e.solde));
         $('#solde' + eleveId).css('color', e.solde > 0 ? 'var(--danger)' : 'var(--success)');
-        
         var statut = $('#statut' + eleveId);
-        var nouveauStatut = e.solde <= 0 ? 'Payé' : (e.montant_paye > 0 ? 'Partiel' : 'Impayé');
+        var nouveauStatut = e.solde <= 0 ? 'Payé' : (e.montant_paye_reel > 0 ? 'Partiel' : 'Impayé');
         statut.text(nouveauStatut);
         statut.removeClass('badge-paye badge-partiel badge-impaye');
         if (nouveauStatut === 'Payé') statut.addClass('badge-paye');
@@ -894,33 +848,144 @@ function mettreAJourLigneEleve(eleveId) {
 }
 
 function mettreAJourStats() {
-    fetch('/api/stats-journalieres')
+    // Récupérer le dossier actif depuis l'URL ou la page
+    var dossierActif = '{{ dossier_actif if dossier_actif else "tous" }}';
+    
+    fetch('/api/stats-journalieres?dossier=' + dossierActif)
     .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (data.success) {
-            $('#dateAujourdhui').text(data.date);
-            $('#elevesInscrits').text(data.eleves_inscrits);
-            $('#montantTotalPaye').text(formatMontant(data.montant_total_paye));
-            $('#nombrePaiements').text(data.nombre_paiements);
-        }
+    .then(function(data) { 
+        if (data.success) { 
+            $('#dateAujourdhui').text(data.date); 
+            $('#elevesInscrits').text(data.eleves_inscrits); 
+            $('#montantTotalPaye').text(formatMontant(data.montant_total_paye)); 
+            $('#nombrePaiements').text(data.nombre_paiements); 
+        } 
     });
 }
 
-// ========== INITIALISATION ==========
+// ========== METTRE À JOUR LE MODAL DE PAIEMENT (VERSION CORRIGÉE) ==========
+function mettreAJourModalPaiement(eleveId) {
+    // Solution simple : recharger les données depuis l'API
+    // et utiliser les valeurs max déjà définies dans le HTML
+    fetch('/api/eleve/' + eleveId + '/paiements')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var e = data.eleve;
+        console.log('Données élève pour modal:', e);
+        
+        // Mettre à jour l'affichage des totaux
+        $('#modalPaye' + eleveId).text(formatMontant(e.montant_paye_reel) + ' FCFA');
+        $('#modalSolde' + eleveId).text(formatMontant(e.solde) + ' FCFA');
+        
+        // Pour chaque input, on vérifie si le champ montant_paye_xxx existe
+        // Sinon, on utilise le montant total payé et on le soustrait du total
+        
+        // Inscription
+        var inscriptionTotal = e.frais_inscription_montant || 0;
+        var inscriptionPaye = e.montant_paye_inscription || 0;
+        var inscriptionRestant = inscriptionTotal - inscriptionPaye;
+        updateModalInputSimple(eleveId, 'montantInscription', inscriptionRestant);
+        
+        // Tenue
+        var tenueTotal = e.frais_tenue_montant || 0;
+        var tenuePaye = e.montant_paye_tenue || 0;
+        var tenueRestant = tenueTotal - tenuePaye;
+        updateModalInputSimple(eleveId, 'montantTenue', tenueRestant);
+        
+        // Examen
+        var examenTotal = e.frais_droit_examen_montant || 0;
+        var examenPaye = e.montant_paye_examen || 0;
+        var examenRestant = examenTotal - examenPaye;
+        updateModalInputSimple(eleveId, 'montantExamen', examenRestant);
+        
+        // Scolarité
+        var scolariteTotal = e.frais_scolarite_base || 0;
+        var scolaritePaye = e.montant_paye_scolarite || 0;
+        var scolariteRestant = scolariteTotal - scolaritePaye;
+        updateModalInputSimple(eleveId, 'montantScolarite', scolariteRestant);
+        
+        // Transport
+        var transportTotal = e.frais_transport || 0;
+        var transportPaye = e.montant_paye_transport || 0;
+        var transportRestant = transportTotal - transportPaye;
+        updateModalInputSimple(eleveId, 'montantTransport', transportRestant);
+        
+        // Cantine
+        var cantineTotal = e.frais_cantine || 0;
+        var cantinePaye = e.montant_paye_cantine || 0;
+        var cantineRestant = cantineTotal - cantinePaye;
+        updateModalInputSimple(eleveId, 'montantCantine', cantineRestant);
+        
+        // Renforcement
+        var renforcementTotal = e.frais_renforcement || 0;
+        var renforcementPaye = e.montant_paye_renforcement || 0;
+        var renforcementRestant = renforcementTotal - renforcementPaye;
+        updateModalInputSimple(eleveId, 'montantRenforcement', renforcementRestant);
+        
+        // Réinitialiser le total
+        calculerTotalPaiement(eleveId);
+    })
+    .catch(function(error) {
+        console.error('Erreur lors de la mise à jour du modal:', error);
+    });
+}
+
+// Fonction simplifiée pour mettre à jour un input
+function updateModalInputSimple(eleveId, inputId, restant) {
+    var input = $('#' + inputId + eleveId);
+    if (!input.length) return;
+    
+    if (restant <= 0) {
+        input.prop('disabled', true).val(0);
+        input.closest('.payment-input-group').find('small').html('✅ Déjà soldé');
+    } else {
+        input.prop('disabled', false).val(0);
+        input.attr('max', restant);
+        input.closest('.payment-input-group').find('small').html(
+            'Montant maximum: <strong>' + formatMontant(restant) + ' FCFA</strong>'
+        );
+    }
+}
+
+
+// Fonction helper pour mettre à jour un input du modal
+function updateModalInput(eleveId, inputName, restant, rubrique, source) {
+    var input = $('#' + inputName + eleveId);
+    if (!input.length) return; // L'input n'existe pas (option non souscrite)
+    
+    if (restant <= 0) {
+        input.prop('disabled', true).val(0).attr('max', 0);
+        input.closest('.payment-input-group').find('small').html('✅ ' + rubrique + ' soldé(e)');
+    } else {
+        input.prop('disabled', false).attr('max', restant).val(0);
+        input.closest('.payment-input-group').find('small').html(
+            'Montant maximum: <strong>' + formatMontant(restant) + ' FCFA</strong>' +
+            '<br><span class="text-info">💡 Défini dans ' + source + '</span>'
+        );
+    }
+}
+
+// ========== INITIALISATION AU CHARGEMENT ==========
 $(document).ready(function() {
-    // Ouvrir modal paiement
+    mettreAJourStats();
+    
+    // Gestionnaire d'ouverture du modal de paiement
     $(document).on('click', '.btn-paiement', function() {
         var eleveId = $(this).data('eleve-id');
         var form = $('#paiementForm' + eleveId);
         form[0].reset();
-        form.find('input, select, textarea').prop('disabled', false);
         $('#erreur' + eleveId).addClass('d-none');
         $('#succes' + eleveId).addClass('d-none');
-        $('#btnSubmit' + eleveId).prop('disabled', false).html('<i class="fas fa-save me-1"></i>Enregistrer');
+        $('#btnSubmit' + eleveId).prop('disabled', false).html('<i class="fas fa-save me-1"></i>Enregistrer le paiement');
+        
+        // Mettre à jour le modal AVANT de l'afficher
+        mettreAJourModalPaiement(eleveId);
+        
+        // Afficher le modal
         new bootstrap.Modal(document.getElementById('paiementModal' + eleveId)).show();
     });
     
-    // Soumission paiement
+    // Gestionnaire de soumission du formulaire de paiement
     $(document).on('submit', '.paiement-ajax-form', function(e) {
         e.preventDefault();
         var form = $(this);
@@ -928,33 +993,78 @@ $(document).ready(function() {
         var btn = $('#btnSubmit' + eleveId);
         var erreur = $('#erreur' + eleveId);
         var succes = $('#succes' + eleveId);
+        
+        var montants = {
+            inscription: parseFloat($('#montantInscription' + eleveId).val()) || 0,
+            tenue: parseFloat($('#montantTenue' + eleveId).val()) || 0,
+            examen: parseFloat($('#montantExamen' + eleveId).val()) || 0,
+            scolarite: parseFloat($('#montantScolarite' + eleveId).val()) || 0,
+            transport: parseFloat($('#montantTransport' + eleveId).val()) || 0,
+            cantine: parseFloat($('#montantCantine' + eleveId).val()) || 0,
+            renforcement: parseFloat($('#montantRenforcement' + eleveId).val()) || 0
+        };
+        
+        var total = montants.inscription + montants.tenue + montants.examen + 
+                    montants.scolarite + montants.transport + montants.cantine + 
+                    montants.renforcement;
+        
+        if (total <= 0) { 
+            erreur.html('<i class="fas fa-exclamation-triangle me-2"></i>Veuillez saisir au moins un montant à payer').removeClass('d-none'); 
+            return; 
+        }
+        
+        // Validation des montants max
+        var validationErrors = [];
+        if (montants.inscription > (parseFloat($('#montantInscription' + eleveId).attr('max')) || 0)) {
+            validationErrors.push('Inscription');
+        }
+        if (montants.tenue > (parseFloat($('#montantTenue' + eleveId).attr('max')) || 0)) {
+            validationErrors.push('Tenue');
+        }
+        if (montants.examen > (parseFloat($('#montantExamen' + eleveId).attr('max')) || 0)) {
+            validationErrors.push('Examen');
+        }
+        
+        if (validationErrors.length > 0) {
+            erreur.html('<i class="fas fa-exclamation-triangle me-2"></i>Montant trop élevé pour: ' + validationErrors.join(', ')).removeClass('d-none'); 
+            return; 
+        }
+        
         var formData = new FormData(this);
+        formData.set('montant_total', total);
+        for (var rubrique in montants) { 
+            if (montants[rubrique] > 0) { 
+                formData.append(rubrique + '_montant', montants[rubrique]); 
+            } 
+        }
         
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Traitement...');
         erreur.addClass('d-none');
         succes.addClass('d-none');
-        form.find('input, select, textarea').prop('disabled', true);
         
-        fetch('/paiement/ajouter/' + eleveId, { method: 'POST', body: formData })
+        fetch('/paiement/ajouter-multiple/' + eleveId, { method: 'POST', body: formData })
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.success) {
                 mettreAJourLigneEleve(eleveId);
                 mettreAJourStats();
-                succes.html('<i class="fas fa-check-circle me-2"></i>' + data.message).removeClass('d-none');
-                setTimeout(function() {
-                    bootstrap.Modal.getInstance(document.getElementById('paiementModal' + eleveId)).hide();
-                }, 1500);
+                showNotification('success', data.message);
+                
+                // Fermer le modal immédiatement
+                var modalElement = document.getElementById('paiementModal' + eleveId);
+                var modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+                nettoyerBackdrop();
             } else {
                 erreur.html('<i class="fas fa-exclamation-triangle me-2"></i>' + data.message).removeClass('d-none');
-                form.find('input, select, textarea').prop('disabled', false);
-                btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Enregistrer');
+                btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Enregistrer le paiement');
             }
         })
         .catch(function() {
             erreur.html('<i class="fas fa-times-circle me-2"></i>Erreur réseau').removeClass('d-none');
-            form.find('input, select, textarea').prop('disabled', false);
-            btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Enregistrer');
+            btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Enregistrer le paiement');
         });
     });
 });
@@ -973,7 +1083,7 @@ function voirPaiements(eleveId) {
         
         html += '<div class="row text-center mb-3">';
         html += '<div class="col-6 col-md-3"><small>Frais</small><h6>' + formatMontant(data.eleve.frais_scolarite_total) + '</h6></div>';
-        html += '<div class="col-6 col-md-3"><small>Payé</small><h6 class="text-success">' + formatMontant(data.eleve.montant_paye) + '</h6></div>';
+        html += '<div class="col-6 col-md-3"><small>Payé</small><h6 class="text-success">' + formatMontant(data.eleve.montant_paye_reel) + '</h6></div>';
         html += '<div class="col-6 col-md-3"><small>Solde</small><h6 class="' + (data.eleve.solde > 0 ? 'text-danger' : 'text-success') + '">' + formatMontant(data.eleve.solde) + '</h6></div>';
         html += '<div class="col-6 col-md-3"><small>Taux</small><h6>' + data.eleve.taux_paiement + '%</h6></div></div>';
         
@@ -981,7 +1091,7 @@ function voirPaiements(eleveId) {
             html += '<div class="alert alert-info text-center">Aucun paiement enregistré</div>';
         } else {
             html += '<div class="table-responsive"><table class="table table-sm table-hover"><thead class="table-light"><tr>';
-            html += '<th>N° Reçu</th><th>Date</th><th class="text-end">Montant</th><th>Mode</th><th>Réf.</th><th class="text-center">Actions</th></tr></thead><tbody>';
+            html += '<th>N° Reçu</th><th>Date</th><th>Rubrique(s)</th><th class="text-end">Montant</th><th>Mode</th><th>Réf.</th><th class="text-center">Actions</th></tr></thead><tbody>';
             
             data.paiements.forEach(function(p) {
                 var estAvoir = p.montant < 0;
@@ -991,7 +1101,22 @@ function voirPaiements(eleveId) {
                 html += '<tr class="' + rowClass + '">';
                 html += '<td>' + (estAvoir ? '<span class="badge badge-avoir me-1">AVOIR</span>' : '') + (estAnnule ? '<span class="badge badge-annule me-1">ANNULÉ</span>' : '') + '<code>' + (p.recu || '-') + '</code></td>';
                 html += '<td>' + formatDate(p.date_paiement) + '</td>';
-                html += '<td class="text-end fw-bold ' + (estAvoir ? 'text-warning' : (estAnnule ? 'text-muted' : 'text-success')) + '">' + formatMontant(p.montant) + '</td>';
+                
+                html += '<td>';
+                var rubriques = [];
+                if (p.details) {
+                    if (p.details.inscription > 0) rubriques.push('📋 Inscription');
+                    if (p.details.tenue > 0) rubriques.push('👕 Tenue');
+                    if (p.details.examen > 0) rubriques.push('📝 Examen');
+                    if (p.details.scolarite > 0) rubriques.push('📚 Scolarité');
+                    if (p.details.transport > 0) rubriques.push('🚌 Transport');
+                    if (p.details.cantine > 0) rubriques.push('🍽️ Cantine');
+                    if (p.details.renforcement > 0) rubriques.push('📚 Renf.');
+                }
+                html += rubriques.join(' + ') || (p.categorie_frais || 'Scolarité');
+                html += '</td>';
+                
+                html += '<td class="text-end fw-bold text-success">' + formatMontant(p.montant) + '</td>';
                 
                 var mode = p.type_paiement || p.mode_paiement || '';
                 html += '<td>' + (mode === 'especes' ? '💵' : mode === 'cheque' ? '📝' : mode === 'virement' ? '🏦' : mode === 'mobile_money' ? '📱' : mode || '-') + '</td>';
@@ -999,12 +1124,14 @@ function voirPaiements(eleveId) {
                 html += '<td class="text-center"><div class="actions-group">';
                 html += '<button class="btn-action btn-historique" onclick="voirRecu(' + p.id + ')" title="Voir"><i class="fas fa-receipt"></i></button>';
                 html += '<button class="btn-action btn-historique" onclick="imprimerRecu(' + p.id + ')" title="Imprimer"><i class="fas fa-print"></i></button>';
+                
+                {% if current_user.role in ['admin', 'comptable'] %}
                 if (!estAvoir && !estAnnule) {
-                    {% if current_user.role in ['admin', 'comptable'] %}
                     html += '<button class="btn-action btn-modifier" onclick="modifierPaiement(' + p.id + ')" title="Modifier"><i class="fas fa-edit"></i></button>';
                     html += '<button class="btn-action btn-supprimer" onclick="annulerPaiement(' + p.id + ')" title="Annuler"><i class="fas fa-ban"></i></button>';
-                    {% endif %}
                 }
+                {% endif %}
+                
                 html += '</div></td></tr>';
             });
             html += '</tbody></table></div>';
@@ -1019,87 +1146,254 @@ function voirRecu(paiementId) {
     new bootstrap.Modal(document.getElementById('recuModal')).show();
 }
 
-function imprimerRecuDepuisModal() {
-    var iframe = document.querySelector('#recuModalBody iframe');
-    if (iframe) iframe.contentWindow.print();
-}
-
+function imprimerRecuDepuisModal() { var iframe = document.querySelector('#recuModalBody iframe'); if (iframe) iframe.contentWindow.print(); }
 function imprimerRecu(paiementId) { window.open('/paiement/' + paiementId + '/recu', '_blank'); }
 function imprimerTousRecus(eleveId) { window.open('/eleve/' + eleveId + '/recus', '_blank'); }
 
-function modifierPaiement(paiementId) {
-    new bootstrap.Modal(document.getElementById('modifierPaiementModal')).show();
+// ========== MODIFIER PAIEMENT ==========
+window.modifierPaiement = function(paiementId) {
+    let modalElement = document.getElementById('modifierPaiementModal');
+    if (!modalElement) { 
+        alert("Erreur: Modal non trouvé");
+        return; 
+    }
+    
+    let modal = new bootstrap.Modal(modalElement);
+    modal.show();
+    
+    document.getElementById('modifierPaiementBody').innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2">Chargement du paiement...</p></div>';
+    
     fetch('/api/paiement/' + paiementId)
-    .then(function(r) { return r.json(); })
+    .then(function(r) { 
+        if (!r.ok) throw new Error('Erreur HTTP ' + r.status);
+        return r.json(); 
+    })
     .then(function(data) {
-        var html = '<form id="formModifierPaiement"><input type="hidden" name="paiement_id" value="' + data.paiement.id + '">';
-        html += '<div class="mb-3"><label class="form-label">Montant</label><input type="number" name="montant" class="form-control" value="' + Math.abs(data.paiement.montant) + '" required></div>';
-        html += '<div class="mb-3"><label class="form-label">Date</label><input type="date" name="date_paiement" class="form-control" value="' + data.paiement.date_paiement + '" required></div>';
-        html += '<div class="mb-3"><label class="form-label">Mode</label><select name="mode_paiement" class="form-select">';
-        ['especes','cheque','virement','mobile_money'].forEach(function(m) {
-            html += '<option value="' + m + '" ' + (data.paiement.mode_paiement == m ? 'selected' : '') + '>' + m + '</option>';
-        });
-        html += '</select></div>';
-        html += '<div id="modifierErreur" class="alert alert-danger d-none"></div><div id="modifierSucces" class="alert alert-success d-none"></div>';
-        html += '<button type="submit" class="btn btn-warning w-100"><i class="fas fa-save me-2"></i>Enregistrer</button></form>';
-        $('#modifierPaiementBody').html(html);
+        if (!data.success) {
+            throw new Error(data.message || 'Erreur lors du chargement');
+        }
         
-        $('#formModifierPaiement').on('submit', function(e) {
-            e.preventDefault();
-            fetch('/paiement/' + paiementId + '/modifier', { method: 'POST', body: new FormData(this) })
+        var p = data.paiement;
+        
+        return fetch('/api/eleve/' + p.eleve_id + '/options')
             .then(function(r) { return r.json(); })
-            .then(function(result) {
-                if (result.success) {
-                    $('#modifierSucces').html('<i class="fas fa-check-circle me-2"></i>' + result.message).removeClass('d-none');
-                    setTimeout(function() {
-                        bootstrap.Modal.getInstance(document.getElementById('modifierPaiementModal')).hide();
-                        nettoyerBackdrop();
-                        mettreAJourLigneEleve(result.eleve_id);
-                        voirPaiements(result.eleve_id);
-                        mettreAJourStats();
-                        showNotification('success', result.message);
-                    }, 1500);
-                } else {
-                    $('#modifierErreur').html('<i class="fas fa-exclamation-triangle me-2"></i>' + result.message).removeClass('d-none');
-                }
+            .then(function(eleveData) {
+                return { paiement: p, eleve: eleveData };
             });
-        });
+    })
+    .then(function(data) {
+        var p = data.paiement;
+        var eleve = data.eleve;
+        
+        var montantInscription = 0, montantTenue = 0, montantExamen = 0, 
+            montantScolarite = 0, montantTransport = 0, montantCantine = 0, 
+            montantRenforcement = 0;
+        
+        if (p.details) {
+            montantInscription = parseFloat(p.details.inscription) || 0;
+            montantTenue = parseFloat(p.details.tenue) || 0;
+            montantExamen = parseFloat(p.details.examen) || 0;
+            montantScolarite = parseFloat(p.details.scolarite) || 0;
+            montantTransport = parseFloat(p.details.transport) || 0;
+            montantCantine = parseFloat(p.details.cantine) || 0;
+            montantRenforcement = parseFloat(p.details.renforcement) || 0;
+        }
+        
+        var aTransport = eleve.has_transport || false;
+        var aCantine = eleve.has_cantine || false;
+        var aRenforcement = eleve.has_renforcement || false;
+        var estClasseExamen = eleve.est_classe_examen || false;
+        
+        var html = '<form id="formModifierPaiement" onsubmit="return false;">';
+        html += '<input type="hidden" name="paiement_id" value="' + p.id + '">';
+        html += '<input type="hidden" name="eleve_id" value="' + p.eleve_id + '">';
+        
+        html += '<div class="alert alert-info py-2 mb-3 small">';
+        html += '<strong>📊 Paiement à modifier</strong><br>';
+        html += 'Reçu: <strong>' + (p.recu || '-') + '</strong><br>';
+        html += 'Date: <strong>' + formatDate(p.date_paiement) + '</strong><br>';
+        html += 'Montant total original: <strong>' + formatMontant(Math.abs(p.montant)) + '</strong><br>';
+        html += '</div>';
+        
+        html += '<div class="mb-3">';
+        html += '<label class="form-label">Date du paiement <span class="text-danger">*</span></label>';
+        html += '<input type="date" name="date_paiement" class="form-control" value="' + p.date_paiement + '" required>';
+        html += '</div>';
+        
+        html += '<div class="mb-3">';
+        html += '<label class="form-label">Mode de paiement <span class="text-danger">*</span></label>';
+        html += '<select name="mode_paiement" class="form-select">';
+        html += '<option value="especes" ' + (p.mode_paiement === 'especes' ? 'selected' : '') + '>💵 Espèces</option>';
+        html += '<option value="cheque" ' + (p.mode_paiement === 'cheque' ? 'selected' : '') + '>📝 Chèque</option>';
+        html += '<option value="virement" ' + (p.mode_paiement === 'virement' ? 'selected' : '') + '>🏦 Virement</option>';
+        html += '<option value="mobile_money" ' + (p.mode_paiement === 'mobile_money' ? 'selected' : '') + '>📱 Mobile Money</option>';
+        html += '</select></div>';
+        
+        html += '<div class="card mb-3"><div class="card-header bg-light py-2"><h6 class="mb-0">💰 Montants payés par rubrique</h6></div>';
+        html += '<div class="card-body"><div class="row">';
+        
+        html += '<div class="col-md-6">';
+        html += '<div class="mb-2"><label class="form-label small"><i class="fas fa-file-invoice text-info"></i> Frais d\'inscription</label>';
+        html += '<input type="number" name="inscription_montant" class="form-control" value="' + montantInscription + '" min="0" step="500" oninput="calculerNouveauTotalModif()"></div>';
+        
+        html += '<div class="mb-2"><label class="form-label small"><i class="fas fa-tshirt text-danger"></i> Tenue scolaire</label>';
+        html += '<input type="number" name="tenue_montant" class="form-control" value="' + montantTenue + '" min="0" step="500" oninput="calculerNouveauTotalModif()"></div>';
+        
+        html += '<div class="mb-2"><label class="form-label small"><i class="fas fa-file-alt text-warning"></i> Droit d\'examen</label>';
+        html += '<input type="number" name="examen_montant" class="form-control" value="' + montantExamen + '" min="0" step="500" ' + (!estClasseExamen ? 'disabled' : '') + ' oninput="calculerNouveauTotalModif()">';
+        html += '<small class="text-muted">' + (estClasseExamen ? 'Modifiable' : '🔒 Non applicable') + '</small></div>';
+        
+        html += '<div class="mb-2"><label class="form-label small"><i class="fas fa-graduation-cap text-primary"></i> Scolarité</label>';
+        html += '<input type="number" name="scolarite_montant" class="form-control" value="' + montantScolarite + '" min="0" step="500" oninput="calculerNouveauTotalModif()"></div>';
+        html += '</div>';
+        
+        html += '<div class="col-md-6">';
+        html += '<div class="mb-2"><label class="form-label small"><i class="fas fa-bus text-secondary"></i> Transport</label>';
+        html += '<input type="number" name="transport_montant" class="form-control" value="' + montantTransport + '" min="0" step="500" ' + (!aTransport ? 'disabled' : '') + ' oninput="calculerNouveauTotalModif()">';
+        html += '<small class="text-muted">' + (aTransport ? 'Modifiable' : '🔒 Non souscrit') + '</small></div>';
+        
+        html += '<div class="mb-2"><label class="form-label small"><i class="fas fa-utensils text-success"></i> Cantine</label>';
+        html += '<input type="number" name="cantine_montant" class="form-control" value="' + montantCantine + '" min="0" step="500" ' + (!aCantine ? 'disabled' : '') + ' oninput="calculerNouveauTotalModif()">';
+        html += '<small class="text-muted">' + (aCantine ? 'Modifiable' : '🔒 Non souscrit') + '</small></div>';
+        
+        html += '<div class="mb-2"><label class="form-label small"><i class="fas fa-chalkboard-user text-dark"></i> Renforcement</label>';
+        html += '<input type="number" name="renforcement_montant" class="form-control" value="' + montantRenforcement + '" min="0" step="500" ' + (!aRenforcement && !estClasseExamen ? 'disabled' : '') + ' oninput="calculerNouveauTotalModif()">';
+        html += '<small class="text-muted">' + (aRenforcement || estClasseExamen ? 'Modifiable' : '🔒 Non souscrit') + '</small></div>';
+        
+        var totalActuel = montantInscription + montantTenue + montantExamen + montantScolarite + montantTransport + montantCantine + montantRenforcement;
+        html += '<div class="alert alert-info mt-2 py-2 mb-0"><strong>💰 NOUVEAU TOTAL: <span id="nouveauTotalModif">' + formatMontant(totalActuel) + '</span> FCFA</strong></div>';
+        html += '</div></div></div></div>';
+        
+        html += '<input type="hidden" name="montant" id="montantTotalModifHidden" value="' + totalActuel + '">';
+        
+        html += '<div class="mb-3"><label class="form-label">Référence</label>';
+        html += '<input type="text" name="reference" class="form-control" value="' + (p.reference || '') + '"></div>';
+        
+        html += '<div class="mb-3"><label class="form-label">Description</label>';
+        html += '<textarea name="description" class="form-control" rows="2">' + (p.description || '') + '</textarea></div>';
+        
+        html += '<div id="modifierErreur" class="alert alert-danger d-none"></div>';
+        html += '<div id="modifierSucces" class="alert alert-success d-none"></div>';
+        html += '<button type="button" class="btn btn-warning w-100" onclick="soumettreModificationPaiement()"><i class="fas fa-save me-2"></i>Enregistrer les modifications</button>';
+        html += '</form>';
+        
+        html += '<script>function calculerNouveauTotalModif(){var t=0;t+=parseFloat(document.querySelector(\'input[name="inscription_montant"]\').value)||0;t+=parseFloat(document.querySelector(\'input[name="tenue_montant"]\').value)||0;t+=parseFloat(document.querySelector(\'input[name="examen_montant"]\').value)||0;t+=parseFloat(document.querySelector(\'input[name="scolarite_montant"]\').value)||0;t+=parseFloat(document.querySelector(\'input[name="transport_montant"]\').value)||0;t+=parseFloat(document.querySelector(\'input[name="cantine_montant"]\').value)||0;t+=parseFloat(document.querySelector(\'input[name="renforcement_montant"]\').value)||0;document.getElementById("nouveauTotalModif").innerHTML=t.toLocaleString("fr-FR");document.getElementById("montantTotalModifHidden").value=t;}<\/script>';
+        
+        document.getElementById('modifierPaiementBody').innerHTML = html;
+    })
+    .catch(function(error) { 
+        document.getElementById('modifierPaiementBody').innerHTML = '<div class="alert alert-danger">Erreur de chargement: ' + error.message + '</div>';
     });
 }
 
-function annulerPaiement(paiementId) {
-    new bootstrap.Modal(document.getElementById('annulerPaiementModal')).show();
-    $('#annulerPaiementBody').html('<div class="text-center py-4"><div class="spinner-border text-danger mb-3"></div><p>Chargement...</p></div>');
+// ========== SOUMETTRE LA MODIFICATION ==========
+window.soumettreModificationPaiement = function() {
+    var form = document.getElementById('formModifierPaiement');
+    var formData = new FormData(form);
+    var paiementId = formData.get('paiement_id');
+    var total = parseFloat(document.getElementById('montantTotalModifHidden').value) || 0;
     
+    if (total <= 0) {
+        document.getElementById('modifierErreur').innerHTML = 'Le montant total doit être supérieur à 0';
+        document.getElementById('modifierErreur').classList.remove('d-none');
+        return;
+    }
+    
+    formData.set('montant', total);
+    
+    var btn = document.querySelector('#modifierPaiementModal .btn-warning');
+    var erreurDiv = document.getElementById('modifierErreur');
+    var succesDiv = document.getElementById('modifierSucces');
+    
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement...'; }
+    
+    fetch('/paiement/' + paiementId + '/modifier', { method: 'POST', body: formData })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success) {
+            if (succesDiv) { succesDiv.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + result.message; succesDiv.classList.remove('d-none'); }
+            setTimeout(function() {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('modifierPaiementModal'));
+                if (modal) modal.hide();
+                nettoyerBackdrop();
+                mettreAJourLigneEleve(result.eleve_id);
+                voirPaiements(result.eleve_id);
+                mettreAJourStats();
+                showNotification('success', result.message);
+            }, 1500);
+        } else {
+            if (erreurDiv) { erreurDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>' + result.message; erreurDiv.classList.remove('d-none'); }
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Enregistrer'; }
+        }
+    })
+    .catch(function() {
+        if (erreurDiv) { erreurDiv.innerHTML = '<i class="fas fa-times-circle me-2"></i>Erreur réseau'; erreurDiv.classList.remove('d-none'); }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Enregistrer'; }
+    });
+}
+
+// ========== ANNULER PAIEMENT ==========
+window.annulerPaiement = function(paiementId) {
+    var modalElement = document.getElementById('annulerPaiementModal');
+    if (!modalElement) { return; }
+    var modal = new bootstrap.Modal(modalElement);
+    modal.show();
     fetch('/api/paiement/' + paiementId)
     .then(function(r) { return r.json(); })
     .then(function(data) {
         var html = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Cette action annulera le paiement.</div>';
-        html += '<ul class="list-group mb-3"><li class="list-group-item d-flex justify-content-between">Reçu :<strong>' + (data.paiement.recu || '-') + '</strong></li>';
-        html += '<li class="list-group-item d-flex justify-content-between">Montant :<strong>' + formatMontant(data.paiement.montant) + '</strong></li></ul>';
-        html += '<form id="formAnnulerPaiement"><div class="mb-3"><label>Raison</label><textarea name="raison" class="form-control" rows="2"></textarea></div>';
+        html += '<ul class="list-group mb-3">';
+        html += '<li class="list-group-item d-flex justify-content-between">Reçu : <strong>' + (data.paiement.recu || '-') + '</strong></li>';
+        html += '<li class="list-group-item d-flex justify-content-between">Montant : <strong>' + formatMontant(data.paiement.montant) + '</strong></li>';
+        html += '<li class="list-group-item d-flex justify-content-between">Rubrique : <strong>' + (data.paiement.categorie_frais || 'scolarite') + '</strong></li>';
+        html += '</ul>';
+        html += '<form id="formAnnulerPaiement" onsubmit="return false;">';
+        html += '<input type="hidden" name="paiement_id" value="' + paiementId + '">';
+        html += '<div class="mb-3"><label>Raison</label><textarea name="raison" class="form-control" rows="2"></textarea></div>';
         html += '<div class="mb-3"><label>Tapez "CONFIRMER"</label><input type="text" name="confirmation" class="form-control" placeholder="CONFIRMER" required></div>';
         html += '<div id="annulerErreur" class="alert alert-danger d-none"></div>';
-        html += '<button type="submit" class="btn btn-danger w-100"><i class="fas fa-ban me-2"></i>Annuler</button></form>';
-        $('#annulerPaiementBody').html(html);
-        
-        $('#formAnnulerPaiement').on('submit', function(e) {
-            e.preventDefault();
-            fetch('/paiement/' + paiementId + '/annuler', { method: 'POST', body: new FormData(this) })
-            .then(function(r) { return r.json(); })
-            .then(function(result) {
-                if (result.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('annulerPaiementModal')).hide();
-                    nettoyerBackdrop();
-                    mettreAJourLigneEleve(result.eleve_id);
-                    mettreAJourStats();
-                    setTimeout(function() { voirPaiements(result.eleve_id); }, 300);
-                    showNotification('warning', result.message);
-                } else {
-                    $('#annulerErreur').html('<i class="fas fa-exclamation-triangle me-2"></i>' + result.message).removeClass('d-none');
-                }
-            });
-        });
+        html += '<button type="button" class="btn btn-danger w-100" onclick="soumettreAnnulationPaiement()"><i class="fas fa-ban me-2"></i>Annuler le paiement</button>';
+        html += '</form>';
+        document.getElementById('annulerPaiementBody').innerHTML = html;
+    })
+    .catch(function() { 
+        document.getElementById('annulerPaiementBody').innerHTML = '<div class="alert alert-danger">Erreur de chargement</div>'; 
+    });
+}
+
+window.soumettreAnnulationPaiement = function() {
+    var form = document.getElementById('formAnnulerPaiement');
+    var formData = new FormData(form);
+    var paiementId = formData.get('paiement_id');
+    var confirmation = formData.get('confirmation');
+    if (confirmation !== 'CONFIRMER') { 
+        document.getElementById('annulerErreur').innerHTML = 'Veuillez taper "CONFIRMER" pour valider'; 
+        document.getElementById('annulerErreur').classList.remove('d-none'); 
+        return; 
+    }
+    var btn = document.querySelector('#annulerPaiementModal .btn-danger');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Traitement...'; }
+    fetch('/paiement/' + paiementId + '/annuler', { method: 'POST', body: formData })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success) {
+            var modal = bootstrap.Modal.getInstance(document.getElementById('annulerPaiementModal'));
+            if (modal) modal.hide();
+            nettoyerBackdrop();
+            mettreAJourLigneEleve(result.eleve_id);
+            mettreAJourStats();
+            setTimeout(function() { voirPaiements(result.eleve_id); }, 300);
+            showNotification('warning', result.message);
+        } else {
+            document.getElementById('annulerErreur').innerHTML = result.message;
+            document.getElementById('annulerErreur').classList.remove('d-none');
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-ban me-2"></i>Annuler le paiement'; }
+        }
+    })
+    .catch(function() {
+        document.getElementById('annulerErreur').innerHTML = 'Erreur réseau';
+        document.getElementById('annulerErreur').classList.remove('d-none');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-ban me-2"></i>Annuler le paiement'; }
     });
 }
 </script>

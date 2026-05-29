@@ -40,14 +40,14 @@ def get_or_create(session, model, defaults=None, **kwargs):
     """
     instance = session.query(model).filter_by(**kwargs).first()
     if instance:
-        return instance, False  # False = existait déjà
+        return instance, False
     else:
         params = dict(kwargs)
         if defaults:
             params.update(defaults)
         instance = model(**params)
         session.add(instance)
-        return instance, True  # True = nouvellement créé
+        return instance, True
 
 def init_database():
     with app.app_context():
@@ -67,7 +67,9 @@ def init_database():
         
         safe_add_missing_columns()
         
-        # 🔒 Étape 2 : Groupes scolaires (création uniquement si absent)
+        # ============================================================
+        # Étape 2 : Groupes scolaires (4 groupes distincts)
+        # ============================================================
         print("\n" + "─" * 70)
         print("📚 2. VÉRIFICATION DES GROUPES SCOLAIRES")
         print("─" * 70)
@@ -77,8 +79,10 @@ def init_database():
              'description': 'Garderie, TPS, PS, MS, GS'},
             {'nom': 'Primaire', 'code': 'PRIMAIRE', 'ordre': 2,
              'description': 'CP1, CP2, CE1, CE2, CM1, CM2'},
-            {'nom': 'Secondaire', 'code': 'SECONDAIRE', 'ordre': 3,
-             'description': 'Premier Cycle + Second Cycle'}
+            {'nom': 'Premier Cycle', 'code': 'PREMIER_CYCLE', 'ordre': 3,
+             'description': '6ème, 5ème, 4ème, 3ème'},
+            {'nom': 'Second Cycle', 'code': 'SECOND_CYCLE', 'ordre': 4,
+             'description': 'Seconde, Première, Terminale'},
         ]
         
         for g in groupes:
@@ -90,7 +94,9 @@ def init_database():
         
         db.session.commit()
         
-        # 🔒 Étape 3 : Sous-groupes
+        # ============================================================
+        # Étape 3 : Sous-groupes (rattachés aux groupes)
+        # ============================================================
         print("\n" + "─" * 70)
         print("📖 3. VÉRIFICATION DES SOUS-GROUPES")
         print("─" * 70)
@@ -111,16 +117,16 @@ def init_database():
                 {'nom': 'CM1', 'code': 'CM1', 'ordre': 5},
                 {'nom': 'CM2', 'code': 'CM2', 'ordre': 6},
             ],
-            'Secondaire': [
-                {'nom': 'Premier Cycle', 'code': 'CYCLE_PREMIER', 'ordre': 0},
-                {'nom': 'Second Cycle', 'code': 'CYCLE_SECOND', 'ordre': 1},
-                {'nom': '6ème', 'code': '6EME', 'ordre': 2},
-                {'nom': '5ème', 'code': '5EME', 'ordre': 3},
-                {'nom': '4ème', 'code': '4EME', 'ordre': 4},
-                {'nom': '3ème', 'code': '3EME', 'ordre': 5},
-                {'nom': 'Seconde', 'code': 'SECONDE', 'ordre': 6},
-                {'nom': 'Première', 'code': 'PREMIERE', 'ordre': 7},
-                {'nom': 'Terminale', 'code': 'TERMINALE', 'ordre': 8},
+            'Premier Cycle': [
+                {'nom': '6ème', 'code': '6EME', 'ordre': 1},
+                {'nom': '5ème', 'code': '5EME', 'ordre': 2},
+                {'nom': '4ème', 'code': '4EME', 'ordre': 3},
+                {'nom': '3ème', 'code': '3EME', 'ordre': 4},
+            ],
+            'Second Cycle': [
+                {'nom': 'Seconde', 'code': 'SECONDE', 'ordre': 1},
+                {'nom': 'Première', 'code': 'PREMIERE', 'ordre': 2},
+                {'nom': 'Terminale', 'code': 'TERMINALE', 'ordre': 3},
             ]
         }
         
@@ -136,7 +142,8 @@ def init_database():
                             'nom': sg['nom'],
                             'groupe_id': groupe.id,
                             'ordre': sg['ordre'],
-                            'description': f"{groupe_nom} - {sg['nom']}"
+                            'description': f"{groupe_nom} - {sg['nom']}",
+                            'actif': True
                         }
                     )
                     if created:
@@ -148,7 +155,9 @@ def init_database():
         db.session.commit()
         print(f"  📊 {created_count} nouveaux sous-groupes créés")
         
-        # 🔒 Étape 4 : Types de frais
+        # ============================================================
+        # Étape 4 : Types de frais
+        # ============================================================
         print("\n" + "─" * 70)
         print("💰 4. VÉRIFICATION DES TYPES DE FRAIS")
         print("─" * 70)
@@ -157,7 +166,8 @@ def init_database():
             {'nom': 'Scolarité', 'code': 'scolarite', 'ordre': 1},
             {'nom': 'Transport', 'code': 'transport', 'ordre': 2},
             {'nom': 'Cantine', 'code': 'cantine', 'ordre': 3},
-            {'nom': 'Renforcement', 'code': 'renforcement', 'ordre': 4}
+            {'nom': 'Renforcement', 'code': 'renforcement', 'ordre': 4},
+            {'nom': 'Inscription', 'code': 'inscription', 'ordre': 5}
         ]
         
         for tf in types_frais:
@@ -172,20 +182,22 @@ def init_database():
         
         db.session.commit()
         
-        # 🔒 Étape 5 : Options transport
+        # ============================================================
+        # Étape 5 : Options transport
+        # ============================================================
         print("\n" + "─" * 70)
         print("🚌 5. VÉRIFICATION DES OPTIONS DE TRANSPORT")
         print("─" * 70)
         
         transports = [
             {'nom': 'Circuit 1', 'code': 'circuit_1', 'montant_supplement': 50000, 'ordre': 1,
-             'description': 'Zone Nord'},
+             'description': 'Zone Nord', 'actif': True},
             {'nom': 'Circuit 2', 'code': 'circuit_2', 'montant_supplement': 55000, 'ordre': 2,
-             'description': 'Zone Sud'},
+             'description': 'Zone Sud', 'actif': True},
             {'nom': 'Circuit 3', 'code': 'circuit_3', 'montant_supplement': 60000, 'ordre': 3,
-             'description': 'Zone Centre'},
+             'description': 'Zone Centre', 'actif': True},
             {'nom': 'Pas de transport', 'code': 'aucun_transport', 'montant_supplement': 0, 'ordre': 99,
-             'description': 'Sans transport'},
+             'description': 'Sans transport', 'actif': True},
         ]
         
         for t in transports:
@@ -195,7 +207,8 @@ def init_database():
                     'nom': t['nom'],
                     'montant_supplement': t['montant_supplement'],
                     'ordre': t['ordre'],
-                    'description': t['description']
+                    'description': t['description'],
+                    'actif': t['actif']
                 }
             )
             if created:
@@ -206,16 +219,18 @@ def init_database():
         
         db.session.commit()
         
-        # 🔒 Étape 6 : Options cantine
+        # ============================================================
+        # Étape 6 : Options cantine
+        # ============================================================
         print("\n" + "─" * 70)
         print("🍽️  6. VÉRIFICATION DES OPTIONS DE CANTINE")
         print("─" * 70)
         
         cantines = [
-            {'nom': 'Cantine Maternelle', 'code': 'cantine_maternelle', 'montant': 45000, 'ordre': 1},
-            {'nom': 'Cantine Primaire', 'code': 'cantine_primaire', 'montant': 50000, 'ordre': 2},
-            {'nom': 'Cantine Secondaire', 'code': 'cantine_secondaire', 'montant': 55000, 'ordre': 3},
-            {'nom': 'Pas de cantine', 'code': 'aucune_cantine', 'montant': 0, 'ordre': 99},
+            {'nom': 'Cantine Maternelle', 'code': 'cantine_maternelle', 'montant': 45000, 'ordre': 1, 'actif': True},
+            {'nom': 'Cantine Primaire', 'code': 'cantine_primaire', 'montant': 50000, 'ordre': 2, 'actif': True},
+            {'nom': 'Cantine Secondaire', 'code': 'cantine_secondaire', 'montant': 55000, 'ordre': 3, 'actif': True},
+            {'nom': 'Pas de cantine', 'code': 'aucune_cantine', 'montant': 0, 'ordre': 99, 'actif': True},
         ]
         
         for c in cantines:
@@ -224,7 +239,8 @@ def init_database():
                 defaults={
                     'nom': c['nom'],
                     'montant': c['montant'],
-                    'ordre': c['ordre']
+                    'ordre': c['ordre'],
+                    'actif': c['actif']
                 }
             )
             if created:
@@ -235,12 +251,126 @@ def init_database():
         
         db.session.commit()
         
-        # 🔒 Étape 7 : Tarifs (création uniquement)
+        # ============================================================
+        # Étape 7 : Tarifs (GROUPES + SOUS-GROUPES)
+        # ============================================================
         print("\n" + "─" * 70)
         print("📊 7. VÉRIFICATION DES TARIFS")
         print("─" * 70)
         
-        tarifs_config = {
+        # Désactiver l'autoflush temporairement pour éviter les conflits
+        db.session.autoflush = False
+        
+        tarifs_crees = 0
+        
+        # ----- 7.1 TARIFS PAR GROUPE -----
+        print("\n  📌 Tarifs par GROUPE :")
+        
+        tarifs_groupes_config = {
+            'Maternelle': {
+                'inscription': 25000,
+                'scolarite_normal': 200000,
+                'scolarite_affecte': None
+            },
+            'Primaire': {
+                'inscription': 30000,
+                'scolarite_normal': 250000,
+                'scolarite_affecte': None
+            },
+            'Premier Cycle': {
+                'inscription': 35000,
+                'scolarite_normal': 710000,
+                'scolarite_affecte': 590000
+            },
+            'Second Cycle': {
+                'inscription': 40000,
+                'scolarite_normal': 750000,
+                'scolarite_affecte': 610000
+            },
+        }
+        
+        for groupe_nom, tarifs in tarifs_groupes_config.items():
+            groupe = GroupeScolaire.query.filter_by(nom=groupe_nom).first()
+            if not groupe:
+                print(f"    ⚠️ Groupe non trouvé: {groupe_nom}")
+                continue
+            
+            # Frais d'inscription
+            existant = TarifFraisAffecte.query.filter_by(
+                groupe_id=groupe.id,
+                sous_groupe_id=None,
+                type_tarif='inscription'
+            ).first()
+            
+            if not existant and tarifs.get('inscription'):
+                nouveau = TarifFraisAffecte(
+                    groupe_id=groupe.id,
+                    sous_groupe_id=None,
+                    est_affecte=False,
+                    type_tarif='inscription',
+                    montant=tarifs['inscription'],
+                    actif=True
+                )
+                db.session.add(nouveau)
+                tarifs_crees += 1
+                print(f"    ✅ INSCRIPTION: {groupe_nom:15s} → {tarifs['inscription']:>10,} FCFA")
+            elif existant:
+                print(f"    ⏭️  INSCRIPTION existe déjà: {groupe_nom}")
+            
+            # Tarif Scolarité NORMAL (non affecté)
+            existant = TarifFraisAffecte.query.filter_by(
+                groupe_id=groupe.id,
+                sous_groupe_id=None,
+                est_affecte=False,
+                type_tarif='scolarite'
+            ).first()
+            
+            if not existant and tarifs.get('scolarite_normal'):
+                nouveau = TarifFraisAffecte(
+                    groupe_id=groupe.id,
+                    sous_groupe_id=None,
+                    est_affecte=False,
+                    type_tarif='scolarite',
+                    montant=tarifs['scolarite_normal'],
+                    actif=True
+                )
+                db.session.add(nouveau)
+                tarifs_crees += 1
+                print(f"    ✅ NORMAL: {groupe_nom:15s} → {tarifs['scolarite_normal']:>10,} FCFA")
+            elif existant:
+                print(f"    ⏭️  NORMAL existe déjà: {groupe_nom}")
+            
+            # Tarif Scolarité AFFECTÉ (si applicable)
+            if tarifs.get('scolarite_affecte') is not None:
+                existant = TarifFraisAffecte.query.filter_by(
+                    groupe_id=groupe.id,
+                    sous_groupe_id=None,
+                    est_affecte=True,
+                    type_tarif='scolarite'
+                ).first()
+                
+                if not existant:
+                    nouveau = TarifFraisAffecte(
+                        groupe_id=groupe.id,
+                        sous_groupe_id=None,
+                        est_affecte=True,
+                        type_tarif='scolarite',
+                        montant=tarifs['scolarite_affecte'],
+                        actif=True
+                    )
+                    db.session.add(nouveau)
+                    tarifs_crees += 1
+                    print(f"    ✅ AFFECTÉ: {groupe_nom:15s} → {tarifs['scolarite_affecte']:>10,} FCFA")
+                elif existant:
+                    print(f"    ⏭️  AFFECTÉ existe déjà: {groupe_nom}")
+        
+        # Commit après les tarifs de groupe
+        db.session.commit()
+        
+        # ----- 7.2 TARIFS PAR SOUS-GROUPE -----
+        print("\n  📌 Tarifs par SOUS-GROUPE :")
+        
+        tarifs_sous_groupes_config = {
             'Garderie': {'normal': 200000, 'affecte': None},
             'TPS': {'normal': 200000, 'affecte': None},
             'PS': {'normal': 200000, 'affecte': None},
@@ -259,55 +389,67 @@ def init_database():
             'Seconde': {'normal': 750000, 'affecte': 610000},
             'Première': {'normal': 750000, 'affecte': 610000},
             'Terminale': {'normal': 750000, 'affecte': 610000},
-            'Premier Cycle': {'normal': 710000, 'affecte': 590000},
-            'Second Cycle': {'normal': 750000, 'affecte': 610000},
         }
         
-        tarifs_crees = 0
-        for sg_nom, tarifs in tarifs_config.items():
+        for sg_nom, tarifs in tarifs_sous_groupes_config.items():
             sous_groupe = SousGroupe.query.filter_by(nom=sg_nom).first()
             if not sous_groupe:
+                print(f"    ⚠️ Sous-groupe non trouvé: {sg_nom}")
                 continue
             
             # Tarif NORMAL
             existant = TarifFraisAffecte.query.filter_by(
                 sous_groupe_id=sous_groupe.id,
-                est_affecte=False
+                groupe_id=None,
+                est_affecte=False,
+                type_tarif='scolarite'
             ).first()
             
             if not existant:
-                tarif_normal = TarifFraisAffecte(
+                nouveau = TarifFraisAffecte(
                     sous_groupe_id=sous_groupe.id,
+                    groupe_id=None,
                     est_affecte=False,
+                    type_tarif='scolarite',
                     montant=tarifs['normal'],
                     actif=True
                 )
-                db.session.add(tarif_normal)
+                db.session.add(nouveau)
                 tarifs_crees += 1
-                print(f"  ✅ Tarif NORMAL : {sg_nom:15s} → {tarifs['normal']:>10,} FCFA")
+                print(f"    ✅ NORMAL: {sg_nom:15s} → {tarifs['normal']:>10,} FCFA")
             
             # Tarif AFFECTÉ (si applicable)
             if tarifs['affecte'] is not None:
                 existant = TarifFraisAffecte.query.filter_by(
                     sous_groupe_id=sous_groupe.id,
-                    est_affecte=True
+                    groupe_id=None,
+                    est_affecte=True,
+                    type_tarif='scolarite'
                 ).first()
                 
                 if not existant:
-                    tarif_affecte = TarifFraisAffecte(
+                    nouveau = TarifFraisAffecte(
                         sous_groupe_id=sous_groupe.id,
+                        groupe_id=None,
                         est_affecte=True,
+                        type_tarif='scolarite',
                         montant=tarifs['affecte'],
                         actif=True
                     )
-                    db.session.add(tarif_affecte)
+                    db.session.add(nouveau)
                     tarifs_crees += 1
-                    print(f"  ✅ Tarif AFFECTÉ : {sg_nom:15s} → {tarifs['affecte']:>10,} FCFA")
+                    print(f"    ✅ AFFECTÉ: {sg_nom:15s} → {tarifs['affecte']:>10,} FCFA")
         
         db.session.commit()
-        print(f"  📊 {tarifs_crees} nouveaux tarifs créés")
         
-        # 🔒 Étape 8 : Comptes utilisateurs (uniquement si absents)
+        # Réactiver l'autoflush
+        db.session.autoflush = True
+        
+        print(f"\n  📊 Total: {tarifs_crees} nouveaux tarifs créés")
+        
+        # ============================================================
+        # Étape 8 : Comptes utilisateurs
+        # ============================================================
         print("\n" + "─" * 70)
         print("👤 8. VÉRIFICATION DES COMPTES UTILISATEURS")
         print("─" * 70)
@@ -346,7 +488,9 @@ def init_database():
         
         db.session.commit()
         
-        # 🔒 Étape 9 : Paramètres (création uniquement si absents)
+        # ============================================================
+        # Étape 9 : Paramètres
+        # ============================================================
         print("\n" + "─" * 70)
         print("📅 9. VÉRIFICATION DES PARAMÈTRES")
         print("─" * 70)
@@ -411,6 +555,18 @@ def init_database():
         print(f"🍽️  Cantines : {OptionCantine.query.count()}")
         print(f"📊 Tarifs : {TarifFraisAffecte.query.count()}")
         print(f"⚙️  Paramètres : {Parametre.query.count()}")
+        
+        # Détail des tarifs par groupe
+        print("\n📊 Détail des tarifs par GROUPE :")
+        tarifs_groupes = TarifFraisAffecte.query.filter(
+            TarifFraisAffecte.groupe_id.isnot(None),
+            TarifFraisAffecte.sous_groupe_id.is_(None)
+        ).all()
+        for t in tarifs_groupes:
+            statut = "AFFECTÉ" if t.est_affecte else "NON AFFECTÉ"
+            type_t = t.type_tarif.upper()
+            print(f"  • {t.groupe.nom:15s} - {type_t:12s} - {statut:12s} : {t.montant:>10,} FCFA")
+        
         print("\n🔒 TOUTES LES DONNÉES EXISTANTES ONT ÉTÉ PRÉSERVÉES")
         print("=" * 70)
 

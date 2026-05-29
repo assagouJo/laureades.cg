@@ -66,8 +66,39 @@
         filter: brightness(0) invert(1);
     }
     
+    .modal-header.bg-warning {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
+        color: #212529;
+    }
+    
+    .modal-header.bg-warning .btn-close {
+        filter: none;
+    }
+    
     .exam-card .card-header {
         font-weight: 600;
+    }
+    
+    .tariff-badge {
+        font-size: 0.95rem;
+        padding: 8px 12px;
+        border-radius: 6px;
+        white-space: nowrap;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: #f0f4ff;
+        color: #667eea;
+    }
+    
+    .subvention-highlight {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+    
+    .total-normal-highlight {
+        font-size: 1.1rem;
+        font-weight: 700;
     }
 </style>
 {% endblock %}
@@ -92,6 +123,11 @@
             </button>
         </li>
         <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tarifs-tab" data-bs-toggle="tab" data-bs-target="#tarifs" type="button" role="tab">
+                <i class="fas fa-money-bill-wave me-1"></i>Tarifs par Groupe
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
             <button class="nav-link" id="groupes-tab" data-bs-toggle="tab" data-bs-target="#groupes" type="button" role="tab">
                 <i class="fas fa-layer-group me-1"></i>Groupes
             </button>
@@ -99,11 +135,6 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="sous-groupes-tab" data-bs-toggle="tab" data-bs-target="#sous-groupes" type="button" role="tab">
                 <i class="fas fa-folder-tree me-1"></i>Sous-groupes
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tarifs-tab" data-bs-toggle="tab" data-bs-target="#tarifs" type="button" role="tab">
-                <i class="fas fa-money-bill-wave me-1"></i>Tarifs
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -269,11 +300,10 @@
             </div>
         </div>
 
-        <!-- ========== 🔥 ONGLET TENUES & DROITS D'EXAMEN 🔥 ========== -->
+        <!-- ========== ONGLET TENUES & DROITS D'EXAMEN ========== -->
         <div class="tab-pane fade" id="tenues" role="tabpanel">
             <div class="settings-section">
                 
-                <!-- TENUES OBLIGATOIRES -->
                 <h5 class="section-title"><i class="fas fa-tshirt"></i>Tenues obligatoires</h5>
                 
                 <div class="alert alert-info">
@@ -297,7 +327,6 @@
                         </div>
                     </div>
                 
-                    <!-- DROITS D'EXAMEN -->
                     <h5 class="section-title mt-4"><i class="fas fa-file-alt"></i>Droits d'examen</h5>
                     
                     <div class="alert alert-warning">
@@ -385,7 +414,172 @@
                 </form>
             </div>
         </div>
-
+        
+        <!-- ========== 🔥 ONGLET TARIFS PAR GROUPE ========== -->
+        <div class="tab-pane fade" id="tarifs" role="tabpanel">
+            <div class="settings-section">
+                <h5 class="section-title"><i class="fas fa-money-bill-wave"></i>Tarifs par groupe</h5>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>4 groupes :</strong> Maternelle | Primaire | Premier Cycle | Second Cycle<br>
+                    Mêmes tarifs pour tous les niveaux d'un même groupe.
+                </div>
+                
+                <div class="table-responsive mb-4">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Groupe</th>
+                                <th>Niveaux</th>
+                                <th class="text-center">Inscription</th>
+                                <th class="text-center">Non Affecté</th>
+                                <th class="text-center">Affecté</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 1. MATERNELLE -->
+                            {% set mat_insc = tarifs_affectes|selectattr('groupe_id', 'equalto', 1)|selectattr('type_tarif', 'equalto', 'inscription')|first %}
+                            {% set mat_normal = tarifs_affectes|selectattr('groupe_id', 'equalto', 1)|selectattr('est_affecte', 'equalto', false)|selectattr('type_tarif', 'equalto', 'scolarite')|first %}
+                            {% set mat_affecte = tarifs_affectes|selectattr('groupe_id', 'equalto', 1)|selectattr('est_affecte', 'equalto', true)|first %}
+                            <tr>
+                                <td><strong>Maternelle</strong></td>
+                                <td>
+                                    <span class="badge bg-light text-dark">PS</span>
+                                    <span class="badge bg-light text-dark">MS</span>
+                                    <span class="badge bg-light text-dark">GS</span>
+                                </td>
+                                <td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(mat_insc.montant) if mat_insc else '0' }} FCFA</span></td>
+                                <td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(mat_normal.montant) if mat_normal else '0' }} FCFA</span></td>
+                                <td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(mat_affecte.montant) if mat_affecte else '0' }} FCFA</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-warning btn-sm" id="btnMaternelle">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </button>
+                                </td>
+                            </tr>
+                            
+                            <script>
+                                document.getElementById('btnMaternelle')?.addEventListener('click', function() {
+                                    editerTarifGroupe(1, "Maternelle", 
+                                        {{ mat_insc.montant if mat_insc else 0 }}, 
+                                        {{ mat_normal.montant if mat_normal else 0 }}, 
+                                        {{ mat_affecte.montant if mat_affecte else 0 }}, 
+                                        {{ mat_insc.id if mat_insc else 0 }}, 
+                                        {{ mat_normal.id if mat_normal else 0 }}, 
+                                        {{ mat_affecte.id if mat_affecte else 0 }});
+                                });
+                            </script>
+                            
+                            <!-- 2. PRIMAIRE -->
+                            {% set prim_insc = tarifs_affectes|selectattr('groupe_id', 'equalto', 2)|selectattr('type_tarif', 'equalto', 'inscription')|first %}
+                            {% set prim_normal = tarifs_affectes|selectattr('groupe_id', 'equalto', 2)|selectattr('est_affecte', 'equalto', false)|selectattr('type_tarif', 'equalto', 'scolarite')|first %}
+                            {% set prim_affecte = tarifs_affectes|selectattr('groupe_id', 'equalto', 2)|selectattr('est_affecte', 'equalto', true)|first %}
+                            <tr>
+                                <td><strong>Primaire</strong></td>
+                                <td>
+                                    <span class="badge bg-light text-dark">CP1</span>
+                                    <span class="badge bg-light text-dark">CP2</span>
+                                    <span class="badge bg-light text-dark">CE1</span>
+                                    <span class="badge bg-light text-dark">CE2</span>
+                                    <span class="badge bg-light text-dark">CM1</span>
+                                    <span class="badge bg-light text-dark">CM2</span>
+                                </td>
+                                <td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(prim_insc.montant) if prim_insc else '0' }} FCFA</span></td>
+                                <td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(prim_normal.montant) if prim_normal else '0' }} FCFA</span></td>
+                                <td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(prim_affecte.montant) if prim_affecte else '0' }} FCFA</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-warning btn-sm" id="btnPrimaire">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </button>
+                                </td>
+                            </tr>
+                            
+                            <script>
+                                document.getElementById('btnPrimaire')?.addEventListener('click', function() {
+                                    editerTarifGroupe(2, "Primaire", 
+                                        {{ prim_insc.montant if prim_insc else 0 }}, 
+                                        {{ prim_normal.montant if prim_normal else 0 }}, 
+                                        {{ prim_affecte.montant if prim_affecte else 0 }}, 
+                                        {{ prim_insc.id if prim_insc else 0 }}, 
+                                        {{ prim_normal.id if prim_normal else 0 }}, 
+                                        {{ prim_affecte.id if prim_affecte else 0 }});
+                                });
+                            </script>
+                            
+                            <!-- 3. PREMIER CYCLE - id=3 -->
+                            {% set pc_insc = tarifs_affectes|selectattr('groupe_id', 'equalto', 3)|selectattr('type_tarif', 'equalto', 'inscription')|first %}
+                            {% set pc_normal = tarifs_affectes|selectattr('groupe_id', 'equalto', 3)|selectattr('est_affecte', 'equalto', false)|selectattr('type_tarif', 'equalto', 'scolarite')|first %}
+                            {% set pc_affecte = tarifs_affectes|selectattr('groupe_id', 'equalto', 3)|selectattr('est_affecte', 'equalto', true)|first %}
+                            <tr>
+                                <td><strong>Premier Cycle</strong></td>
+                                <td>
+                                    <span class="badge bg-light text-dark">6ème</span>
+                                    <span class="badge bg-light text-dark">5ème</span>
+                                    <span class="badge bg-light text-dark">4ème</span>
+                                    <span class="badge bg-light text-dark">3ème</span>
+                                </td>
+                                <td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(pc_insc.montant) if pc_insc else '0' }} FCFA</span></td>
+                                <td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(pc_normal.montant) if pc_normal else '0' }} FCFA</span></td>
+                                <td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(pc_affecte.montant) if pc_affecte else '0' }} FCFA</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-warning btn-sm" id="btnPremierCycle">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </button>
+                                </td>
+                            </tr>
+                            
+                            <script>
+                                document.getElementById('btnPremierCycle')?.addEventListener('click', function() {
+                                    editerTarifGroupe(3, "Premier Cycle", 
+                                        {{ pc_insc.montant if pc_insc else 0 }}, 
+                                        {{ pc_normal.montant if pc_normal else 0 }}, 
+                                        {{ pc_affecte.montant if pc_affecte else 0 }}, 
+                                        {{ pc_insc.id if pc_insc else 0 }}, 
+                                        {{ pc_normal.id if pc_normal else 0 }}, 
+                                        {{ pc_affecte.id if pc_affecte else 0 }});
+                                });
+                            </script>
+                            
+                            <!-- 4. SECOND CYCLE - id=4 -->
+                            {% set sc_insc = tarifs_affectes|selectattr('groupe_id', 'equalto', 4)|selectattr('type_tarif', 'equalto', 'inscription')|first %}
+                            {% set sc_normal = tarifs_affectes|selectattr('groupe_id', 'equalto', 4)|selectattr('est_affecte', 'equalto', false)|selectattr('type_tarif', 'equalto', 'scolarite')|first %}
+                            {% set sc_affecte = tarifs_affectes|selectattr('groupe_id', 'equalto', 4)|selectattr('est_affecte', 'equalto', true)|first %}
+                            <tr>
+                                <td><strong>Second Cycle</strong></td>
+                                <td>
+                                    <span class="badge bg-light text-dark">2nde</span>
+                                    <span class="badge bg-light text-dark">1ère</span>
+                                    <span class="badge bg-light text-dark">Terminale</span>
+                                </td>
+                                <td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(sc_insc.montant) if sc_insc else '0' }} FCFA</span></td>
+                                <td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(sc_normal.montant) if sc_normal else '0' }} FCFA</span></td>
+                                <td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(sc_affecte.montant) if sc_affecte else '0' }} FCFA</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-warning btn-sm" id="btnSecondCycle">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </button>
+                                </td>
+                            </tr>
+                            
+                            <script>
+                                document.getElementById('btnSecondCycle')?.addEventListener('click', function() {
+                                    editerTarifGroupe(4, "Second Cycle", 
+                                        {{ sc_insc.montant if sc_insc else 0 }}, 
+                                        {{ sc_normal.montant if sc_normal else 0 }}, 
+                                        {{ sc_affecte.montant if sc_affecte else 0 }}, 
+                                        {{ sc_insc.id if sc_insc else 0 }}, 
+                                        {{ sc_normal.id if sc_normal else 0 }}, 
+                                        {{ sc_affecte.id if sc_affecte else 0 }});
+                                });
+                            </script>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
         <!-- ========== ONGLET GROUPES ========== -->
         <div class="tab-pane fade" id="groupes" role="tabpanel">
             <div class="settings-section">
@@ -403,6 +597,7 @@
                                 <th>Ordre</th>
                                 <th>Nom</th>
                                 <th>Code</th>
+                                <th>Sous-groupes</th>
                                 <th>Description</th>
                                 <th>Statut</th>
                                 <th class="text-end">Actions</th>
@@ -414,6 +609,7 @@
                                 <td>{{ groupe.ordre }}</td>
                                 <td><strong>{{ groupe.nom }}</strong></td>
                                 <td><code>{{ groupe.code }}</code></td>
+                                <td><span class="badge bg-info">{{ groupe.sous_groupes|length }}</span></td>
                                 <td>{{ groupe.description or '-' }}</td>
                                 <td>
                                     {% if groupe.actif %}
@@ -483,47 +679,6 @@
                                     <a href="{{ url_for('param_supprimer_sous_groupe', id=sg.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer le sous-groupe {{ sg.nom }} ?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ========== ONGLET TARIFS ========== -->
-        <div class="tab-pane fade" id="tarifs" role="tabpanel">
-            <div class="settings-section">
-                <h5 class="section-title"><i class="fas fa-money-bill-wave"></i>Tarifs de scolarité</h5>
-                
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Les tarifs sont définis par niveau et par type d'affectation (normal ou affecté par l'État).
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Niveau</th>
-                                <th class="text-center">Tarif Normal</th>
-                                <th class="text-center">Tarif Affecté</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for sg in sous_groupes %}
-                            {% set tarif_normal = tarifs_affectes|selectattr('sous_groupe_id', 'equalto', sg.id)|selectattr('est_affecte', 'equalto', false)|first %}
-                            {% set tarif_affecte = tarifs_affectes|selectattr('sous_groupe_id', 'equalto', sg.id)|selectattr('est_affecte', 'equalto', true)|first %}
-                            <tr>
-                                <td><strong>{{ sg.nom }}</strong> ({{ sg.groupe_parent.nom }})</td>
-                                <td class="text-center"><span class="badge bg-primary">{{ "{:,.0f}".format(tarif_normal.montant) if tarif_normal else '0' }} FCFA</span></td>
-                                <td class="text-center"><span class="badge bg-success">{{ "{:,.0f}".format(tarif_affecte.montant) if tarif_affecte else '0' }} FCFA</span></td>
-                                <td class="text-end">
-                                    <button class="btn btn-warning btn-sm" onclick="editerTarif({{ sg.id }}, '{{ sg.nom }}', {{ tarif_normal.montant if tarif_normal else 0 }}, {{ tarif_affecte.montant if tarif_affecte else 0 }}, {{ tarif_normal.id if tarif_normal else 0 }}, {{ tarif_affecte.id if tarif_affecte else 0 }})">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -749,27 +904,77 @@
     </div>
 </div>
 
-<!-- Modal Modifier Tarif -->
-<div class="modal fade" id="modifierTarifModal" tabindex="-1">
-    <div class="modal-dialog">
+<!-- 🔥 MODAL TARIFS PAR GROUPE -->
+<div class="modal fade" id="modalTarifGroupe" tabindex="-1">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form id="modifierTarifForm" method="POST">
-                <div class="modal-header">
-                    <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier les tarifs - <span id="tarifNiveauNom"></span></h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier les tarifs du groupe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="closeTarifModal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong id="groupeNomTarif">Groupe sélectionné</strong><br>
+                    <small>Ces tarifs s'appliqueront à <strong>tous les sous-groupes</strong> de ce groupe.</small>
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" name="sous_groupe_id" id="tarifSousGroupeId">
-                    <input type="hidden" name="tarif_normal_id" id="tarifNormalId">
-                    <input type="hidden" name="tarif_affecte_id" id="tarifAffecteId">
-                    <div class="mb-3"><label class="form-label">Tarif Normal (FCFA)</label><input type="number" name="tarif_normal" id="editTarifNormal" class="form-control" step="500" required></div>
-                    <div class="mb-3"><label class="form-label">Tarif Affecté (FCFA)</label><input type="number" name="tarif_affecte" id="editTarifAffecte" class="form-control" step="500" required></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
-                </div>
-            </form>
+                
+                <form id="formTarifGroupe" onsubmit="return false;">
+                    <input type="hidden" id="tarif_groupe_id">
+                    <input type="hidden" id="tarif_inscription_id">
+                    <input type="hidden" id="tarif_normal_id">
+                    <input type="hidden" id="tarif_affecte_id">
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-info mb-3">
+                                <div class="card-header bg-info text-dark">
+                                    <strong><i class="fas fa-file-invoice me-1"></i>Inscription</strong>
+                                </div>
+                                <div class="card-body">
+                                    <input type="number" class="form-control" 
+                                           id="tarif_inscription_montant" min="0" step="1000">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-primary mb-3">
+                                <div class="card-header bg-primary text-white">
+                                    <strong><i class="fas fa-user me-1"></i>Non Affecté</strong>
+                                </div>
+                                <div class="card-body">
+                                    <input type="number" class="form-control" 
+                                           id="tarif_normal_montant" min="0" step="1000">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-success mb-3">
+                                <div class="card-header bg-success text-white">
+                                    <strong><i class="fas fa-building me-1"></i>Affecté</strong>
+                                </div>
+                                <div class="card-body">
+                                    <input type="number" class="form-control" 
+                                           id="tarif_affecte_montant" min="0" step="1000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sousGroupesAffectes" class="mt-3">
+                        <h6><i class="fas fa-list me-2"></i>Sous-groupes concernés :</h6>
+                        <div id="listeSousGroupes" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-warning" onclick="sauvegarderTarifGroupe()">
+                    <i class="fas fa-save me-1"></i>Enregistrer
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -882,11 +1087,20 @@
 
 {% block scripts %}
 <script>
+    // Données des groupes et sous-groupes pour le modal de tarifs
+    const groupesData = {
+        1: { nom: "Maternelle", sous_groupes: ["PS", "MS", "GS"] },
+        2: { nom: "Primaire", sous_groupes: ["CP1", "CP2", "CE1", "CE2", "CM1", "CM2"] },
+        3: { nom: "Premier Cycle", sous_groupes: ["6ème", "5ème", "4ème", "3ème"] },
+        4: { nom: "Second Cycle", sous_groupes: ["2nde", "1ère", "Terminale"] }
+    };
+
+    // ============= FONCTIONS GROUPES =============
     function editerGroupe(id, nom, code, ordre, description, actif) {
         document.getElementById('editGroupeNom').value = nom;
         document.getElementById('editGroupeCode').value = code;
         document.getElementById('editGroupeOrdre').value = ordre;
-        document.getElementById('editGroupeDescription').value = description;
+        document.getElementById('editGroupeDescription').value = description || '';
         document.getElementById('editGroupeActif').checked = actif;
         document.getElementById('modifierGroupeForm').action = "/parametres/groupes/" + id + "/modifier";
         new bootstrap.Modal(document.getElementById('modifierGroupeModal')).show();
@@ -896,41 +1110,200 @@
         document.getElementById('editSousGroupeNom').value = nom;
         document.getElementById('editSousGroupeCode').value = code;
         document.getElementById('editSousGroupeOrdre').value = ordre;
-        document.getElementById('editSousGroupeDescription').value = description;
+        document.getElementById('editSousGroupeDescription').value = description || '';
         document.getElementById('editSousGroupeParent').value = groupe_id;
         document.getElementById('editSousGroupeActif').checked = actif;
         document.getElementById('modifierSousGroupeForm').action = "/parametres/sous-groupes/" + id + "/modifier";
         new bootstrap.Modal(document.getElementById('modifierSousGroupeModal')).show();
     }
     
-    function editerTarif(sgId, nom, normal, affecte, tarifNormalId, tarifAffecteId) {
-        document.getElementById('tarifNiveauNom').textContent = nom;
-        document.getElementById('tarifSousGroupeId').value = sgId;
-        document.getElementById('editTarifNormal').value = normal;
-        document.getElementById('editTarifAffecte').value = affecte;
-        document.getElementById('tarifNormalId').value = tarifNormalId;
-        document.getElementById('tarifAffecteId').value = tarifAffecteId;
-        document.getElementById('modifierTarifForm').action = "/parametres/tarifs-affectes/ajouter";
-        new bootstrap.Modal(document.getElementById('modifierTarifModal')).show();
+    // ============= FONCTIONS TARIFS =============
+    function editerTarifGroupe(groupeId, groupeNom, montantInscription, montantNormal, montantAffecte, 
+                                tarifInscriptionId, tarifNormalId, tarifAffecteId) {
+        
+        console.log("Ouverture modal pour:", groupeNom, "ID:", groupeId);
+        
+        // Vérification critique
+        if (!groupeId || groupeId === 0 || groupeId === '0') {
+            console.error("❌ groupeId invalide!");
+            alert("Erreur: ID du groupe non trouvé. Veuillez rafraîchir la page.");
+            return;
+        }
+        
+        // Nettoyer complètement l'état du modal avant ouverture
+        const modalElement = document.getElementById('modalTarifGroupe');
+        
+        // Détruire toute instance existante
+        let existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+        
+        // Nettoyer les backdrops
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        // Nettoyer les attributs du modal
+        modalElement.removeAttribute('aria-hidden');
+        modalElement.style.display = '';
+        modalElement.classList.remove('show');
+        
+        // Remplir les champs
+        const groupeNomElement = document.getElementById('groupeNomTarif');
+        if (groupeNomElement) {
+            groupeNomElement.textContent = groupeNom || 'Groupe';
+        }
+        
+        document.getElementById('tarif_groupe_id').value = groupeId;
+        document.getElementById('tarif_inscription_id').value = tarifInscriptionId || 0;
+        document.getElementById('tarif_normal_id').value = tarifNormalId || 0;
+        document.getElementById('tarif_affecte_id').value = tarifAffecteId || 0;
+        document.getElementById('tarif_inscription_montant').value = montantInscription || 0;
+        document.getElementById('tarif_normal_montant').value = montantNormal || 0;
+        document.getElementById('tarif_affecte_montant').value = montantAffecte || 0;
+        
+        // Afficher les sous-groupes
+        const listeSousGroupes = document.getElementById('listeSousGroupes');
+        if (listeSousGroupes) {
+            listeSousGroupes.innerHTML = '';
+            const sousGroupesList = groupesData[groupeId]?.sous_groupes || [];
+            sousGroupesList.forEach(sg => {
+                listeSousGroupes.innerHTML += `<span class="badge bg-light text-dark me-1">${sg}</span>`;
+            });
+        }
+        
+        // Créer une nouvelle instance du modal et l'ouvrir
+        const newModal = new bootstrap.Modal(modalElement, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
+        newModal.show();
     }
     
+    function sauvegarderTarifGroupe() {
+        const groupeId = document.getElementById('tarif_groupe_id').value;
+        const montantInscription = document.getElementById('tarif_inscription_montant').value;
+        const montantNormal = document.getElementById('tarif_normal_montant').value;
+        const montantAffecte = document.getElementById('tarif_affecte_montant').value;
+        const tarifInscriptionId = document.getElementById('tarif_inscription_id').value;
+        const tarifNormalId = document.getElementById('tarif_normal_id').value;
+        const tarifAffecteId = document.getElementById('tarif_affecte_id').value;
+        
+        // Validation
+        if (!montantInscription || parseFloat(montantInscription) < 0) {
+            alert('Veuillez entrer un montant valide pour l\'inscription.');
+            return;
+        }
+        if (!montantNormal || parseFloat(montantNormal) < 0) {
+            alert('Veuillez entrer un montant valide pour le tarif non affecté.');
+            return;
+        }
+        if (!montantAffecte || parseFloat(montantAffecte) < 0) {
+            alert('Veuillez entrer un montant valide pour le tarif affecté.');
+            return;
+        }
+        
+        // Désactiver le bouton
+        const btnSave = document.querySelector('#modalTarifGroupe .btn-warning');
+        if (btnSave) {
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Enregistrement...';
+        }
+        
+        // Préparer les données
+        const data = {
+            groupe_id: parseInt(groupeId),
+            tarif_inscription: {
+                id: parseInt(tarifInscriptionId) || 0,
+                montant: parseFloat(montantInscription),
+                est_affecte: false,
+                type_tarif: 'inscription'
+            },
+            tarif_normal: {
+                id: parseInt(tarifNormalId) || 0,
+                montant: parseFloat(montantNormal),
+                est_affecte: false,
+                type_tarif: 'scolarite'
+            },
+            tarif_affecte: {
+                id: parseInt(tarifAffecteId) || 0,
+                montant: parseFloat(montantAffecte),
+                est_affecte: true,
+                type_tarif: 'scolarite'
+            }
+        };
+        
+        // Envoyer la requête
+        fetch('/parametres/sauvegarder-tarif-groupe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Fermer le modal
+                const modalElement = document.getElementById('modalTarifGroupe');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+                
+                // Nettoyer
+                setTimeout(() => {
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 200);
+                
+                // Recharger la page
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+                
+            } else {
+                alert('❌ Erreur : ' + (data.message || 'Erreur inconnue'));
+                if (btnSave) {
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = '<i class="fas fa-save me-1"></i>Enregistrer';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur réseau est survenue.');
+            if (btnSave) {
+                btnSave.disabled = false;
+                btnSave.innerHTML = '<i class="fas fa-save me-1"></i>Enregistrer';
+            }
+        });
+    }
+    
+    // ============= FONCTIONS TRANSPORT =============
     function editerTransport(id, nom, code, montant_supplement, ordre, description, actif) {
         document.getElementById('editTransportNom').value = nom;
         document.getElementById('editTransportCode').value = code;
         document.getElementById('editTransportMontant').value = montant_supplement;
         document.getElementById('editTransportOrdre').value = ordre;
-        document.getElementById('editTransportDescription').value = description;
+        document.getElementById('editTransportDescription').value = description || '';
         document.getElementById('editTransportActif').checked = actif;
         document.getElementById('modifierTransportForm').action = "/parametres/transports/" + id + "/modifier";
         new bootstrap.Modal(document.getElementById('modifierTransportModal')).show();
     }
     
+    // ============= FONCTIONS CANTINE =============
     function editerCantine(id, nom, code, montant, ordre, description, actif) {
         document.getElementById('editCantineNom').value = nom;
         document.getElementById('editCantineCode').value = code;
         document.getElementById('editCantineMontant').value = montant;
         document.getElementById('editCantineOrdre').value = ordre;
-        document.getElementById('editCantineDescription').value = description;
+        document.getElementById('editCantineDescription').value = description || '';
         document.getElementById('editCantineActif').checked = actif;
         document.getElementById('modifierCantineForm').action = "/parametres/cantines/" + id + "/modifier";
         new bootstrap.Modal(document.getElementById('modifierCantineModal')).show();
