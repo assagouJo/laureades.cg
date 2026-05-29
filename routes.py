@@ -1012,6 +1012,32 @@ def api_paiement_details(paiement_id):
     })
 
 
+@app.route('/utilisateurs/<int:user_id>/reinitialiser-mot-de-passe', methods=['GET', 'POST'])
+@login_required
+def reinitialiser_mot_de_passe(user_id):
+    """Réinitialise le mot de passe d'un utilisateur"""
+    if current_user.role != 'admin':
+        flash('Accès réservé aux administrateurs', 'danger')
+        return redirect(url_for('liste_utilisateurs'))
+    
+    user = User.query.get_or_404(user_id)
+    
+    if request.method == 'POST':
+        nouveau_mdp = request.form.get('nouveau_mot_de_passe', 'changemoi123')
+        user.set_password(nouveau_mdp)
+        db.session.commit()
+        flash(f'Mot de passe de {user.nom_complet} réinitialisé avec succès !', 'success')
+        return redirect(url_for('liste_utilisateurs'))
+    
+    # Si GET, rediriger ou faire la réinitialisation directe
+    # Option 1 : Réinitialiser directement
+    nouveau_mdp = 'changemoi123'
+    user.set_password(nouveau_mdp)
+    db.session.commit()
+    flash(f'Mot de passe de {user.nom_complet} réinitialisé avec succès !', 'success')
+    return redirect(url_for('liste_utilisateurs'))
+
+
 @app.route('/paiement/<int:paiement_id>/recu')
 @login_required
 def imprimer_recu_unique(paiement_id):
