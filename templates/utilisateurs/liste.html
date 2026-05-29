@@ -1,161 +1,393 @@
 <!-- templates/utilisateurs/liste.html -->
 {% extends "base.html" %}
 
-{% block title %}Gestion des utilisateurs - Gestion Scolaire{% endblock %}
+{% block title %}Utilisateurs{% endblock %}
+
+{% block page_title %}
+<i class="fas fa-users-cog me-2" style="color: #667eea;"></i>Gestion des utilisateurs
+{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --primary: #5b6abf;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-500: #6b7280;
+        --gray-700: #374151;
+        --radius: 12px;
+    }
+    
+    .stat-card {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+        transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+    
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--gray-500);
+        font-weight: 500;
+    }
+    
+    .filter-bar {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 100px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        border: 1.5px solid var(--gray-200);
+        background: white;
+        color: var(--gray-700);
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+    
+    .filter-btn:hover {
+        background: var(--gray-50);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    
+    .filter-btn.active {
+        background: #eeefff;
+        border-color: var(--primary);
+        color: var(--primary);
+        font-weight: 600;
+    }
+    
+    .search-input {
+        border-radius: 100px;
+        border: 1.5px solid var(--gray-200);
+        padding: 0.5rem 1rem 0.5rem 2.5rem;
+        font-size: 0.875rem;
+        width: 100%;
+        background: var(--gray-50);
+        transition: all 0.2s;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(91,106,191,0.1);
+        background: white;
+    }
+    
+    .search-wrapper {
+        position: relative;
+    }
+    
+    .search-wrapper i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-500);
+        font-size: 0.875rem;
+    }
+    
+    .table-container {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+    
+    .table-premium {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .table-premium thead th {
+        background: var(--gray-50);
+        padding: 0.75rem 1rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--gray-200);
+    }
+    
+    .table-premium tbody td {
+        padding: 0.875rem 1rem;
+        font-size: 0.8125rem;
+        border-bottom: 1px solid var(--gray-100);
+        vertical-align: middle;
+    }
+    
+    .table-premium tbody tr:hover {
+        background: #fafbfd;
+    }
+    
+    .table-premium tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .avatar-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: white;
+        flex-shrink: 0;
+    }
+    
+    .badge-role {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .badge-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-size: 0.75rem;
+        text-decoration: none;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    
+    .btn-edit { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+    .btn-edit:hover { background: #3b82f6; color: white; }
+    
+    .btn-toggle { background: #ecfdf5; color: #10b981; border-color: #a7f3d0; }
+    .btn-toggle:hover { background: #10b981; color: white; }
+    
+    .btn-toggle.off { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
+    .btn-toggle.off:hover { background: #ef4444; color: white; }
+    
+    .btn-delete { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
+    .btn-delete:hover { background: #ef4444; color: white; }
+    
+    .btn-reset { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+    .btn-reset:hover { background: #d97706; color: white; }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .stat-card { padding: 1rem; }
+        .stat-value { font-size: 1.35rem; }
+        .filter-btn { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-end align-items-center mb-4">
-    <a href="{{ url_for('ajouter_utilisateur') }}" class="btn btn-primary">
-        <i class="fas fa-plus-circle me-2"></i>Nouvel utilisateur
-    </a>
-</div>
+<div class="container-fluid px-3 px-md-4 py-3">
 
-<!-- Filtres rapides -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card shadow-sm">
-            <div class="card-body py-2">
-                <div class="row align-items-center">
-                    <div class="col-md-3">
-                        <select id="roleFilter" class="form-select form-select-sm">
-                            <option value="">Tous les rôles</option>
-                            <option value="admin">Administrateurs</option>
-                            <option value="comptable">Comptables</option>
-                            <option value="user">Opérateurs</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select id="statusFilter" class="form-select form-select-sm">
-                            <option value="">Tous les statuts</option>
-                            <option value="actif">Actifs</option>
-                            <option value="inactif">Inactifs</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="🔍 Rechercher par nom, prénom ou nom d'utilisateur...">
-                    </div>
+
+    <!-- ========== FILTRES ========== -->
+    <div class="filter-bar">
+        <div class="row align-items-center g-2">
+            <div class="col-md-3 col-lg-2">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un utilisateur...">
                 </div>
+            </div>
+            <div class="col-md-7 col-lg-5">
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="filter-btn active" data-filter="all">Tous</button>
+                    <button class="filter-btn" data-filter="admin">Admins</button>
+                    <button class="filter-btn" data-filter="comptable">Comptables</button>
+                    <button class="filter-btn" data-filter="user">Opérateurs</button>
+                </div>
+            </div>
+            <div class="col-lg-5 text-lg-end mt-2 mt-lg-0">
+                <button class="filter-btn" data-filter="active" style="border-color:#a7f3d0; color:#10b981;">
+                    <i class="fas fa-circle me-1" style="font-size:0.5rem;"></i>Actifs
+                </button>
+                <button class="filter-btn ms-1" data-filter="inactive" style="border-color:#fecaca; color:#ef4444;">
+                    <i class="fas fa-circle me-1" style="font-size:0.5rem;"></i>Inactifs
+                </button>
+                <a href="{{ url_for('ajouter_utilisateur') }}" class="btn btn-primary ms-2" style="border-radius:100px; padding:0.5rem 1.25rem; font-size:0.8125rem;">
+                    <i class="fas fa-plus me-1"></i>Nouveau
+                </a>
             </div>
         </div>
     </div>
-</div>
 
-<div class="card shadow">
-    <div class="card-body">
+    <!-- ========== TABLEAU ========== -->
+    <div class="table-container">
         <div class="table-responsive">
-            <table class="table table-hover" id="usersTable">
-                <thead class="table-primary">
+            <table class="table-premium">
+                <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Nom complet</th>
+                        <th>Utilisateur</th>
                         <th>Nom d'utilisateur</th>
                         <th>Rôle</th>
                         <th>Statut</th>
                         <th>Dernière connexion</th>
                         <th>Créé le</th>
-                        <th>Actions</th>
+                        <th class="text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="usersTableBody">
                     {% for user in utilisateurs %}
-                    <tr>
-                        <td>{{ user.id }}</td>
+                    <tr data-role="{{ user.role }}" data-status="{{ 'active' if user.actif else 'inactive' }}">
                         <td>
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-sm me-2">
-                                    <span class="avatar-initials">{{ user.prenom[0] }}{{ user.nom[0] }}</span>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-circle" style="background: {% if user.role == 'admin' %}linear-gradient(135deg, #ef4444, #dc2626){% elif user.role == 'comptable' %}linear-gradient(135deg, #f59e0b, #d97706){% else %}linear-gradient(135deg, #3b82f6, #2563eb){% endif %};">
+                                    {{ user.prenom[0] }}{{ user.nom[0] }}
                                 </div>
                                 <div>
-                                    <strong>{{ user.nom_complet }}</strong>
-                                    {% if user.id == current_user.id %}
-                                        <span class="badge bg-info ms-1">Vous</span>
-                                    {% endif %}
+                                    <div style="font-weight:600; font-size:0.8125rem;">
+                                        {{ user.nom_complet }}
+                                        {% if user.id == current_user.id %}
+                                        <span class="badge bg-light text-primary ms-1" style="font-size:0.65rem;">Vous</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </td>
-                        <td>
-                            <i class="fas fa-user me-2 text-muted"></i>
-                            {{ user.username }}
-                        </td>
+                        <td><code style="font-size:0.75rem;">{{ user.username }}</code></td>
                         <td>
                             {% if user.role == 'admin' %}
-                                <span class="badge bg-danger">
-                                    <i class="fas fa-crown me-1"></i>Administrateur
-                                </span>
+                            <span class="badge-role" style="background:#fef2f2; color:#dc2626;">
+                                <i class="fas fa-crown"></i> Admin
+                            </span>
                             {% elif user.role == 'comptable' %}
-                                <span class="badge bg-warning text-dark">
-                                    <i class="fas fa-calculator me-1"></i>Comptable
-                                </span>
+                            <span class="badge-role" style="background:#fffbeb; color:#b45309;">
+                                <i class="fas fa-calculator"></i> Comptable
+                            </span>
                             {% else %}
-                                <span class="badge bg-info">
-                                    <i class="fas fa-user me-1"></i>Opérateur
-                                </span>
+                            <span class="badge-role" style="background:#eff6ff; color:#2563eb;">
+                                <i class="fas fa-user"></i> Opérateur
+                            </span>
                             {% endif %}
                         </td>
                         <td>
                             {% if user.actif %}
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check-circle me-1"></i>Actif
-                                </span>
+                            <span class="badge-status" style="background:#ecfdf5; color:#059669;">
+                                <i class="fas fa-circle" style="font-size:0.4rem;"></i> Actif
+                            </span>
                             {% else %}
-                                <span class="badge bg-danger">
-                                    <i class="fas fa-times-circle me-1"></i>Inactif
-                                </span>
+                            <span class="badge-status" style="background:#fef2f2; color:#dc2626;">
+                                <i class="fas fa-circle" style="font-size:0.4rem;"></i> Inactif
+                            </span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td style="font-size:0.75rem; color:var(--gray-500);">
                             {% if user.last_login %}
-                                <i class="fas fa-clock me-1 text-muted"></i>
-                                {{ user.last_login.strftime('%d/%m/%Y %H:%M') }}
+                            {{ user.last_login.strftime('%d/%m/%Y %H:%M') }}
                             {% else %}
-                                <span class="text-muted">Jamais</span>
+                            <span style="color:#d1d5db;">Jamais</span>
                             {% endif %}
                         </td>
-                        <td>
-                            <i class="fas fa-calendar-alt me-1 text-muted"></i>
+                        <td style="font-size:0.75rem; color:var(--gray-500);">
                             {{ user.created_at.strftime('%d/%m/%Y') }}
                         </td>
                         <td>
-                            <div class="btn-group btn-group-sm" role="group">
-                                <a href="{{ url_for('modifier_utilisateur', user_id=user.id) }}" 
-                                   class="btn btn-outline-primary" 
-                                   data-bs-toggle="tooltip" 
-                                   title="Modifier">
+                            <div class="d-flex justify-content-center gap-1">
+                                <a href="{{ url_for('modifier_utilisateur', user_id=user.id) }}" class="btn-action btn-edit" title="Modifier">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 {% if user.id != current_user.id %}
-                                <button type="button" 
-                                        class="btn btn-outline-{{ 'success' if user.actif else 'secondary' }}"
-                                        onclick="toggleStatus({{ user.id }}, '{{ user.username }}', {{ user.actif|lower }})"
-                                        data-bs-toggle="tooltip" 
+                                <button onclick="toggleStatus({{ user.id }}, '{{ user.username }}', {{ user.actif|lower }})" 
+                                        class="btn-action btn-toggle {{ 'off' if not user.actif }}" 
                                         title="{{ 'Désactiver' if user.actif else 'Activer' }}">
-                                    <i class="fas fa-{{ 'toggle-on' if user.actif else 'toggle-off' }}"></i>
+                                    <i class="fas fa-power-off"></i>
                                 </button>
-                                <button type="button" 
-                                        class="btn btn-outline-danger"
-                                        onclick="confirmDelete({{ user.id }}, '{{ user.username }}')"
-                                        data-bs-toggle="tooltip" 
-                                        title="Supprimer">
-                                    <i class="fas fa-trash"></i>
+                                <button onclick="confirmDelete({{ user.id }}, '{{ user.username }}')" 
+                                        class="btn-action btn-delete" title="Supprimer">
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                                 {% endif %}
                                 <a href="{{ url_for('reinitialiser_mot_de_passe', user_id=user.id) }}" 
-                                    class="btn btn-warning btn-sm" 
-                                    title="Réinitialiser le mot de passe"
-                                    onclick="return confirm('Voulez-vous réinitialiser le mot de passe de {{ user.nom_complet }} ?')">
-                                     <i class="fas fa-sync-alt"></i>
+                                   class="btn-action btn-reset" 
+                                   title="Réinitialiser MDP"
+                                   onclick="return confirm('Réinitialiser le mot de passe de {{ user.nom_complet }} ?')">
+                                    <i class="fas fa-key"></i>
                                 </a>
                             </div>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-5">
-                            <i class="fas fa-users-slash fa-3x mb-3"></i><br>
-                            Aucun utilisateur trouvé<br>
-                            <a href="{{ url_for('ajouter_utilisateur') }}" class="btn btn-primary mt-3">
-                                <i class="fas fa-plus-circle me-2"></i>Ajouter un utilisateur
-                            </a>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-users-slash"></i>
+                                <h5 style="color:#9ca3af;">Aucun utilisateur trouvé</h5>
+                                <a href="{{ url_for('ajouter_utilisateur') }}" class="btn btn-primary mt-3" style="border-radius:100px;">
+                                    <i class="fas fa-plus me-1"></i>Ajouter un utilisateur
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -165,280 +397,118 @@
     </div>
 </div>
 
-<!-- Cartes statistiques -->
-<div class="row mt-4">
-    <div class="col-md-3">
-        <div class="card bg-primary text-white shadow">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title text-white-50">Total utilisateurs</h6>
-                        <h2 class="mb-0">{{ utilisateurs|length }}</h2>
-                    </div>
-                    <i class="fas fa-users fa-2x opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-danger text-white shadow">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title text-white-50">Administrateurs</h6>
-                        <h2 class="mb-0">{{ utilisateurs|selectattr('role', 'equalto', 'admin')|list|length }}</h2>
-                    </div>
-                    <i class="fas fa-user-shield fa-2x opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-success text-white shadow">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title text-white-50">Comptables</h6>
-                        <h2 class="mb-0">{{ utilisateurs|selectattr('role', 'equalto', 'comptable')|list|length }}</h2>
-                    </div>
-                    <i class="fas fa-calculator fa-2x opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-info text-white shadow">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title text-white-50">Opérateurs</h6>
-                        <h2 class="mb-0">{{ utilisateurs|selectattr('role', 'equalto', 'user')|list|length }}</h2>
-                    </div>
-                    <i class="fas fa-user fa-2x opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Deuxième ligne de statistiques -->
-<div class="row mt-3">
-    <div class="col-md-4">
-        <div class="card border-success shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-muted">Comptes actifs</h6>
-                        <h3 class="text-success mb-0">{{ utilisateurs|selectattr('actif', 'equalto', true)|list|length }}</h3>
-                    </div>
-                    <i class="fas fa-user-check fa-2x text-success opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-danger shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-muted">Comptes inactifs</h6>
-                        <h3 class="text-danger mb-0">{{ utilisateurs|selectattr('actif', 'equalto', false)|list|length }}</h3>
-                    </div>
-                    <i class="fas fa-user-slash fa-2x text-danger opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-info shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-muted">Connexions récentes</h6>
-                        <h3 class="text-info mb-0">{{ utilisateurs|selectattr('last_login', 'defined')|list|length }}</h3>
-                    </div>
-                    <i class="fas fa-sign-in-alt fa-2x text-info opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de confirmation suppression -->
+<!-- Modals (conservés) -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Confirmer la suppression
-                </h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px; border:none;">
+            <div class="modal-header bg-danger text-white" style="border-radius:16px 16px 0 0;">
+                <h6 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Confirmer la suppression</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Voulez-vous vraiment supprimer l'utilisateur :</p>
-                <p class="h5 text-center text-danger" id="userName"></p>
-                <div class="alert alert-warning mt-3">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Attention :</strong> Cette action est irréversible et supprimera définitivement le compte.
-                </div>
+            <div class="modal-body text-center py-4">
+                <p class="mb-2">Voulez-vous vraiment supprimer :</p>
+                <p class="h5 text-danger" id="deleteUserName"></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Annuler
-                </button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius:100px;">Annuler</button>
                 <form id="deleteForm" method="POST">
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash me-1"></i>Supprimer
-                    </button>
+                    <button class="btn btn-danger" style="border-radius:100px;">Supprimer</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal de confirmation changement statut -->
 <div class="modal fade" id="statusModal" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header" id="statusModalHeader">
-                <h5 class="modal-title" id="statusModalTitle">
-                    <i class="fas fa-toggle-on me-2"></i>
-                    Confirmer
-                </h5>
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content" style="border-radius:16px; border:none;">
+            <div class="modal-header" id="statusModalHeader" style="border-radius:16px 16px 0 0;">
+                <h6 class="modal-title" id="statusModalTitle">Confirmer</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-center py-4">
                 <p id="statusModalMessage"></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius:100px;">Annuler</button>
                 <form id="statusForm" method="POST">
-                    <button type="submit" class="btn" id="statusModalBtn">Confirmer</button>
+                    <button class="btn" id="statusModalBtn" style="border-radius:100px;">Confirmer</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.avatar-initials {
-    font-size: 12px;
-    color: white;
-    font-weight: bold;
-}
-
-.table td {
-    vertical-align: middle;
-}
-</style>
-
+{% block scripts %}
 <script>
-let dataTable;
-
 $(document).ready(function() {
-    // Initialiser DataTable
-    dataTable = $('#usersTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json',
-            search: "",
-            searchPlaceholder: "Rechercher...",
-            lengthMenu: "_MENU_ par page",
-            info: "Affichage de _START_ à _END_ sur _TOTAL_ utilisateurs",
-            infoEmpty: "Aucun utilisateur",
-            infoFiltered: "(filtré sur _MAX_ total)"
-        },
-        order: [[0, 'desc']],
-        pageLength: 25,
-        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
-        columnDefs: [
-            { orderable: false, targets: [7] }
-        ]
+    // Filtres par boutons
+    $('.filter-btn').click(function() {
+        var filter = $(this).data('filter');
+        
+        // Mettre à jour l'état actif des boutons
+        $('.filter-btn').removeClass('active');
+        $(this).addClass('active');
+        
+        // Appliquer le filtre
+        if (filter === 'all') {
+            $('#usersTableBody tr').show();
+        } else if (filter === 'active' || filter === 'inactive') {
+            $('#usersTableBody tr').each(function() {
+                var status = $(this).data('status');
+                $(this).toggle(status === filter);
+            });
+        } else {
+            // Filtre par rôle
+            $('#usersTableBody tr').each(function() {
+                var role = $(this).data('role');
+                $(this).toggle(role === filter);
+            });
+        }
     });
     
-    // Filtres personnalisés
-    $('#roleFilter').on('change', function() {
-        applyFilters();
-    });
-    
-    $('#statusFilter').on('change', function() {
-        applyFilters();
-    });
-    
+    // Recherche
     $('#searchInput').on('keyup', function() {
-        dataTable.search(this.value).draw();
-    });
-    
-    // Activer les tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
+        var search = $(this).val().toLowerCase();
+        $('#usersTableBody tr').each(function() {
+            var text = $(this).text().toLowerCase();
+            $(this).toggle(text.indexOf(search) > -1);
+        });
     });
 });
 
-function applyFilters() {
-    const role = $('#roleFilter').val();
-    const status = $('#statusFilter').val();
-    
-    // Filtrer via DataTable
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        const row = dataTable.row(dataIndex).node();
-        const roleCell = $(row).find('td:eq(3)').text().toLowerCase();
-        const statusCell = $(row).find('td:eq(4)').text().toLowerCase();
-        
-        let roleMatch = true;
-        let statusMatch = true;
-        
-        if (role) {
-            if (role === 'admin') roleMatch = roleCell.includes('administrateur');
-            else if (role === 'comptable') roleMatch = roleCell.includes('comptable');
-            else if (role === 'user') roleMatch = roleCell.includes('opérateur');
-        }
-        
-        if (status) {
-            statusMatch = statusCell.includes(status);
-        }
-        
-        return roleMatch && statusMatch;
-    });
-    
-    dataTable.draw();
-    $.fn.dataTable.ext.search.pop();
-}
-
+// Fonctions modales
 function confirmDelete(userId, username) {
-    document.getElementById('userName').textContent = username;
+    document.getElementById('deleteUserName').textContent = username;
     document.getElementById('deleteForm').action = '/utilisateurs/' + userId + '/supprimer';
     new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }
 
 function toggleStatus(userId, username, isActive) {
-    const action = isActive ? 'désactiver' : 'activer';
-    const newStatus = !isActive;
+    var action = isActive ? 'désactiver' : 'activer';
     
-    document.getElementById('statusModalMessage').innerHTML = `Voulez-vous vraiment ${action} l'utilisateur <strong>${username}</strong> ?`;
+    document.getElementById('statusModalMessage').innerHTML = 
+        'Voulez-vous vraiment <strong>' + action + '</strong><br>l\'utilisateur <strong>' + username + '</strong> ?';
     
-    const modalHeader = document.getElementById('statusModalHeader');
-    const modalBtn = document.getElementById('statusModalBtn');
+    var header = document.getElementById('statusModalHeader');
+    var btn = document.getElementById('statusModalBtn');
+    var title = document.getElementById('statusModalTitle');
     
     if (isActive) {
-        modalHeader.className = 'modal-header bg-warning text-dark';
-        modalBtn.className = 'btn btn-warning';
-        modalBtn.innerHTML = '<i class="fas fa-toggle-off me-1"></i>Désactiver';
+        header.className = 'modal-header bg-warning text-dark';
+        header.style.borderRadius = '16px 16px 0 0';
+        btn.className = 'btn btn-warning';
+        btn.style.borderRadius = '100px';
+        btn.innerHTML = '<i class="fas fa-toggle-off me-1"></i>Désactiver';
+        title.innerHTML = '<i class="fas fa-toggle-off me-2"></i>Désactiver';
     } else {
-        modalHeader.className = 'modal-header bg-success text-white';
-        modalBtn.className = 'btn btn-success';
-        modalBtn.innerHTML = '<i class="fas fa-toggle-on me-1"></i>Activer';
+        header.className = 'modal-header bg-success text-white';
+        header.style.borderRadius = '16px 16px 0 0';
+        btn.className = 'btn btn-success';
+        btn.style.borderRadius = '100px';
+        btn.innerHTML = '<i class="fas fa-toggle-on me-1"></i>Activer';
+        title.innerHTML = '<i class="fas fa-toggle-on me-2"></i>Activer';
     }
     
     document.getElementById('statusForm').action = '/utilisateurs/' + userId + '/toggle';

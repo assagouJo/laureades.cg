@@ -1150,11 +1150,16 @@ def bank():
         flash('Accès non autorisé', 'danger')
         return redirect(url_for('liste_eleves'))
     
-    periode_active = Parametre.get('annee_scolaire_active', '2025-2026')
+    periode_active = get_annee_active()
     depots = DepotBancaire.query.filter_by(annee_scolaire=periode_active)\
                                 .order_by(DepotBancaire.date_depot.desc()).all()
-    paiements_non_deposes = Paiement.query.filter(~Paiement.depots_lies.any())\
-                                          .order_by(Paiement.date_paiement.desc()).all()
+    
+    # Exclure les avoirs (montants négatifs) et les paiements annulés
+    paiements_non_deposes = Paiement.query.filter(
+        ~Paiement.depots_lies.any(),
+        Paiement.statut == 'actif',
+        Paiement.montant > 0  # ← Exclure les montants négatifs (avoirs)
+    ).order_by(Paiement.date_paiement.desc()).all()
     
     return render_template('bank.html',
                          depots=depots,
