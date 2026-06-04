@@ -446,7 +446,64 @@ def init_database():
         db.session.autoflush = True
         
         print(f"\n  📊 Total: {tarifs_crees} nouveaux tarifs créés")
-        
+
+
+        # ============================================================
+        # Étape 7.5 : TARIFS DE RENFORCEMENT (Classes d'examen)
+        # ============================================================
+        print("\n" + "─" * 70)
+        print("📚 7.5. VÉRIFICATION DES TARIFS DE RENFORCEMENT")
+        print("─" * 70)
+
+        type_renforcement = TypeFrais.query.filter_by(code='renforcement').first()
+        if not type_renforcement:
+            print("  ⚠️ Type de frais 'Renforcement' non trouvé !")
+        else:
+            # Configuration des tarifs de renforcement par classe
+            tarifs_renforcement = {
+                'CM2': 30000,       # 30 000 FCFA pour le CM2
+                '3ème': 40000,      # 40 000 FCFA pour la 3ème
+                'Terminale': 50000, # 50 000 FCFA pour la Terminale
+            }
+            
+            renforcement_crees = 0
+            
+            for classe_nom, montant in tarifs_renforcement.items():
+                sous_groupe = SousGroupe.query.filter_by(nom=classe_nom).first()
+                if not sous_groupe:
+                    print(f"  ⚠️ Sous-groupe '{classe_nom}' non trouvé")
+                    continue
+                
+                # Vérifier si un tarif existe déjà
+                tarif_existant = TarifFrais.query.filter_by(
+                    type_frais_id=type_renforcement.id,
+                    sous_groupe_id=sous_groupe.id,
+                    actif=True
+                ).first()
+                
+                if tarif_existant:
+                    # Mettre à jour le montant si différent
+                    if tarif_existant.montant != montant:
+                        tarif_existant.montant = montant
+                        print(f"  🔄 Tarif renforcement mis à jour pour {classe_nom}: {montant:,.0f} FCFA")
+                    else:
+                        print(f"  ⏭️  Tarif renforcement existe déjà pour {classe_nom}: {montant:,.0f} FCFA")
+                else:
+                    # Créer le tarif
+                    nouveau_tarif = TarifFrais(
+                        type_frais_id=type_renforcement.id,
+                        sous_groupe_id=sous_groupe.id,
+                        montant=montant,
+                        est_obligatoire=True,
+                        actif=True
+                    )
+                    db.session.add(nouveau_tarif)
+                    renforcement_crees += 1
+                    print(f"  ✅ Tarif renforcement créé pour {classe_nom}: {montant:,.0f} FCFA")
+            
+            db.session.commit()
+            print(f"  📊 {renforcement_crees} nouveaux tarifs de renforcement créés")
+                
         # ============================================================
         # Étape 8 : Comptes utilisateurs
         # ============================================================
@@ -487,6 +544,53 @@ def init_database():
             print("  ⏭️  Compte comptable existant (conservé)")
         
         db.session.commit()
+
+
+        # ============================================================
+        # Étape 8.5 : CONFIGURATION DES MAPPINGS DE TENUES
+        # ============================================================
+        print("\n" + "─" * 70)
+        print("👔 8.5. CONFIGURATION DU MAPPING DES TENUES")
+        print("─" * 70)
+
+        import json
+        mapping_tenues = {
+            'Garderie': 'montant_tenue_primaire_inf',
+            'TPS': 'montant_tenue_primaire_inf',
+            'PS': 'montant_tenue_primaire_inf',
+            'MS': 'montant_tenue_primaire_inf',
+            'GS': 'montant_tenue_primaire_inf',
+            'CP1': 'montant_tenue_primaire_inf',
+            'CP2': 'montant_tenue_primaire_inf',
+            'CE1': 'montant_tenue_primaire_inf',
+            'CE2': 'montant_tenue_primaire_sup',
+            'CM1': 'montant_tenue_primaire_sup',
+            'CM2': 'montant_tenue_primaire_sup',
+            '6ème': 'montant_tenue_primaire_sup',
+            '5ème': 'montant_tenue_primaire_sup',
+            '4ème': 'montant_tenue_primaire_sup',
+            '3ème': 'montant_tenue_primaire_sup',
+            'Seconde': 'montant_tenue_primaire_sup',
+            'Première': 'montant_tenue_primaire_sup',
+            'Terminale': 'montant_tenue_primaire_sup',
+        }
+
+        mapping_json = json.dumps(mapping_tenues, ensure_ascii=False)
+
+        instance, created = get_or_create(db.session, Parametre,
+            cle='mapping_tenues_sous_groupes',
+            defaults={
+                'valeur': mapping_json,
+                'description': 'Mapping JSON associant chaque sous-groupe à une clé de paramètre de tenue'
+            }
+        )
+        if created:
+            print(f"  ✅ Mapping des tenues créé")
+        else:
+            print(f"  🔄 Mapping des tenues mis à jour")
+            instance.valeur = mapping_json
+
+        db.session.commit()
         
         # ============================================================
         # Étape 9 : Paramètres
@@ -506,12 +610,10 @@ def init_database():
              'description': 'Date de fin de la période active'},
             {'cle': 'frais_reinscription', 'valeur': '0', 
              'description': 'Frais de réinscription (FCFA)'},
-            {'cle': 'montant_tenue_maternelle', 'valeur': '15000', 
-             'description': 'Montant tenue maternelle (FCFA)'},
-            {'cle': 'montant_tenue_primaire', 'valeur': '15000', 
-             'description': 'Montant tenue primaire (FCFA)'},
-            {'cle': 'montant_tenue_secondaire', 'valeur': '20000', 
-             'description': 'Montant tenue secondaire (FCFA)'},
+            {'cle': 'montant_tenue_primaire_inf', 'valeur': '15000', 
+            'description': 'Montant tenue Maternelle à CE1 inclus (FCFA)'},
+            {'cle': 'montant_tenue_primaire_sup', 'valeur': '20000', 
+            'description': 'Montant tenue CE2 à Terminale inclus (FCFA)'},
             {'cle': 'droit_examen_cm2_ministere', 'valeur': '5000', 
              'description': 'Droit examen ministère - CM2 (FCFA)'},
             {'cle': 'droit_examen_cm2_ecole', 'valeur': '3000', 

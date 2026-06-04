@@ -81,6 +81,7 @@ def calculer_frais_total(sous_groupe_id, est_affecte, transport_option_id=None,
                 total += tarif_renf.montant
     
     # 5. Tenue obligatoire
+    # 5. Tenue obligatoire
     if sous_groupe_id:
         sous_groupe = SousGroupe.query.get(int(sous_groupe_id))
         if sous_groupe and sous_groupe.groupe_parent:
@@ -704,25 +705,44 @@ class Eleve(db.Model):
 
     @property
     def frais_tenue_montant(self):
-        """Récupère le montant de la tenue depuis les paramètres selon le groupe"""
-        if not self.sous_groupe or not self.sous_groupe.groupe_parent:
+        """Récupère le montant de la tenue selon le nouveau mapping par sous-groupe"""
+        if not self.sous_groupe:
             return 0
         
-        groupe_id = self.sous_groupe.groupe_id
-        groupe_nom = self.sous_groupe.groupe_parent.nom
+        import json
         
-        # Maternelle (id=1)
-        if groupe_id == 1 or groupe_nom == 'Maternelle':
-            return float(Parametre.get('montant_tenue_maternelle', 15000))
-        # Primaire (id=2)
-        elif groupe_id == 2 or groupe_nom == 'Primaire':
-            return float(Parametre.get('montant_tenue_primaire', 15000))
-        # Premier Cycle (id=3) ou Second Cycle (id=4)
-        elif groupe_id in [3, 4] or groupe_nom in ['Premier Cycle', 'Second Cycle', 'Secondaire']:
-            return float(Parametre.get('montant_tenue_secondaire', 20000))
+        # Récupérer le mapping depuis la base de données
+        mapping_json = Parametre.get('mapping_tenues_sous_groupes', '{}')
         
-        return 0
-    
+        try:
+            mapping = json.loads(mapping_json)
+        except (json.JSONDecodeError, TypeError):
+            # Fallback si le mapping n'existe pas
+            return self._get_montant_tenue_fallback()
+        
+        # Chercher la clé du paramètre pour ce sous-groupe
+        param_cle = mapping.get(self.sous_groupe.nom)
+        
+        if param_cle == 'montant_tenue_primaire_inf':
+            return float(Parametre.get('montant_tenue_primaire_inf', 15000))
+        elif param_cle == 'montant_tenue_primaire_sup':
+            return float(Parametre.get('montant_tenue_primaire_sup', 20000))
+        else:
+            return self._get_montant_tenue_fallback()
+
+
+    def _get_montant_tenue_fallback(self):
+        """Solution de secours si le mapping n'est pas disponible"""
+        sous_groupes_inf = [
+            'Garderie', 'TPS', 'PS', 'MS', 'GS',
+            'CP1', 'CP2', 'CE1'
+        ]
+        
+        if self.sous_groupe.nom in sous_groupes_inf:
+            return float(Parametre.get('montant_tenue_primaire_inf', 15000))
+        else:
+            return float(Parametre.get('montant_tenue_primaire_sup', 20000))
+        
     
     @property
     def nom_complet(self):

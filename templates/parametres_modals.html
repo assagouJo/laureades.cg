@@ -1,0 +1,428 @@
+<!-- templates/parametres_modals.html -->
+<!-- Fichier inclus dans parametres.html -->
+
+<!-- Modal Ajouter Groupe -->
+<div class="modal fade" id="ajouterGroupeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('param_ajouter_groupe') }}">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-plus me-2"></i>Ajouter un groupe</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" class="form-check-input" id="actifGroupe" checked>
+                        <label class="form-check-label" for="actifGroupe">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier Groupe -->
+<div class="modal fade" id="modifierGroupeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="modifierGroupeForm" method="POST">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le groupe</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" id="editGroupeNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" id="editGroupeCode" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" id="editGroupeOrdre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="editGroupeDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" id="editGroupeActif" class="form-check-input">
+                        <label class="form-check-label" for="editGroupeActif">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajouter Sous-Groupe -->
+<div class="modal fade" id="ajouterSousGroupeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('param_ajouter_sous_groupe') }}">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-plus me-2"></i>Ajouter un sous-groupe</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Groupe parent *</label>
+                        <select name="groupe_id" class="form-select" required>
+                            <option value="">Sélectionner...</option>
+                            {% for groupe in groupes %}
+                            <option value="{{ groupe.id }}">{{ groupe.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" class="form-check-input" id="actifSousGroupe" checked>
+                        <label class="form-check-label" for="actifSousGroupe">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier Sous-Groupe -->
+<div class="modal fade" id="modifierSousGroupeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="modifierSousGroupeForm" method="POST">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le sous-groupe</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Groupe parent *</label>
+                        <select name="groupe_id" id="editSousGroupeParent" class="form-select" required>
+                            <option value="">Sélectionner...</option>
+                            {% for groupe in groupes %}
+                            <option value="{{ groupe.id }}">{{ groupe.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" id="editSousGroupeNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" id="editSousGroupeCode" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" id="editSousGroupeOrdre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="editSousGroupeDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" id="editSousGroupeActif" class="form-check-input">
+                        <label class="form-check-label" for="editSousGroupeActif">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 🔥 MODAL TARIFS PAR GROUPE -->
+<div class="modal fade" id="modalTarifGroupe" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier les tarifs du groupe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="closeTarifModal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong id="groupeNomTarif">Groupe sélectionné</strong><br>
+                    <small>Ces tarifs s'appliqueront à <strong>tous les sous-groupes</strong> de ce groupe.</small>
+                </div>
+                
+                <form id="formTarifGroupe" onsubmit="return false;">
+                    <input type="hidden" id="tarif_groupe_id">
+                    <input type="hidden" id="tarif_inscription_id">
+                    <input type="hidden" id="tarif_normal_id">
+                    <input type="hidden" id="tarif_affecte_id">
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-info mb-3">
+                                <div class="card-header bg-info text-dark">
+                                    <strong><i class="fas fa-file-invoice me-1"></i>Inscription</strong>
+                                </div>
+                                <div class="card-body">
+                                    <input type="number" class="form-control" id="tarif_inscription_montant" min="0" step="1000">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-primary mb-3">
+                                <div class="card-header bg-primary text-white">
+                                    <strong><i class="fas fa-user me-1"></i>Non Affecté</strong>
+                                </div>
+                                <div class="card-body">
+                                    <input type="number" class="form-control" id="tarif_normal_montant" min="0" step="1000">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-success mb-3">
+                                <div class="card-header bg-success text-white">
+                                    <strong><i class="fas fa-building me-1"></i>Affecté</strong>
+                                </div>
+                                <div class="card-body">
+                                    <input type="number" class="form-control" id="tarif_affecte_montant" min="0" step="1000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sousGroupesAffectes" class="mt-3">
+                        <h6><i class="fas fa-list me-2"></i>Sous-groupes concernés :</h6>
+                        <div id="listeSousGroupes" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-warning" onclick="sauvegarderTarifGroupe()">
+                    <i class="fas fa-save me-1"></i>Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajouter Transport -->
+<div class="modal fade" id="ajouterTransportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('param_ajouter_transport') }}">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-bus me-2"></i>Ajouter un transport</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Montant supplément (FCFA)</label>
+                        <input type="number" name="montant_supplement" class="form-control" value="0" step="500">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" class="form-check-input" id="actifTransport" checked>
+                        <label class="form-check-label" for="actifTransport">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier Transport -->
+<div class="modal fade" id="modifierTransportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="modifierTransportForm" method="POST">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le transport</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" id="editTransportNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" id="editTransportCode" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Montant supplément (FCFA)</label>
+                        <input type="number" name="montant_supplement" id="editTransportMontant" class="form-control" step="500">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" id="editTransportOrdre" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="editTransportDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" id="editTransportActif" class="form-check-input">
+                        <label class="form-check-label" for="editTransportActif">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajouter Cantine -->
+<div class="modal fade" id="ajouterCantineModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('param_ajouter_cantine') }}">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-utensils me-2"></i>Ajouter une cantine</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Montant (FCFA)</label>
+                        <input type="number" name="montant" class="form-control" value="0" step="500">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" class="form-check-input" id="actifCantine" checked>
+                        <label class="form-check-label" for="actifCantine">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier Cantine -->
+<div class="modal fade" id="modifierCantineModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="modifierCantineForm" method="POST">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier la cantine</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" name="nom" id="editCantineNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code *</label>
+                        <input type="text" name="code" id="editCantineCode" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Montant (FCFA)</label>
+                        <input type="number" name="montant" id="editCantineMontant" class="form-control" step="500">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="ordre" id="editCantineOrdre" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="editCantineDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="actif" id="editCantineActif" class="form-check-input">
+                        <label class="form-check-label" for="editCantineActif">Actif</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -362,7 +362,13 @@
                                 </div>
                                 {% if eleve.frais_tenue_montant and eleve.frais_tenue_montant > 0 %}
                                 <div class="detail-line">
-                                    <span>👕 Tenue scolaire</span>
+                                    <span>👕 Tenue scolaire 
+                                        {% if eleve.sous_groupe and eleve.sous_groupe.nom in ['Garderie','TPS','PS','MS','GS','CP1','CP2','CE1'] %}
+                                            <small class="text-muted">(Primaire Inf.)</small>
+                                        {% else %}
+                                            <small class="text-muted">(Primaire Sup.)</small>
+                                        {% endif %}
+                                    </span>
                                     <strong>{{ "{:,.0f}".format(eleve.frais_tenue_montant or 0) }}</strong>
                                 </div>
                                 {% endif %}

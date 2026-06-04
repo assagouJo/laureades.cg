@@ -1837,6 +1837,59 @@ def parametres():
                          tarifs_affectes=tarifs_affectes)
 
 
+# ============================================================
+# FONCTIONS UTILITAIRES (à placer en haut de routes.py)
+# ============================================================
+import json
+
+def get_montant_tenue(sous_groupe_nom):
+    """
+    Retourne le montant de la tenue pour un sous-groupe
+    en utilisant le mapping stocké en base de données
+    
+    Args:
+        sous_groupe_nom (str): Nom du sous-groupe
+        
+    Returns:
+        float: Montant de la tenue en FCFA
+    """
+    # Récupérer le mapping depuis la base de données
+    mapping_json = Parametre.get('mapping_tenues_sous_groupes', '{}')
+    
+    try:
+        mapping = json.loads(mapping_json)
+    except (json.JSONDecodeError, TypeError):
+        # Fallback si le mapping est absent ou corrompu
+        return get_montant_tenue_fallback(sous_groupe_nom)
+    
+    # Chercher la clé du paramètre pour ce sous-groupe
+    param_cle = mapping.get(sous_groupe_nom)
+    
+    if param_cle == 'montant_tenue_primaire_inf':
+        return float(Parametre.get('montant_tenue_primaire_inf', 15000))
+    elif param_cle == 'montant_tenue_primaire_sup':
+        return float(Parametre.get('montant_tenue_primaire_sup', 20000))
+    else:
+        # Sous-groupe non trouvé dans le mapping
+        return get_montant_tenue_fallback(sous_groupe_nom)
+
+
+def get_montant_tenue_fallback(sous_groupe_nom):
+    """
+    Solution de secours avec le mapping codé en dur
+    (identique à celui de init_tables.py)
+    """
+    sous_groupes_inf = [
+        'Garderie', 'TPS', 'PS', 'MS', 'GS',
+        'CP1', 'CP2', 'CE1'
+    ]
+    
+    if sous_groupe_nom in sous_groupes_inf:
+        return float(Parametre.get('montant_tenue_primaire_inf', 15000))
+    else:
+        return float(Parametre.get('montant_tenue_primaire_sup', 20000))
+
+
 @app.route('/parametres/sauvegarder-tout', methods=['POST'])
 @login_required
 def sauvegarder_tous_parametres():
@@ -1846,6 +1899,7 @@ def sauvegarder_tous_parametres():
         return redirect(url_for('parametres'))
     
     try:
+        # Paramètres généraux
         params_generaux = {
             'nom_ecole': request.form.get('nom_ecole', ''),
             'devise': request.form.get('devise', 'FCFA'),
@@ -1860,6 +1914,7 @@ def sauvegarder_tous_parametres():
         for cle, valeur in params_generaux.items():
             Parametre.set(cle, valeur)
         
+        # Paramètres périodes scolaires
         params_periodes = {
             'annee_scolaire_active': request.form.get('annee_scolaire_active', ''),
             'annees_scolaires': request.form.get('annees_scolaires', ''),
@@ -1869,14 +1924,15 @@ def sauvegarder_tous_parametres():
             if valeur:
                 Parametre.set(cle, valeur)
         
+        # Paramètres de tenues
         params_tenues = {
-            'montant_tenue_maternelle': request.form.get('montant_tenue_maternelle', '15000'),
-            'montant_tenue_primaire': request.form.get('montant_tenue_primaire', '15000'),
-            'montant_tenue_secondaire': request.form.get('montant_tenue_secondaire', '20000'),
+            'montant_tenue_primaire_inf': request.form.get('montant_tenue_primaire_inf', '15000'),
+            'montant_tenue_primaire_sup': request.form.get('montant_tenue_primaire_sup', '20000'),
         }
         for cle, valeur in params_tenues.items():
             Parametre.set(cle, valeur)
         
+        # Paramètres examens
         params_examens = {
             'droit_examen_cm2_ministere': request.form.get('droit_examen_cm2_ministere', '5000'),
             'droit_examen_cm2_ecole': request.form.get('droit_examen_cm2_ecole', '3000'),
@@ -1887,6 +1943,45 @@ def sauvegarder_tous_parametres():
         }
         for cle, valeur in params_examens.items():
             Parametre.set(cle, valeur)
+        
+        # ✅ Sauvegarde des tarifs de renforcement
+        type_renforcement = TypeFrais.query.filter_by(code='renforcement').first()
+        if type_renforcement:
+            renforcement_fields = {
+                'renforcement_cm2': 'CM2',
+                'renforcement_3eme': '3ème',
+                'renforcement_terminale': 'Terminale'
+            }
+            
+            for field_name, classe_nom in renforcement_fields.items():
+                montant_str = request.form.get(field_name, '')
+                
+                if montant_str and montant_str.strip():
+                    try:
+                        montant = float(montant_str)
+                        sous_groupe = SousGroupe.query.filter_by(nom=classe_nom).first()
+                        
+                        if sous_groupe:
+                            tarif = TarifFrais.query.filter_by(
+                                type_frais_id=type_renforcement.id,
+                                sous_groupe_id=sous_groupe.id
+                            ).first()
+                            
+                            if tarif:
+                                tarif.montant = montant
+                                tarif.actif = True
+                                tarif.date_modification = datetime.utcnow()
+                            elif montant > 0:
+                                nouveau = TarifFrais(
+                                    type_frais_id=type_renforcement.id,
+                                    sous_groupe_id=sous_groupe.id,
+                                    montant=montant,
+                                    est_obligatoire=True,
+                                    actif=True
+                                )
+                                db.session.add(nouveau)
+                    except ValueError:
+                        pass
         
         db.session.commit()
         flash('✅ Paramètres sauvegardés avec succès !', 'success')
@@ -2635,6 +2730,7 @@ def ajouter_paiement_multiple(eleve_id):
         traceback.print_exc()
         return jsonify({'success': False, 'message': str(e)}), 500
 
+
 @app.route('/api/calcul-frais/<int:sous_groupe_id>')
 @login_required
 def api_calcul_frais(sous_groupe_id):
@@ -2658,14 +2754,8 @@ def api_calcul_frais(sous_groupe_id):
     
     frais_scolarite_base = tarif.montant if tarif else 0
     
-    # Tenue scolaire
-    groupe_nom = sous_groupe.groupe_parent.nom
-    if groupe_nom == 'Maternelle':
-        frais_tenue = float(Parametre.get('montant_tenue_maternelle', 15000))
-    elif groupe_nom == 'Primaire':
-        frais_tenue = float(Parametre.get('montant_tenue_primaire', 15000))
-    else:
-        frais_tenue = float(Parametre.get('montant_tenue_secondaire', 20000))
+    # ✅ NOUVEAU : Tenue scolaire - Utilise le mapping
+    frais_tenue = get_montant_tenue(sous_groupe.nom)
     
     # Droit d'examen
     frais_droit_examen = 0
