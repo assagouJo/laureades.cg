@@ -9,866 +9,184 @@
 
 {% block styles %}
 <style>
-    .nav-tabs .nav-link {
-        color: #495057;
-        font-weight: 500;
-        border: none;
-        padding: 10px 15px;
-        font-size: 0.9rem;
-        white-space: nowrap;
-    }
-    
-    .nav-tabs .nav-link.active {
-        color: #667eea;
-        border-bottom: 3px solid #667eea;
-        background: transparent;
-    }
-    
-    .nav-tabs .nav-link:hover {
-        border-bottom: 3px solid #a0a0ff;
-    }
-    
-    .settings-section {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    
-    .section-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #f0f0f0;
-    }
-    
-    .section-title i {
-        color: #667eea;
-        margin-right: 10px;
-    }
-    
-    .table-actions {
-        white-space: nowrap;
-    }
-    
-    .table-actions .btn {
-        padding: 4px 8px;
-        margin: 0 2px;
-    }
-    
-    .modal-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-    
-    .modal-header .btn-close {
-        filter: brightness(0) invert(1);
-    }
-    
-    .modal-header.bg-warning {
-        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
-        color: #212529;
-    }
-    
-    .modal-header.bg-warning .btn-close {
-        filter: none;
-    }
-    
-    .exam-card .card-header {
-        font-weight: 600;
-    }
-    
-    .tariff-badge {
-        font-size: 0.95rem;
-        padding: 8px 12px;
-        border-radius: 6px;
-        white-space: nowrap;
-    }
+    .nav-tabs .nav-link { color: #495057; font-weight: 500; border: none; padding: 10px 15px; font-size: 0.9rem; white-space: nowrap; }
+    .nav-tabs .nav-link.active { color: #667eea; border-bottom: 3px solid #667eea; background: transparent; }
+    .nav-tabs .nav-link:hover { border-bottom: 3px solid #a0a0ff; }
+    .settings-section { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; }
+    .section-title i { color: #667eea; margin-right: 10px; }
+    .table-actions { white-space: nowrap; }
+    .table-actions .btn { padding: 4px 8px; margin: 0 2px; }
+    .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .modal-header .btn-close { filter: brightness(0) invert(1); }
+    .modal-header.bg-warning { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important; color: #212529; }
+    .modal-header.bg-warning .btn-close { filter: none; }
+    .exam-card .card-header { font-weight: 600; }
+    .tariff-badge { font-size: 0.95rem; padding: 8px 12px; border-radius: 6px; white-space: nowrap; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Onglets de navigation -->
     <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
-                <i class="fas fa-school me-1"></i>Général
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="periodes-tab" data-bs-toggle="tab" data-bs-target="#periodes" type="button" role="tab">
-                <i class="fas fa-calendar-alt me-1"></i>Périodes
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tenues-tab" data-bs-toggle="tab" data-bs-target="#tenues" type="button" role="tab">
-                <i class="fas fa-tshirt me-1"></i>Tenues & Examens
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tarifs-tab" data-bs-toggle="tab" data-bs-target="#tarifs" type="button" role="tab">
-                <i class="fas fa-money-bill-wave me-1"></i>Tarifs par Groupe
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="groupes-tab" data-bs-toggle="tab" data-bs-target="#groupes" type="button" role="tab">
-                <i class="fas fa-layer-group me-1"></i>Groupes
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="sous-groupes-tab" data-bs-toggle="tab" data-bs-target="#sous-groupes" type="button" role="tab">
-                <i class="fas fa-folder-tree me-1"></i>Sous-groupes
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="transports-tab" data-bs-toggle="tab" data-bs-target="#transports" type="button" role="tab">
-                <i class="fas fa-bus me-1"></i>Transports
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="cantines-tab" data-bs-toggle="tab" data-bs-target="#cantines" type="button" role="tab">
-                <i class="fas fa-utensils me-1"></i>Cantines
-            </button>
-        </li>
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#general"><i class="fas fa-school me-1"></i>Général</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#periodes"><i class="fas fa-calendar-alt me-1"></i>Périodes</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tenues"><i class="fas fa-tshirt me-1"></i>Tenues & Examens</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tarifs"><i class="fas fa-money-bill-wave me-1"></i>Tarifs par Groupe</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#groupes"><i class="fas fa-layer-group me-1"></i>Groupes</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sous-groupes"><i class="fas fa-folder-tree me-1"></i>Sous-groupes</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#transports"><i class="fas fa-bus me-1"></i>Transports</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#cantines"><i class="fas fa-utensils me-1"></i>Cantines</button></li>
     </ul>
 
-    <!-- Contenu des onglets -->
-    <div class="tab-content" id="settingsTabContent">
-        
-        <!-- ========== ONGLET GÉNÉRAL ========== -->
-        <div class="tab-pane fade show active" id="general" role="tabpanel">
-            <div class="settings-section">
-                <h5 class="section-title"><i class="fas fa-cog"></i>Paramètres généraux</h5>
-                
-                <form method="POST" action="{{ url_for('sauvegarder_tous_parametres') }}">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Nom de l'établissement</label>
-                                <input type="text" name="nom_ecole" class="form-control" value="{{ parametres.get('nom_ecole', '') }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Devise</label>
-                                <input type="text" name="devise" class="form-control" value="{{ parametres.get('devise', 'FCFA') }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Téléphone de l'école</label>
-                                <input type="text" name="telephone_ecole" class="form-control" value="{{ parametres.get('telephone_ecole', '') }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Email de notification</label>
-                                <input type="email" name="email_notification" class="form-control" value="{{ parametres.get('email_notification', '') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Frais d'inscription (FCFA)</label>
-                                <input type="number" name="frais_inscription" class="form-control" value="{{ parametres.get('frais_inscription', '0') }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Délai de paiement (jours)</label>
-                                <input type="number" name="delai_paiement" class="form-control" value="{{ parametres.get('delai_paiement', '30') }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Pénalité de retard (%)</label>
-                                <input type="number" name="penalite_retard" class="form-control" value="{{ parametres.get('penalite_retard', '0') }}">
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label">Adresse</label>
-                                <textarea name="adresse_ecole" class="form-control" rows="2">{{ parametres.get('adresse_ecole', '') }}</textarea>
-                            </div>
-                        </div>
+    <div class="tab-content">
+        <!-- GÉNÉRAL -->
+        <div class="tab-pane fade show active" id="general"><div class="settings-section">
+            <h5 class="section-title"><i class="fas fa-cog"></i>Paramètres généraux</h5>
+            <form method="POST" action="{{ url_for('sauvegarder_tous_parametres') }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3"><label class="form-label">Nom de l'établissement</label><input type="text" name="nom_ecole" class="form-control" value="{{ parametres.get('nom_ecole', '') }}"></div>
+                        <div class="mb-3"><label class="form-label">Devise</label><input type="text" name="devise" class="form-control" value="{{ parametres.get('devise', 'FCFA') }}"></div>
+                        <div class="mb-3"><label class="form-label">Téléphone</label><input type="text" name="telephone_ecole" class="form-control" value="{{ parametres.get('telephone_ecole', '') }}"></div>
+                        <div class="mb-3"><label class="form-label">Email notification</label><input type="email" name="email_notification" class="form-control" value="{{ parametres.get('email_notification', '') }}"></div>
                     </div>
-                    
-                    <div class="text-end mt-3">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Enregistrer
-                        </button>
+                    <div class="col-md-6">
+                        <div class="mb-3"><label class="form-label">Frais inscription (FCFA)</label><input type="number" name="frais_inscription" class="form-control" value="{{ parametres.get('frais_inscription', '0') }}"></div>
+                        <div class="mb-3"><label class="form-label">Délai paiement (jours)</label><input type="number" name="delai_paiement" class="form-control" value="{{ parametres.get('delai_paiement', '30') }}"></div>
+                        <div class="mb-3"><label class="form-label">Pénalité retard (%)</label><input type="number" name="penalite_retard" class="form-control" value="{{ parametres.get('penalite_retard', '0') }}"></div>
                     </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- ========== ONGLET PÉRIODES ========== -->
-        <div class="tab-pane fade" id="periodes" role="tabpanel">
-            <div class="settings-section">
-                <h5 class="section-title"><i class="fas fa-calendar-alt"></i>Gestion des périodes scolaires</h5>
-                
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Gérez les années scolaires pour les réinscriptions. L'année active détermine quels élèves sont affichés.
+                    <div class="col-12"><div class="mb-3"><label class="form-label">Adresse</label><textarea name="adresse_ecole" class="form-control" rows="2">{{ parametres.get('adresse_ecole', '') }}</textarea></div></div>
                 </div>
-                
-                {% set annees = parametres.get('annees_scolaires', '2024-2025,2025-2026,2026-2027').split(',') %}
-                {% set active = parametres.get('annee_scolaire_active', '') %}
-                
-                <div class="row mb-4">
-                    {% for annee in annees %}
-                    {% set annee_clean = annee.strip() %}
-                    {% set est_active = (annee_clean == active) %}
-                    <div class="col-md-4 mb-3">
-                        <div class="card {% if est_active %}border-success{% else %}border-secondary{% endif %}" style="border-width: 2px;">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">{{ annee_clean }}</h5>
-                                {% if est_active %}
-                                <span class="badge bg-success mb-2">✅ Active</span>
-                                <br>
-                                <a href="{{ url_for('desactiver_periode') }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Désactiver la période {{ annee_clean }} ?')">
-                                    <i class="fas fa-pause me-1"></i>Désactiver
-                                </a>
-                                {% else %}
-                                <span class="badge bg-secondary mb-2">⏸️ Inactive</span>
-                                <br>
-                                <a href="{{ url_for('activer_periode', annee=annee_clean) }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-play me-1"></i>Activer
-                                </a>
-                                {% endif %}
-                            </div>
-                        </div>
+                <div class="text-end mt-3"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Enregistrer</button></div>
+            </form>
+        </div></div>
+
+        <!-- PÉRIODES -->
+        <div class="tab-pane fade" id="periodes"><div class="settings-section">
+            <h5 class="section-title"><i class="fas fa-calendar-alt"></i>Gestion des périodes</h5>
+            <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Gérez les années scolaires pour les réinscriptions.</div>
+            {% set annees = parametres.get('annees_scolaires', '2024-2025,2025-2026,2026-2027').split(',') %}
+            {% set active = parametres.get('annee_scolaire_active', '') %}
+            <div class="row mb-4">
+                {% for annee in annees %}{% set a = annee.strip() %}
+                <div class="col-md-4 mb-3"><div class="card {% if a == active %}border-success{% else %}border-secondary{% endif %}" style="border-width:2px;"><div class="card-body text-center"><h5 class="card-title">{{ a }}</h5>
+                {% if a == active %}<span class="badge bg-success mb-2">✅ Active</span><br><a href="{{ url_for('desactiver_periode') }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Désactiver {{ a }} ?')"><i class="fas fa-pause me-1"></i>Désactiver</a>
+                {% else %}<span class="badge bg-secondary mb-2">⏸️ Inactive</span><br><a href="{{ url_for('activer_periode', annee=a) }}" class="btn btn-outline-success btn-sm"><i class="fas fa-play me-1"></i>Activer</a>{% endif %}
+                </div></div></div>{% endfor %}
+            </div>
+            <form method="POST" action="{{ url_for('sauvegarder_parametres_periodes') }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3"><label class="form-label">Année active</label><select name="annee_scolaire_active" class="form-select"><option value="">-- Aucune --</option>{% for annee in annees %}<option value="{{ annee.strip() }}" {% if annee.strip()==active %}selected{% endif %}>{{ annee.strip() }}</option>{% endfor %}</select></div>
+                        <div class="mb-3"><label class="form-label">Années disponibles</label><input type="text" name="annees_scolaires" class="form-control" value="{{ parametres.get('annees_scolaires', '2024-2025,2025-2026,2026-2027') }}"><small class="text-muted">Séparées par des virgules</small></div>
+                        <div class="mb-3"><label class="form-label">Frais réinscription (FCFA)</label><input type="number" name="frais_reinscription" class="form-control" value="{{ parametres.get('frais_reinscription', '0') }}" min="0" step="1000"></div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="mb-3"><label class="form-label">Date début</label><input type="date" name="periode_debut" class="form-control" value="{{ parametres.get('periode_debut', '2026-09-01') }}"></div>
+                        <div class="mb-3"><label class="form-label">Date fin</label><input type="date" name="periode_fin" class="form-control" value="{{ parametres.get('periode_fin', '2027-07-31') }}"></div>
+                        <div class="mb-3"><label class="form-label">Année affichée</label><input type="text" name="annee_scolaire" class="form-control" value="{{ parametres.get('annee_scolaire', '2025-2026') }}"></div>
+                    </div>
+                </div>
+                <div class="text-end mt-3"><a href="{{ url_for('liste_reinscriptions') }}" class="btn btn-info me-2"><i class="fas fa-list me-1"></i>Réinscriptions</a><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Enregistrer</button></div>
+            </form>
+        </div></div>
+
+        <!-- TENUES, RENFORCEMENT & EXAMENS -->
+        <div class="tab-pane fade" id="tenues"><div class="settings-section">
+            <form method="POST" action="{{ url_for('sauvegarder_tous_parametres') }}">
+                <h5 class="section-title"><i class="fas fa-tshirt"></i>Tenues obligatoires</h5>
+                <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i><strong>Répartition :</strong> <span class="badge bg-primary">Garderie → CE1</span> = Tenue Primaire Inf. | <span class="badge bg-success">CE2 → Terminale</span> = Tenue Primaire Sup.</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3"><label class="form-label"><span style="color:#2196f3;">📚</span> Tenue Garderie → CE1 (FCFA)<br><small class="text-muted">Garderie, TPS, PS, MS, GS, CP1, CP2, CE1</small></label><input type="number" name="montant_tenue_primaire_inf" class="form-control form-control-lg" value="{{ parametres.get('montant_tenue_primaire_inf', 15000) }}" min="0" step="500" style="font-size:1.1rem;font-weight:600;"></div>
+                    <div class="col-md-6 mb-3"><label class="form-label"><span style="color:#4caf50;">🎓</span> Tenue CE2 → Terminale (FCFA)<br><small class="text-muted">CE2, CM1, CM2, 6ème, 5ème, 4ème, 3ème, 2nde, 1ère, Tle</small></label><input type="number" name="montant_tenue_primaire_sup" class="form-control form-control-lg" value="{{ parametres.get('montant_tenue_primaire_sup', 20000) }}" min="0" step="500" style="font-size:1.1rem;font-weight:600;"></div>
+                </div>
+
+                <h5 class="section-title mt-4"><i class="fas fa-chalkboard-teacher"></i>Renforcement scolaire</h5>
+                <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Obligatoire pour : <strong>CM2</strong>, <strong>3ème</strong>, <strong>Terminale</strong></div>
+                <div class="row">
+                    {% for c in [{'n':'CM2','e':'📝','l':'CM2 - CEPE','f':'renforcement_cm2'},{'n':'3ème','e':'📝','l':'3ème - BEPC','f':'renforcement_3eme'},{'n':'Terminale','e':'📝','l':'Terminale - BAC','f':'renforcement_terminale'}] %}
+                    {% set trf = tarifs|selectattr('sous_groupe.nom','equalto',c.n)|selectattr('type_frais_id','equalto',4)|first %}
+                    <div class="col-md-4 mb-3"><div class="card border-warning h-100"><div class="card-header bg-warning text-dark"><strong>{{ c.e }} {{ c.l }}</strong></div><div class="card-body"><label class="form-label fw-bold">Montant (FCFA)</label><input type="number" name="{{ c.f }}" class="form-control form-control-lg" value="{{ trf.montant if trf else 0 }}" min="0" step="1000" style="font-size:1.1rem;font-weight:600;"><small class="text-muted mt-2 d-block">{% if trf and trf.montant>0 %}✅ Configuré : <strong>{{ "{:,.0f}".format(trf.montant) }} FCFA</strong>{% else %}⚠️ Non configuré{% endif %}</small></div></div></div>
                     {% endfor %}
                 </div>
-                
-                <form method="POST" action="{{ url_for('sauvegarder_parametres_periodes') }}">
-                    <h6 class="mb-3"><i class="fas fa-cog me-2"></i>Configuration des périodes</h6>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Année scolaire active</label>
-                                <select name="annee_scolaire_active" class="form-select">
-                                    <option value="">-- Aucune --</option>
-                                    {% for annee in annees %}
-                                    <option value="{{ annee.strip() }}" {% if annee.strip() == active %}selected{% endif %}>{{ annee.strip() }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Liste des années disponibles</label>
-                                <input type="text" name="annees_scolaires" class="form-control" value="{{ parametres.get('annees_scolaires', '2024-2025,2025-2026,2026-2027') }}">
-                                <small class="text-muted">Séparées par des virgules</small>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Frais de réinscription (FCFA)</label>
-                                <input type="number" name="frais_reinscription" class="form-control" value="{{ parametres.get('frais_reinscription', '0') }}" min="0" step="1000">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Date de début de la période</label>
-                                <input type="date" name="periode_debut" class="form-control" value="{{ parametres.get('periode_debut', '2026-09-01') }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Date de fin de la période</label>
-                                <input type="date" name="periode_fin" class="form-control" value="{{ parametres.get('periode_fin', '2027-07-31') }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Année scolaire affichée</label>
-                                <input type="text" name="annee_scolaire" class="form-control" value="{{ parametres.get('annee_scolaire', '2025-2026') }}">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-end mt-3">
-                        <a href="{{ url_for('liste_reinscriptions') }}" class="btn btn-info me-2">
-                            <i class="fas fa-list me-1"></i>Réinscriptions
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Enregistrer
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
 
-        <!-- ========== ONGLET TENUES, RENFORCEMENT & EXAMENS ========== -->
-        <div class="tab-pane fade" id="tenues" role="tabpanel">
-            <div class="settings-section">
-                
-                <form method="POST" action="{{ url_for('sauvegarder_tous_parametres') }}">
-                    
-                    <!-- SECTION TENUES -->
-                    <h5 class="section-title"><i class="fas fa-tshirt"></i>Tenues obligatoires</h5>
-                    
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Répartition :</strong> 
-                        <span class="badge bg-primary">Garderie → CE1</span> = Tenue Primaire Inf. | 
-                        <span class="badge bg-success">CE2 → Terminale</span> = Tenue Primaire Sup.
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">
-                                <span style="color: #2196f3;">📚</span> Tenue Garderie → CE1 (FCFA)
-                                <br><small class="text-muted">Garderie, TPS, PS, MS, GS, CP1, CP2, CE1</small>
-                            </label>
-                            <input type="number" name="montant_tenue_primaire_inf" class="form-control form-control-lg" 
-                                   value="{{ parametres.get('montant_tenue_primaire_inf', 15000) }}" min="0" step="500"
-                                   style="font-size: 1.1rem; font-weight: 600;">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">
-                                <span style="color: #4caf50;">🎓</span> Tenue CE2 → Terminale (FCFA)
-                                <br><small class="text-muted">CE2, CM1, CM2, 6ème, 5ème, 4ème, 3ème, 2nde, 1ère, Tle</small>
-                            </label>
-                            <input type="number" name="montant_tenue_primaire_sup" class="form-control form-control-lg" 
-                                   value="{{ parametres.get('montant_tenue_primaire_sup', 20000) }}" min="0" step="500"
-                                   style="font-size: 1.1rem; font-weight: 600;">
-                        </div>
-                    </div>
+                <h5 class="section-title mt-4"><i class="fas fa-file-alt"></i>Droits d'examen</h5>
+                <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Applicable : <strong>CM2 (CEPE)</strong>, <strong>3ème (BEPC)</strong>, <strong>Terminale (BAC)</strong></div>
+                <!-- CM2 --><div class="card mb-3 border-warning exam-card"><div class="card-header" style="background:#fff3cd;"><strong>📝 CM2 - CEPE</strong></div><div class="card-body"><div class="row"><div class="col-md-6 mb-2"><label class="form-label">Droit Ministère (FCFA)</label><input type="number" name="droit_examen_cm2_ministere" class="form-control" value="{{ parametres.get('droit_examen_cm2_ministere', 5000) }}" min="0"></div><div class="col-md-6 mb-2"><label class="form-label">Droit École (FCFA)</label><input type="number" name="droit_examen_cm2_ecole" class="form-control" value="{{ parametres.get('droit_examen_cm2_ecole', 3000) }}" min="0"></div></div><div class="text-end"><small class="text-muted">Total CM2 : <strong>{{ "{:,.0f}".format(parametres.get('droit_examen_cm2_ministere',5000)|int+parametres.get('droit_examen_cm2_ecole',3000)|int) }} FCFA</strong></small></div></div></div>
+                <!-- 3ème --><div class="card mb-3 border-info exam-card"><div class="card-header" style="background:#d1ecf1;"><strong>📝 3ème - BEPC</strong></div><div class="card-body"><div class="row"><div class="col-md-6 mb-2"><label class="form-label">Droit Ministère (FCFA)</label><input type="number" name="droit_examen_3eme_ministere" class="form-control" value="{{ parametres.get('droit_examen_3eme_ministere', 8000) }}" min="0"></div><div class="col-md-6 mb-2"><label class="form-label">Droit École (FCFA)</label><input type="number" name="droit_examen_3eme_ecole" class="form-control" value="{{ parametres.get('droit_examen_3eme_ecole', 5000) }}" min="0"></div></div><div class="text-end"><small class="text-muted">Total 3ème : <strong>{{ "{:,.0f}".format(parametres.get('droit_examen_3eme_ministere',8000)|int+parametres.get('droit_examen_3eme_ecole',5000)|int) }} FCFA</strong></small></div></div></div>
+                <!-- Tle --><div class="card mb-3 border-danger exam-card"><div class="card-header" style="background:#f8d7da;"><strong>📝 Terminale - BAC</strong></div><div class="card-body"><div class="row"><div class="col-md-6 mb-2"><label class="form-label">Droit Ministère (FCFA)</label><input type="number" name="droit_examen_tle_ministere" class="form-control" value="{{ parametres.get('droit_examen_tle_ministere', 10000) }}" min="0"></div><div class="col-md-6 mb-2"><label class="form-label">Droit École (FCFA)</label><input type="number" name="droit_examen_tle_ecole" class="form-control" value="{{ parametres.get('droit_examen_tle_ecole', 7000) }}" min="0"></div></div><div class="text-end"><small class="text-muted">Total Terminale : <strong>{{ "{:,.0f}".format(parametres.get('droit_examen_tle_ministere',10000)|int+parametres.get('droit_examen_tle_ecole',7000)|int) }} FCFA</strong></small></div></div></div>
+                <div class="text-end mt-3"><button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>Enregistrer tous les montants</button></div>
+            </form>
+        </div></div>
 
-                    <!-- SECTION RENFORCEMENT -->
-                    <h5 class="section-title mt-4"><i class="fas fa-chalkboard-teacher"></i>Renforcement scolaire</h5>
-                    
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Le renforcement est <strong>obligatoire</strong> pour les classes d'examen : 
-                        <strong>CM2</strong>, <strong>3ème</strong>, <strong>Terminale</strong>
-                    </div>
-                    
-                    <div class="row">
-                        <!-- CM2 -->
-                        {% set tarif_cm2 = tarifs|selectattr('sous_groupe.nom', 'equalto', 'CM2')|selectattr('type_frais_id', 'equalto', 4)|first %}
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-warning h-100">
-                                <div class="card-header bg-warning text-dark">
-                                    <strong>📝 CM2 - CEPE</strong>
-                                </div>
-                                <div class="card-body">
-                                    <label class="form-label fw-bold">Montant (FCFA)</label>
-                                    <input type="number" name="renforcement_cm2" class="form-control form-control-lg"
-                                           value="{{ tarif_cm2.montant if tarif_cm2 else 0 }}" min="0" step="1000"
-                                           style="font-size: 1.1rem; font-weight: 600;">
-                                    <small class="text-muted mt-2 d-block">
-                                        {% if tarif_cm2 and tarif_cm2.montant > 0 %}
-                                            ✅ Configuré : <strong>{{ "{:,.0f}".format(tarif_cm2.montant) }} FCFA</strong>
-                                        {% else %}
-                                            ⚠️ Non configuré
-                                        {% endif %}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
+        <!-- TARIFS PAR GROUPE -->
+        <div class="tab-pane fade" id="tarifs"><div class="settings-section">
+            <h5 class="section-title"><i class="fas fa-money-bill-wave"></i>Tarifs par groupe</h5>
+            <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i><strong>4 groupes :</strong> Maternelle | Primaire | Premier Cycle | Second Cycle</div>
+            <div class="table-responsive mb-4">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light"><tr><th>Groupe</th><th>Niveaux</th><th class="text-center">Inscription</th><th class="text-center">Non Affecté</th><th class="text-center">Affecté</th><th class="text-end">Action</th></tr></thead>
+                    <tbody>
+                        <!-- MATERNELLE -->
+                        {% set mat_insc = tarifs_affectes|selectattr('groupe_id','equalto',1)|selectattr('type_tarif','equalto','inscription')|first %}
+                        {% set mat_normal = tarifs_affectes|selectattr('groupe_id','equalto',1)|selectattr('est_affecte','equalto',false)|selectattr('type_tarif','equalto','scolarite')|first %}
+                        {% set mat_affecte = tarifs_affectes|selectattr('groupe_id','equalto',1)|selectattr('est_affecte','equalto',true)|first %}
+                        <tr><td><strong>Maternelle</strong></td><td><span class="badge bg-light text-dark">PS MS GS</span></td><td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(mat_insc.montant) if mat_insc else '0' }} FCFA</span></td><td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(mat_normal.montant) if mat_normal else '0' }} FCFA</span></td><td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(mat_affecte.montant) if mat_affecte else '0' }} FCFA</span></td><td class="text-end"><button class="btn btn-warning btn-sm" id="btnMaternelle"><i class="fas fa-edit"></i> Modifier</button></td></tr>
+                        <script>document.getElementById('btnMaternelle')?.addEventListener('click',function(){editerTarifGroupe(1,"Maternelle",{{ mat_insc.montant if mat_insc else 0 }},{{ mat_normal.montant if mat_normal else 0 }},{{ mat_affecte.montant if mat_affecte else 0 }},{{ mat_insc.id if mat_insc else 0 }},{{ mat_normal.id if mat_normal else 0 }},{{ mat_affecte.id if mat_affecte else 0 }});});</script>
                         
-                        <!-- 3ème -->
-                        {% set tarif_3eme = tarifs|selectattr('sous_groupe.nom', 'equalto', '3ème')|selectattr('type_frais_id', 'equalto', 4)|first %}
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-warning h-100">
-                                <div class="card-header bg-warning text-dark">
-                                    <strong>📝 3ème - BEPC</strong>
-                                </div>
-                                <div class="card-body">
-                                    <label class="form-label fw-bold">Montant (FCFA)</label>
-                                    <input type="number" name="renforcement_3eme" class="form-control form-control-lg"
-                                           value="{{ tarif_3eme.montant if tarif_3eme else 0 }}" min="0" step="1000"
-                                           style="font-size: 1.1rem; font-weight: 600;">
-                                    <small class="text-muted mt-2 d-block">
-                                        {% if tarif_3eme and tarif_3eme.montant > 0 %}
-                                            ✅ Configuré : <strong>{{ "{:,.0f}".format(tarif_3eme.montant) }} FCFA</strong>
-                                        {% else %}
-                                            ⚠️ Non configuré
-                                        {% endif %}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- PRIMAIRE -->
+                        {% set prim_insc = tarifs_affectes|selectattr('groupe_id','equalto',2)|selectattr('type_tarif','equalto','inscription')|first %}
+                        {% set prim_normal = tarifs_affectes|selectattr('groupe_id','equalto',2)|selectattr('est_affecte','equalto',false)|selectattr('type_tarif','equalto','scolarite')|first %}
+                        {% set prim_affecte = tarifs_affectes|selectattr('groupe_id','equalto',2)|selectattr('est_affecte','equalto',true)|first %}
+                        <tr><td><strong>Primaire</strong></td><td><span class="badge bg-light text-dark">CP1 CP2 CE1 CE2 CM1 CM2</span></td><td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(prim_insc.montant) if prim_insc else '0' }} FCFA</span></td><td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(prim_normal.montant) if prim_normal else '0' }} FCFA</span></td><td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(prim_affecte.montant) if prim_affecte else '0' }} FCFA</span></td><td class="text-end"><button class="btn btn-warning btn-sm" id="btnPrimaire"><i class="fas fa-edit"></i> Modifier</button></td></tr>
+                        <script>document.getElementById('btnPrimaire')?.addEventListener('click',function(){editerTarifGroupe(2,"Primaire",{{ prim_insc.montant if prim_insc else 0 }},{{ prim_normal.montant if prim_normal else 0 }},{{ prim_affecte.montant if prim_affecte else 0 }},{{ prim_insc.id if prim_insc else 0 }},{{ prim_normal.id if prim_normal else 0 }},{{ prim_affecte.id if prim_affecte else 0 }});});</script>
                         
-                        <!-- Terminale -->
-                        {% set tarif_tle = tarifs|selectattr('sous_groupe.nom', 'equalto', 'Terminale')|selectattr('type_frais_id', 'equalto', 4)|first %}
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-warning h-100">
-                                <div class="card-header bg-warning text-dark">
-                                    <strong>📝 Terminale - BAC</strong>
-                                </div>
-                                <div class="card-body">
-                                    <label class="form-label fw-bold">Montant (FCFA)</label>
-                                    <input type="number" name="renforcement_terminale" class="form-control form-control-lg"
-                                           value="{{ tarif_tle.montant if tarif_tle else 0 }}" min="0" step="1000"
-                                           style="font-size: 1.1rem; font-weight: 600;">
-                                    <small class="text-muted mt-2 d-block">
-                                        {% if tarif_tle and tarif_tle.montant > 0 %}
-                                            ✅ Configuré : <strong>{{ "{:,.0f}".format(tarif_tle.montant) }} FCFA</strong>
-                                        {% else %}
-                                            ⚠️ Non configuré
-                                        {% endif %}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- SECTION DROITS D'EXAMEN -->
-                    <h5 class="section-title mt-4"><i class="fas fa-file-alt"></i>Droits d'examen</h5>
-                    
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Applicable uniquement aux classes d'examen : <strong>CM2 (CEPE)</strong>, <strong>3ème (BEPC)</strong>, <strong>Terminale (BAC)</strong>
-                    </div>
-                    
-                    <!-- CM2 -->
-                    <div class="card mb-3 border-warning exam-card">
-                        <div class="card-header" style="background: #fff3cd;">
-                            <strong>📝 CM2 - CEPE</strong>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-2">
-                                    <label class="form-label">Droit Ministère (FCFA)</label>
-                                    <input type="number" name="droit_examen_cm2_ministere" class="form-control" value="{{ parametres.get('droit_examen_cm2_ministere', 5000) }}" min="0">
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label class="form-label">Droit École (FCFA)</label>
-                                    <input type="number" name="droit_examen_cm2_ecole" class="form-control" value="{{ parametres.get('droit_examen_cm2_ecole', 3000) }}" min="0">
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <small class="text-muted">
-                                    Total CM2 : <strong>{{ "{:,.0f}".format(parametres.get('droit_examen_cm2_ministere', 5000)|int + parametres.get('droit_examen_cm2_ecole', 3000)|int) }} FCFA</strong>
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 3ème -->
-                    <div class="card mb-3 border-info exam-card">
-                        <div class="card-header" style="background: #d1ecf1;">
-                            <strong>📝 3ème - BEPC</strong>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-2">
-                                    <label class="form-label">Droit Ministère (FCFA)</label>
-                                    <input type="number" name="droit_examen_3eme_ministere" class="form-control" value="{{ parametres.get('droit_examen_3eme_ministere', 8000) }}" min="0">
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label class="form-label">Droit École (FCFA)</label>
-                                    <input type="number" name="droit_examen_3eme_ecole" class="form-control" value="{{ parametres.get('droit_examen_3eme_ecole', 5000) }}" min="0">
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <small class="text-muted">
-                                    Total 3ème : <strong>{{ "{:,.0f}".format(parametres.get('droit_examen_3eme_ministere', 8000)|int + parametres.get('droit_examen_3eme_ecole', 5000)|int) }} FCFA</strong>
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Terminale -->
-                    <div class="card mb-3 border-danger exam-card">
-                        <div class="card-header" style="background: #f8d7da;">
-                            <strong>📝 Terminale - BAC</strong>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-2">
-                                    <label class="form-label">Droit Ministère (FCFA)</label>
-                                    <input type="number" name="droit_examen_tle_ministere" class="form-control" value="{{ parametres.get('droit_examen_tle_ministere', 10000) }}" min="0">
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label class="form-label">Droit École (FCFA)</label>
-                                    <input type="number" name="droit_examen_tle_ecole" class="form-control" value="{{ parametres.get('droit_examen_tle_ecole', 7000) }}" min="0">
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <small class="text-muted">
-                                    Total Terminale : <strong>{{ "{:,.0f}".format(parametres.get('droit_examen_tle_ministere', 10000)|int + parametres.get('droit_examen_tle_ecole', 7000)|int) }} FCFA</strong>
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-end mt-3">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-save me-2"></i>Enregistrer tous les montants
-                        </button>
-                    </div>
-                </form>
+                        <!-- PREMIER CYCLE -->
+                        {% set pc_insc = tarifs_affectes|selectattr('groupe_id','equalto',3)|selectattr('type_tarif','equalto','inscription')|first %}
+                        {% set pc_normal = tarifs_affectes|selectattr('groupe_id','equalto',3)|selectattr('est_affecte','equalto',false)|selectattr('type_tarif','equalto','scolarite')|first %}
+                        {% set pc_affecte = tarifs_affectes|selectattr('groupe_id','equalto',3)|selectattr('est_affecte','equalto',true)|first %}
+                        <tr><td><strong>Premier Cycle</strong></td><td><span class="badge bg-light text-dark">6ème 5ème 4ème 3ème</span></td><td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(pc_insc.montant) if pc_insc else '0' }} FCFA</span></td><td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(pc_normal.montant) if pc_normal else '0' }} FCFA</span></td><td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(pc_affecte.montant) if pc_affecte else '0' }} FCFA</span></td><td class="text-end"><button class="btn btn-warning btn-sm" id="btnPremierCycle"><i class="fas fa-edit"></i> Modifier</button></td></tr>
+                        <script>document.getElementById('btnPremierCycle')?.addEventListener('click',function(){editerTarifGroupe(3,"Premier Cycle",{{ pc_insc.montant if pc_insc else 0 }},{{ pc_normal.montant if pc_normal else 0 }},{{ pc_affecte.montant if pc_affecte else 0 }},{{ pc_insc.id if pc_insc else 0 }},{{ pc_normal.id if pc_normal else 0 }},{{ pc_affecte.id if pc_affecte else 0 }});});</script>
+                        
+                        <!-- SECOND CYCLE -->
+                        {% set sc_insc = tarifs_affectes|selectattr('groupe_id','equalto',4)|selectattr('type_tarif','equalto','inscription')|first %}
+                        {% set sc_normal = tarifs_affectes|selectattr('groupe_id','equalto',4)|selectattr('est_affecte','equalto',false)|selectattr('type_tarif','equalto','scolarite')|first %}
+                        {% set sc_affecte = tarifs_affectes|selectattr('groupe_id','equalto',4)|selectattr('est_affecte','equalto',true)|first %}
+                        <tr><td><strong>Second Cycle</strong></td><td><span class="badge bg-light text-dark">2nde 1ère Terminale</span></td><td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(sc_insc.montant) if sc_insc else '0' }} FCFA</span></td><td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(sc_normal.montant) if sc_normal else '0' }} FCFA</span></td><td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(sc_affecte.montant) if sc_affecte else '0' }} FCFA</span></td><td class="text-end"><button class="btn btn-warning btn-sm" id="btnSecondCycle"><i class="fas fa-edit"></i> Modifier</button></td></tr>
+                        <script>document.getElementById('btnSecondCycle')?.addEventListener('click',function(){editerTarifGroupe(4,"Second Cycle",{{ sc_insc.montant if sc_insc else 0 }},{{ sc_normal.montant if sc_normal else 0 }},{{ sc_affecte.montant if sc_affecte else 0 }},{{ sc_insc.id if sc_insc else 0 }},{{ sc_normal.id if sc_normal else 0 }},{{ sc_affecte.id if sc_affecte else 0 }});});</script>
+                    </tbody>
+                </table>
             </div>
-        </div>
-        
-        <!-- ========== ONGLET TARIFS PAR GROUPE ========== -->
-        <div class="tab-pane fade" id="tarifs" role="tabpanel">
-            <div class="settings-section">
-                <h5 class="section-title"><i class="fas fa-money-bill-wave"></i>Tarifs par groupe</h5>
-                
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>4 groupes :</strong> Maternelle | Primaire | Premier Cycle | Second Cycle<br>
-                    Mêmes tarifs pour tous les niveaux d'un même groupe.
-                </div>
-                
-                <div class="table-responsive mb-4">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Groupe</th>
-                                <th>Niveaux</th>
-                                <th class="text-center">Inscription</th>
-                                <th class="text-center">Non Affecté</th>
-                                <th class="text-center">Affecté</th>
-                                <th class="text-end">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- 1. MATERNELLE -->
-                            {% set mat_insc = tarifs_affectes|selectattr('groupe_id', 'equalto', 1)|selectattr('type_tarif', 'equalto', 'inscription')|first %}
-                            {% set mat_normal = tarifs_affectes|selectattr('groupe_id', 'equalto', 1)|selectattr('est_affecte', 'equalto', false)|selectattr('type_tarif', 'equalto', 'scolarite')|first %}
-                            {% set mat_affecte = tarifs_affectes|selectattr('groupe_id', 'equalto', 1)|selectattr('est_affecte', 'equalto', true)|first %}
-                            <tr>
-                                <td><strong>Maternelle</strong></td>
-                                <td><span class="badge bg-light text-dark">PS</span> <span class="badge bg-light text-dark">MS</span> <span class="badge bg-light text-dark">GS</span></td>
-                                <td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(mat_insc.montant) if mat_insc else '0' }} FCFA</span></td>
-                                <td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(mat_normal.montant) if mat_normal else '0' }} FCFA</span></td>
-                                <td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(mat_affecte.montant) if mat_affecte else '0' }} FCFA</span></td>
-                                <td class="text-end">
-                                    <button class="btn btn-warning btn-sm" id="btnMaternelle"><i class="fas fa-edit"></i> Modifier</button>
-                                </td>
-                            </tr>
-                            <script>
-                                document.getElementById('btnMaternelle')?.addEventListener('click', function() {
-                                    editerTarifGroupe(1, "Maternelle", {{ mat_insc.montant if mat_insc else 0 }}, {{ mat_normal.montant if mat_normal else 0 }}, {{ mat_affecte.montant if mat_affecte else 0 }}, {{ mat_insc.id if mat_insc else 0 }}, {{ mat_normal.id if mat_normal else 0 }}, {{ mat_affecte.id if mat_affecte else 0 }});
-                                });
-                            </script>
-                            
-                            <!-- 2. PRIMAIRE -->
-                            {% set prim_insc = tarifs_affectes|selectattr('groupe_id', 'equalto', 2)|selectattr('type_tarif', 'equalto', 'inscription')|first %}
-                            {% set prim_normal = tarifs_affectes|selectattr('groupe_id', 'equalto', 2)|selectattr('est_affecte', 'equalto', false)|selectattr('type_tarif', 'equalto', 'scolarite')|first %}
-                            {% set prim_affecte = tarifs_affectes|selectattr('groupe_id', 'equalto', 2)|selectattr('est_affecte', 'equalto', true)|first %}
-                            <tr>
-                                <td><strong>Primaire</strong></td>
-                                <td><span class="badge bg-light text-dark">CP1</span> <span class="badge bg-light text-dark">CP2</span> <span class="badge bg-light text-dark">CE1</span> <span class="badge bg-light text-dark">CE2</span> <span class="badge bg-light text-dark">CM1</span> <span class="badge bg-light text-dark">CM2</span></td>
-                                <td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(prim_insc.montant) if prim_insc else '0' }} FCFA</span></td>
-                                <td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(prim_normal.montant) if prim_normal else '0' }} FCFA</span></td>
-                                <td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(prim_affecte.montant) if prim_affecte else '0' }} FCFA</span></td>
-                                <td class="text-end">
-                                    <button class="btn btn-warning btn-sm" id="btnPrimaire"><i class="fas fa-edit"></i> Modifier</button>
-                                </td>
-                            </tr>
-                            <script>
-                                document.getElementById('btnPrimaire')?.addEventListener('click', function() {
-                                    editerTarifGroupe(2, "Primaire", {{ prim_insc.montant if prim_insc else 0 }}, {{ prim_normal.montant if prim_normal else 0 }}, {{ prim_affecte.montant if prim_affecte else 0 }}, {{ prim_insc.id if prim_insc else 0 }}, {{ prim_normal.id if prim_normal else 0 }}, {{ prim_affecte.id if prim_affecte else 0 }});
-                                });
-                            </script>
-                            
-                            <!-- 3. PREMIER CYCLE -->
-                            {% set pc_insc = tarifs_affectes|selectattr('groupe_id', 'equalto', 3)|selectattr('type_tarif', 'equalto', 'inscription')|first %}
-                            {% set pc_normal = tarifs_affectes|selectattr('groupe_id', 'equalto', 3)|selectattr('est_affecte', 'equalto', false)|selectattr('type_tarif', 'equalto', 'scolarite')|first %}
-                            {% set pc_affecte = tarifs_affectes|selectattr('groupe_id', 'equalto', 3)|selectattr('est_affecte', 'equalto', true)|first %}
-                            <tr>
-                                <td><strong>Premier Cycle</strong></td>
-                                <td><span class="badge bg-light text-dark">6ème</span> <span class="badge bg-light text-dark">5ème</span> <span class="badge bg-light text-dark">4ème</span> <span class="badge bg-light text-dark">3ème</span></td>
-                                <td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(pc_insc.montant) if pc_insc else '0' }} FCFA</span></td>
-                                <td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(pc_normal.montant) if pc_normal else '0' }} FCFA</span></td>
-                                <td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(pc_affecte.montant) if pc_affecte else '0' }} FCFA</span></td>
-                                <td class="text-end">
-                                    <button class="btn btn-warning btn-sm" id="btnPremierCycle"><i class="fas fa-edit"></i> Modifier</button>
-                                </td>
-                            </tr>
-                            <script>
-                                document.getElementById('btnPremierCycle')?.addEventListener('click', function() {
-                                    editerTarifGroupe(3, "Premier Cycle", {{ pc_insc.montant if pc_insc else 0 }}, {{ pc_normal.montant if pc_normal else 0 }}, {{ pc_affecte.montant if pc_affecte else 0 }}, {{ pc_insc.id if pc_insc else 0 }}, {{ pc_normal.id if pc_normal else 0 }}, {{ pc_affecte.id if pc_affecte else 0 }});
-                                });
-                            </script>
-                            
-                            <!-- 4. SECOND CYCLE -->
-                            {% set sc_insc = tarifs_affectes|selectattr('groupe_id', 'equalto', 4)|selectattr('type_tarif', 'equalto', 'inscription')|first %}
-                            {% set sc_normal = tarifs_affectes|selectattr('groupe_id', 'equalto', 4)|selectattr('est_affecte', 'equalto', false)|selectattr('type_tarif', 'equalto', 'scolarite')|first %}
-                            {% set sc_affecte = tarifs_affectes|selectattr('groupe_id', 'equalto', 4)|selectattr('est_affecte', 'equalto', true)|first %}
-                            <tr>
-                                <td><strong>Second Cycle</strong></td>
-                                <td><span class="badge bg-light text-dark">2nde</span> <span class="badge bg-light text-dark">1ère</span> <span class="badge bg-light text-dark">Terminale</span></td>
-                                <td class="text-center"><span class="badge bg-info text-dark tariff-badge">{{ "{:,.0f}".format(sc_insc.montant) if sc_insc else '0' }} FCFA</span></td>
-                                <td class="text-center"><span class="badge bg-primary tariff-badge">{{ "{:,.0f}".format(sc_normal.montant) if sc_normal else '0' }} FCFA</span></td>
-                                <td class="text-center"><span class="badge bg-success tariff-badge">{{ "{:,.0f}".format(sc_affecte.montant) if sc_affecte else '0' }} FCFA</span></td>
-                                <td class="text-end">
-                                    <button class="btn btn-warning btn-sm" id="btnSecondCycle"><i class="fas fa-edit"></i> Modifier</button>
-                                </td>
-                            </tr>
-                            <script>
-                                document.getElementById('btnSecondCycle')?.addEventListener('click', function() {
-                                    editerTarifGroupe(4, "Second Cycle", {{ sc_insc.montant if sc_insc else 0 }}, {{ sc_normal.montant if sc_normal else 0 }}, {{ sc_affecte.montant if sc_affecte else 0 }}, {{ sc_insc.id if sc_insc else 0 }}, {{ sc_normal.id if sc_normal else 0 }}, {{ sc_affecte.id if sc_affecte else 0 }});
-                                });
-                            </script>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ========== ONGLET GROUPES ========== -->
-        <div class="tab-pane fade" id="groupes" role="tabpanel">
-            <div class="settings-section">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="section-title mb-0"><i class="fas fa-layer-group"></i>Groupes scolaires</h5>
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterGroupeModal"><i class="fas fa-plus me-1"></i>Ajouter</button>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr><th>Ordre</th><th>Nom</th><th>Code</th><th>Sous-groupes</th><th>Description</th><th>Statut</th><th class="text-end">Actions</th></tr>
-                        </thead>
-                        <tbody>
-                            {% for groupe in groupes %}
-                            <tr>
-                                <td>{{ groupe.ordre }}</td>
-                                <td><strong>{{ groupe.nom }}</strong></td>
-                                <td><code>{{ groupe.code }}</code></td>
-                                <td><span class="badge bg-info">{{ groupe.sous_groupes|length }}</span></td>
-                                <td>{{ groupe.description or '-' }}</td>
-                                <td>{% if groupe.actif %}<span class="badge bg-success">Actif</span>{% else %}<span class="badge bg-secondary">Inactif</span>{% endif %}</td>
-                                <td class="text-end table-actions">
-                                    <button class="btn btn-warning btn-sm" onclick="editerGroupe({{ groupe.id }}, '{{ groupe.nom }}', '{{ groupe.code }}', {{ groupe.ordre }}, '{{ groupe.description or '' }}', {{ 'true' if groupe.actif else 'false' }})"><i class="fas fa-edit"></i></button>
-                                    <a href="{{ url_for('param_supprimer_groupe', id=groupe.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer le groupe {{ groupe.nom }} ?')"><i class="fas fa-trash"></i></a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ========== ONGLET SOUS-GROUPES ========== -->
-        <div class="tab-pane fade" id="sous-groupes" role="tabpanel">
-            <div class="settings-section">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="section-title mb-0"><i class="fas fa-folder-tree"></i>Sous-groupes (Niveaux)</h5>
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterSousGroupeModal"><i class="fas fa-plus me-1"></i>Ajouter</button>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr><th>Groupe parent</th><th>Ordre</th><th>Nom</th><th>Code</th><th>Élèves</th><th>Statut</th><th class="text-end">Actions</th></tr>
-                        </thead>
-                        <tbody>
-                            {% for sg in sous_groupes %}
-                            <tr>
-                                <td><span class="badge" style="background: #667eea; color: white;">{{ sg.groupe_parent.nom }}</span></td>
-                                <td>{{ sg.ordre }}</td>
-                                <td><strong>{{ sg.nom }}</strong></td>
-                                <td><code>{{ sg.code }}</code></td>
-                                <td><span class="badge bg-info">{{ sg.eleves|length }}</span></td>
-                                <td>{% if sg.actif %}<span class="badge bg-success">Actif</span>{% else %}<span class="badge bg-secondary">Inactif</span>{% endif %}</td>
-                                <td class="text-end table-actions">
-                                    <button class="btn btn-warning btn-sm" onclick="editerSousGroupe({{ sg.id }}, '{{ sg.nom }}', '{{ sg.code }}', {{ sg.ordre }}, '{{ sg.description or '' }}', {{ sg.groupe_id }}, {{ 'true' if sg.actif else 'false' }})"><i class="fas fa-edit"></i></button>
-                                    <a href="{{ url_for('param_supprimer_sous_groupe', id=sg.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer le sous-groupe {{ sg.nom }} ?')"><i class="fas fa-trash"></i></a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ========== ONGLET TRANSPORTS ========== -->
-        <div class="tab-pane fade" id="transports" role="tabpanel">
-            <div class="settings-section">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="section-title mb-0"><i class="fas fa-bus"></i>Options de transport</h5>
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterTransportModal"><i class="fas fa-plus me-1"></i>Ajouter</button>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr><th>Ordre</th><th>Nom</th><th>Code</th><th class="text-center">Montant supplément</th><th>Statut</th><th class="text-end">Actions</th></tr>
-                        </thead>
-                        <tbody>
-                            {% for transport in transports %}
-                            <tr>
-                                <td>{{ transport.ordre }}</td>
-                                <td><strong>{{ transport.nom }}</strong></td>
-                                <td><code>{{ transport.code }}</code></td>
-                                <td class="text-center">{{ "{:,.0f}".format(transport.montant_supplement) }} FCFA</td>
-                                <td>{% if transport.actif %}<span class="badge bg-success">Actif</span>{% else %}<span class="badge bg-secondary">Inactif</span>{% endif %}</td>
-                                <td class="text-end">
-                                    <button class="btn btn-warning btn-sm" onclick="editerTransport({{ transport.id }}, '{{ transport.nom }}', '{{ transport.code }}', {{ transport.montant_supplement }}, {{ transport.ordre }}, '{{ transport.description or '' }}', {{ 'true' if transport.actif else 'false' }})"><i class="fas fa-edit"></i></button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ========== ONGLET CANTINES ========== -->
-        <div class="tab-pane fade" id="cantines" role="tabpanel">
-            <div class="settings-section">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="section-title mb-0"><i class="fas fa-utensils"></i>Options de cantine</h5>
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterCantineModal"><i class="fas fa-plus me-1"></i>Ajouter</button>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr><th>Ordre</th><th>Nom</th><th>Code</th><th class="text-center">Montant</th><th>Statut</th><th class="text-end">Actions</th></tr>
-                        </thead>
-                        <tbody>
-                            {% for cantine in cantines %}
-                            <tr>
-                                <td>{{ cantine.ordre }}</td>
-                                <td><strong>{{ cantine.nom }}</strong></td>
-                                <td><code>{{ cantine.code }}</code></td>
-                                <td class="text-center">{{ "{:,.0f}".format(cantine.montant) }} FCFA</td>
-                                <td>{% if cantine.actif %}<span class="badge bg-success">Actif</span>{% else %}<span class="badge bg-secondary">Inactif</span>{% endif %}</td>
-                                <td class="text-end">
-                                    <button class="btn btn-warning btn-sm" onclick="editerCantine({{ cantine.id }}, '{{ cantine.nom }}', '{{ cantine.code }}', {{ cantine.montant }}, {{ cantine.ordre }}, '{{ cantine.description or '' }}', {{ 'true' if cantine.actif else 'false' }})"><i class="fas fa-edit"></i></button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        </div></div>
+
+        <!-- GROUPES --><div class="tab-pane fade" id="groupes"><div class="settings-section"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="section-title mb-0"><i class="fas fa-layer-group"></i>Groupes scolaires</h5><button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterGroupeModal"><i class="fas fa-plus me-1"></i>Ajouter</button></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Ordre</th><th>Nom</th><th>Code</th><th>Sous-groupes</th><th>Description</th><th>Statut</th><th class="text-end">Actions</th></tr></thead><tbody>{% for g in groupes %}<tr><td>{{ g.ordre }}</td><td><strong>{{ g.nom }}</strong></td><td><code>{{ g.code }}</code></td><td><span class="badge bg-info">{{ g.sous_groupes|length }}</span></td><td>{{ g.description or '-' }}</td><td>{% if g.actif %}<span class="badge bg-success">Actif</span>{% else %}<span class="badge bg-secondary">Inactif</span>{% endif %}</td><td class="text-end table-actions"><button class="btn btn-warning btn-sm" onclick="editerGroupe({{ g.id }},'{{ g.nom }}','{{ g.code }}',{{ g.ordre }},'{{ g.description or '' }}',{{ 'true' if g.actif else 'false' }})"><i class="fas fa-edit"></i></button><a href="{{ url_for('param_supprimer_groupe',id=g.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer {{ g.nom }} ?')"><i class="fas fa-trash"></i></a></td></tr>{% endfor %}</tbody></table></div></div></div>
+        <!-- SOUS-GROUPES --><div class="tab-pane fade" id="sous-groupes"><div class="settings-section"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="section-title mb-0"><i class="fas fa-folder-tree"></i>Sous-groupes</h5><button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterSousGroupeModal"><i class="fas fa-plus me-1"></i>Ajouter</button></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Groupe parent</th><th>Ordre</th><th>Nom</th><th>Code</th><th>Élèves</th><th>Statut</th><th class="text-end">Actions</th></tr></thead><tbody>{% for sg in sous_groupes %}<tr><td><span class="badge" style="background:#667eea;color:white;">{{ sg.groupe_parent.nom }}</span></td><td>{{ sg.ordre }}</td><td><strong>{{ sg.nom }}</strong></td><td><code>{{ sg.code }}</code></td><td><span class="badge bg-info">{{ sg.eleves|length }}</span></td><td>{% if sg.actif %}<span class="badge bg-success">Actif</span>{% else %}<span class="badge bg-secondary">Inactif</span>{% endif %}</td><td class="text-end table-actions"><button class="btn btn-warning btn-sm" onclick="editerSousGroupe({{ sg.id }},'{{ sg.nom }}','{{ sg.code }}',{{ sg.ordre }},'{{ sg.description or '' }}',{{ sg.groupe_id }},{{ 'true' if sg.actif else 'false' }})"><i class="fas fa-edit"></i></button><a href="{{ url_for('param_supprimer_sous_groupe',id=sg.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer {{ sg.nom }} ?')"><i class="fas fa-trash"></i></a></td></tr>{% endfor %}</tbody></table></div></div></div>
+        <!-- TRANSPORTS --><div class="tab-pane fade" id="transports"><div class="settings-section"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="section-title mb-0"><i class="fas fa-bus"></i>Transports</h5><button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterTransportModal"><i class="fas fa-plus me-1"></i>Ajouter</button></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Ordre</th><th>Nom</th><th>Code</th><th class="text-center">Montant</th><th>Statut</th><th class="text-end">Actions</th></tr></thead><tbody>{% for t in transports %}<tr><td>{{ t.ordre }}</td><td><strong>{{ t.nom }}</strong></td><td><code>{{ t.code }}</code></td><td class="text-center">{{ "{:,.0f}".format(t.montant_supplement) }} FCFA</td><td>{% if t.actif %}<span class="badge bg-success">Actif</span>{% else %}<span class="badge bg-secondary">Inactif</span>{% endif %}</td><td class="text-end"><button class="btn btn-warning btn-sm" onclick="editerTransport({{ t.id }},'{{ t.nom }}','{{ t.code }}',{{ t.montant_supplement }},{{ t.ordre }},'{{ t.description or '' }}',{{ 'true' if t.actif else 'false' }})"><i class="fas fa-edit"></i></button></td></tr>{% endfor %}</tbody></table></div></div></div>
+        <!-- CANTINES --><div class="tab-pane fade" id="cantines"><div class="settings-section"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="section-title mb-0"><i class="fas fa-utensils"></i>Cantines</h5><button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterCantineModal"><i class="fas fa-plus me-1"></i>Ajouter</button></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Ordre</th><th>Nom</th><th>Code</th><th class="text-center">Montant</th><th>Statut</th><th class="text-end">Actions</th></tr></thead><tbody>{% for c in cantines %}<tr><td>{{ c.ordre }}</td><td><strong>{{ c.nom }}</strong></td><td><code>{{ c.code }}</code></td><td class="text-center">{{ "{:,.0f}".format(c.montant) }} FCFA</td><td>{% if c.actif %}<span class="badge bg-success">Actif</span>{% else %}<span class="badge bg-secondary">Inactif</span>{% endif %}</td><td class="text-end"><button class="btn btn-warning btn-sm" onclick="editerCantine({{ c.id }},'{{ c.nom }}','{{ c.code }}',{{ c.montant }},{{ c.ordre }},'{{ c.description or '' }}',{{ 'true' if c.actif else 'false' }})"><i class="fas fa-edit"></i></button></td></tr>{% endfor %}</tbody></table></div></div></div>
     </div>
 </div>
 
-<!-- ========== MODALS ========== -->
-{% include 'parametres_modals.html' %}
-
+<!-- ========== MODALS (tous dans le template, pas de include) ========== -->
+<!-- Modal Ajouter Groupe --><div class="modal fade" id="ajouterGroupeModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST" action="{{ url_for('param_ajouter_groupe') }}"><div class="modal-header"><h6 class="modal-title"><i class="fas fa-plus me-2"></i>Ajouter un groupe</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" class="form-control" required></div><div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" class="form-control" required></div><div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" class="form-control" value="0"></div><div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div><div class="form-check"><input type="checkbox" name="actif" class="form-check-input" id="actifGroupe" checked><label class="form-check-label" for="actifGroupe">Actif</label></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary">Ajouter</button></div></form></div></div></div>
+<!-- Modal Modifier Groupe --><div class="modal fade" id="modifierGroupeModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="modifierGroupeForm" method="POST"><div class="modal-header"><h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le groupe</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" id="editGroupeNom" class="form-control" required></div><div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" id="editGroupeCode" class="form-control" required></div><div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" id="editGroupeOrdre" class="form-control" value="0"></div><div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="editGroupeDescription" class="form-control" rows="2"></textarea></div><div class="form-check"><input type="checkbox" name="actif" id="editGroupeActif" class="form-check-input"><label class="form-check-label" for="editGroupeActif">Actif</label></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary">Enregistrer</button></div></form></div></div></div>
+<!-- Modal Ajouter Sous-Groupe --><div class="modal fade" id="ajouterSousGroupeModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST" action="{{ url_for('param_ajouter_sous_groupe') }}"><div class="modal-header"><h6 class="modal-title"><i class="fas fa-plus me-2"></i>Ajouter un sous-groupe</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Groupe parent *</label><select name="groupe_id" class="form-select" required><option value="">Sélectionner...</option>{% for g in groupes %}<option value="{{ g.id }}">{{ g.nom }}</option>{% endfor %}</select></div><div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" class="form-control" required></div><div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" class="form-control" required></div><div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" class="form-control" value="0"></div><div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div><div class="form-check"><input type="checkbox" name="actif" class="form-check-input" id="actifSousGroupe" checked><label class="form-check-label" for="actifSousGroupe">Actif</label></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary">Ajouter</button></div></form></div></div></div>
+<!-- Modal Modifier Sous-Groupe --><div class="modal fade" id="modifierSousGroupeModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="modifierSousGroupeForm" method="POST"><div class="modal-header"><h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le sous-groupe</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Groupe parent *</label><select name="groupe_id" id="editSousGroupeParent" class="form-select" required><option value="">Sélectionner...</option>{% for g in groupes %}<option value="{{ g.id }}">{{ g.nom }}</option>{% endfor %}</select></div><div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" id="editSousGroupeNom" class="form-control" required></div><div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" id="editSousGroupeCode" class="form-control" required></div><div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" id="editSousGroupeOrdre" class="form-control" value="0"></div><div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="editSousGroupeDescription" class="form-control" rows="2"></textarea></div><div class="form-check"><input type="checkbox" name="actif" id="editSousGroupeActif" class="form-check-input"><label class="form-check-label" for="editSousGroupeActif">Actif</label></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary">Enregistrer</button></div></form></div></div></div>
+<!-- Modal Tarifs par Groupe --><div class="modal fade" id="modalTarifGroupe" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier les tarifs du groupe</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="alert alert-info"><i class="fas fa-info-circle me-2"></i><strong id="groupeNomTarif">Groupe sélectionné</strong><br><small>Ces tarifs s'appliqueront à <strong>tous les sous-groupes</strong> de ce groupe.</small></div><form id="formTarifGroupe" onsubmit="return false;"><input type="hidden" id="tarif_groupe_id"><input type="hidden" id="tarif_inscription_id"><input type="hidden" id="tarif_normal_id"><input type="hidden" id="tarif_affecte_id"><div class="row"><div class="col-md-4"><div class="card border-info mb-3"><div class="card-header bg-info text-dark"><strong><i class="fas fa-file-invoice me-1"></i>Inscription</strong></div><div class="card-body"><input type="number" class="form-control" id="tarif_inscription_montant" min="0" step="1000"></div></div></div><div class="col-md-4"><div class="card border-primary mb-3"><div class="card-header bg-primary text-white"><strong><i class="fas fa-user me-1"></i>Non Affecté</strong></div><div class="card-body"><input type="number" class="form-control" id="tarif_normal_montant" min="0" step="1000"></div></div></div><div class="col-md-4"><div class="card border-success mb-3"><div class="card-header bg-success text-white"><strong><i class="fas fa-building me-1"></i>Affecté</strong></div><div class="card-body"><input type="number" class="form-control" id="tarif_affecte_montant" min="0" step="1000"></div></div></div></div><div class="mt-3"><h6><i class="fas fa-list me-2"></i>Sous-groupes concernés :</h6><div id="listeSousGroupes" class="d-flex flex-wrap gap-2"></div></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="button" class="btn btn-warning" onclick="sauvegarderTarifGroupe()"><i class="fas fa-save me-1"></i>Enregistrer</button></div></div></div></div>
+<!-- Modal Ajouter Transport --><div class="modal fade" id="ajouterTransportModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST" action="{{ url_for('param_ajouter_transport') }}"><div class="modal-header"><h6 class="modal-title"><i class="fas fa-bus me-2"></i>Ajouter un transport</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" class="form-control" required></div><div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" class="form-control" required></div><div class="mb-3"><label class="form-label">Montant supplément (FCFA)</label><input type="number" name="montant_supplement" class="form-control" value="0" step="500"></div><div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" class="form-control" value="0"></div><div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div><div class="form-check"><input type="checkbox" name="actif" class="form-check-input" id="actifTransport" checked><label class="form-check-label" for="actifTransport">Actif</label></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary">Ajouter</button></div></form></div></div></div>
+<!-- Modal Modifier Transport --><div class="modal fade" id="modifierTransportModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="modifierTransportForm" method="POST"><div class="modal-header"><h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier le transport</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" id="editTransportNom" class="form-control" required></div><div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" id="editTransportCode" class="form-control" required></div><div class="mb-3"><label class="form-label">Montant supplément (FCFA)</label><input type="number" name="montant_supplement" id="editTransportMontant" class="form-control" step="500"></div><div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" id="editTransportOrdre" class="form-control"></div><div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="editTransportDescription" class="form-control" rows="2"></textarea></div><div class="form-check"><input type="checkbox" name="actif" id="editTransportActif" class="form-check-input"><label class="form-check-label" for="editTransportActif">Actif</label></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary">Enregistrer</button></div></form></div></div></div>
+<!-- Modal Ajouter Cantine --><div class="modal fade" id="ajouterCantineModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST" action="{{ url_for('param_ajouter_cantine') }}"><div class="modal-header"><h6 class="modal-title"><i class="fas fa-utensils me-2"></i>Ajouter une cantine</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" class="form-control" required></div><div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" class="form-control" required></div><div class="mb-3"><label class="form-label">Montant (FCFA)</label><input type="number" name="montant" class="form-control" value="0" step="500"></div><div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" class="form-control" value="0"></div><div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div><div class="form-check"><input type="checkbox" name="actif" class="form-check-input" id="actifCantine" checked><label class="form-check-label" for="actifCantine">Actif</label></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary">Ajouter</button></div></form></div></div></div>
+<!-- Modal Modifier Cantine --><div class="modal fade" id="modifierCantineModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="modifierCantineForm" method="POST"><div class="modal-header"><h6 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier la cantine</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Nom *</label><input type="text" name="nom" id="editCantineNom" class="form-control" required></div><div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" id="editCantineCode" class="form-control" required></div><div class="mb-3"><label class="form-label">Montant (FCFA)</label><input type="number" name="montant" id="editCantineMontant" class="form-control" step="500"></div><div class="mb-3"><label class="form-label">Ordre</label><input type="number" name="ordre" id="editCantineOrdre" class="form-control"></div><div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="editCantineDescription" class="form-control" rows="2"></textarea></div><div class="form-check"><input type="checkbox" name="actif" id="editCantineActif" class="form-check-input"><label class="form-check-label" for="editCantineActif">Actif</label></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary">Enregistrer</button></div></form></div></div></div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    const groupesData = {
-        1: { nom: "Maternelle", sous_groupes: ["PS", "MS", "GS"] },
-        2: { nom: "Primaire", sous_groupes: ["CP1", "CP2", "CE1", "CE2", "CM1", "CM2"] },
-        3: { nom: "Premier Cycle", sous_groupes: ["6ème", "5ème", "4ème", "3ème"] },
-        4: { nom: "Second Cycle", sous_groupes: ["2nde", "1ère", "Terminale"] }
-    };
-
-    function editerGroupe(id, nom, code, ordre, description, actif) {
-        document.getElementById('editGroupeNom').value = nom;
-        document.getElementById('editGroupeCode').value = code;
-        document.getElementById('editGroupeOrdre').value = ordre;
-        document.getElementById('editGroupeDescription').value = description || '';
-        document.getElementById('editGroupeActif').checked = actif;
-        document.getElementById('modifierGroupeForm').action = "/parametres/groupes/" + id + "/modifier";
-        new bootstrap.Modal(document.getElementById('modifierGroupeModal')).show();
-    }
-    
-    function editerSousGroupe(id, nom, code, ordre, description, groupe_id, actif) {
-        document.getElementById('editSousGroupeNom').value = nom;
-        document.getElementById('editSousGroupeCode').value = code;
-        document.getElementById('editSousGroupeOrdre').value = ordre;
-        document.getElementById('editSousGroupeDescription').value = description || '';
-        document.getElementById('editSousGroupeParent').value = groupe_id;
-        document.getElementById('editSousGroupeActif').checked = actif;
-        document.getElementById('modifierSousGroupeForm').action = "/parametres/sous-groupes/" + id + "/modifier";
-        new bootstrap.Modal(document.getElementById('modifierSousGroupeModal')).show();
-    }
-    
-    function editerTarifGroupe(groupeId, groupeNom, montantInscription, montantNormal, montantAffecte, tarifInscriptionId, tarifNormalId, tarifAffecteId) {
-        if (!groupeId || groupeId === 0 || groupeId === '0') {
-            alert("Erreur: ID du groupe non trouvé.");
-            return;
-        }
-        
-        const modalElement = document.getElementById('modalTarifGroupe');
-        let existingModal = bootstrap.Modal.getInstance(modalElement);
-        if (existingModal) existingModal.dispose();
-        
-        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        modalElement.removeAttribute('aria-hidden');
-        modalElement.style.display = '';
-        modalElement.classList.remove('show');
-        
-        document.getElementById('groupeNomTarif').textContent = groupeNom || 'Groupe';
-        document.getElementById('tarif_groupe_id').value = groupeId;
-        document.getElementById('tarif_inscription_id').value = tarifInscriptionId || 0;
-        document.getElementById('tarif_normal_id').value = tarifNormalId || 0;
-        document.getElementById('tarif_affecte_id').value = tarifAffecteId || 0;
-        document.getElementById('tarif_inscription_montant').value = montantInscription || 0;
-        document.getElementById('tarif_normal_montant').value = montantNormal || 0;
-        document.getElementById('tarif_affecte_montant').value = montantAffecte || 0;
-        
-        const listeSousGroupes = document.getElementById('listeSousGroupes');
-        if (listeSousGroupes) {
-            listeSousGroupes.innerHTML = '';
-            const sousGroupesList = groupesData[groupeId]?.sous_groupes || [];
-            sousGroupesList.forEach(sg => {
-                listeSousGroupes.innerHTML += `<span class="badge bg-light text-dark me-1">${sg}</span>`;
-            });
-        }
-        
-        new bootstrap.Modal(modalElement, { backdrop: true, keyboard: true, focus: true }).show();
-    }
-    
-    function sauvegarderTarifGroupe() {
-        const groupeId = document.getElementById('tarif_groupe_id').value;
-        const montantInscription = document.getElementById('tarif_inscription_montant').value;
-        const montantNormal = document.getElementById('tarif_normal_montant').value;
-        const montantAffecte = document.getElementById('tarif_affecte_montant').value;
-        const tarifInscriptionId = document.getElementById('tarif_inscription_id').value;
-        const tarifNormalId = document.getElementById('tarif_normal_id').value;
-        const tarifAffecteId = document.getElementById('tarif_affecte_id').value;
-        
-        if (!montantInscription || parseFloat(montantInscription) < 0) { alert('Montant inscription invalide'); return; }
-        if (!montantNormal || parseFloat(montantNormal) < 0) { alert('Montant non affecté invalide'); return; }
-        if (!montantAffecte || parseFloat(montantAffecte) < 0) { alert('Montant affecté invalide'); return; }
-        
-        const btnSave = document.querySelector('#modalTarifGroupe .btn-warning');
-        if (btnSave) { btnSave.disabled = true; btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Enregistrement...'; }
-        
-        fetch('/parametres/sauvegarder-tarif-groupe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                groupe_id: parseInt(groupeId),
-                tarif_inscription: { id: parseInt(tarifInscriptionId) || 0, montant: parseFloat(montantInscription), est_affecte: false, type_tarif: 'inscription' },
-                tarif_normal: { id: parseInt(tarifNormalId) || 0, montant: parseFloat(montantNormal), est_affecte: false, type_tarif: 'scolarite' },
-                tarif_affecte: { id: parseInt(tarifAffecteId) || 0, montant: parseFloat(montantAffecte), est_affecte: true, type_tarif: 'scolarite' }
-            })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalTarifGroupe'));
-                if (modal) modal.hide();
-                setTimeout(() => { document.querySelectorAll('.modal-backdrop').forEach(el => el.remove()); document.body.classList.remove('modal-open'); document.body.style.overflow = ''; }, 200);
-                setTimeout(() => location.reload(), 500);
-            } else {
-                alert('❌ Erreur : ' + (data.message || 'Erreur inconnue'));
-                if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<i class="fas fa-save me-1"></i>Enregistrer'; }
-            }
-        })
-        .catch(error => { alert('Erreur réseau'); if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<i class="fas fa-save me-1"></i>Enregistrer'; } });
-    }
-    
-    function editerTransport(id, nom, code, montant_supplement, ordre, description, actif) {
-        document.getElementById('editTransportNom').value = nom;
-        document.getElementById('editTransportCode').value = code;
-        document.getElementById('editTransportMontant').value = montant_supplement;
-        document.getElementById('editTransportOrdre').value = ordre;
-        document.getElementById('editTransportDescription').value = description || '';
-        document.getElementById('editTransportActif').checked = actif;
-        document.getElementById('modifierTransportForm').action = "/parametres/transports/" + id + "/modifier";
-        new bootstrap.Modal(document.getElementById('modifierTransportModal')).show();
-    }
-    
-    function editerCantine(id, nom, code, montant, ordre, description, actif) {
-        document.getElementById('editCantineNom').value = nom;
-        document.getElementById('editCantineCode').value = code;
-        document.getElementById('editCantineMontant').value = montant;
-        document.getElementById('editCantineOrdre').value = ordre;
-        document.getElementById('editCantineDescription').value = description || '';
-        document.getElementById('editCantineActif').checked = actif;
-        document.getElementById('modifierCantineForm').action = "/parametres/cantines/" + id + "/modifier";
-        new bootstrap.Modal(document.getElementById('modifierCantineModal')).show();
-    }
+    const groupesData = {1:{nom:"Maternelle",sous_groupes:["PS","MS","GS"]},2:{nom:"Primaire",sous_groupes:["CP1","CP2","CE1","CE2","CM1","CM2"]},3:{nom:"Premier Cycle",sous_groupes:["6ème","5ème","4ème","3ème"]},4:{nom:"Second Cycle",sous_groupes:["2nde","1ère","Terminale"]}};
+    function editerGroupe(i,n,c,o,d,a){document.getElementById('editGroupeNom').value=n;document.getElementById('editGroupeCode').value=c;document.getElementById('editGroupeOrdre').value=o;document.getElementById('editGroupeDescription').value=d||'';document.getElementById('editGroupeActif').checked=a;document.getElementById('modifierGroupeForm').action="/parametres/groupes/"+i+"/modifier";new bootstrap.Modal(document.getElementById('modifierGroupeModal')).show();}
+    function editerSousGroupe(i,n,c,o,d,g,a){document.getElementById('editSousGroupeNom').value=n;document.getElementById('editSousGroupeCode').value=c;document.getElementById('editSousGroupeOrdre').value=o;document.getElementById('editSousGroupeDescription').value=d||'';document.getElementById('editSousGroupeParent').value=g;document.getElementById('editSousGroupeActif').checked=a;document.getElementById('modifierSousGroupeForm').action="/parametres/sous-groupes/"+i+"/modifier";new bootstrap.Modal(document.getElementById('modifierSousGroupeModal')).show();}
+    function editerTarifGroupe(gi,gn,mi,mn,ma,ii,ni,ai){console.log("Ouverture modal pour:",gn,"ID:",gi);if(!gi||gi===0||gi==='0'){console.error("groupeId invalide!");alert("Erreur: ID du groupe non trouvé.");return;}const me=document.getElementById('modalTarifGroupe');let em=bootstrap.Modal.getInstance(me);if(em)em.dispose();document.querySelectorAll('.modal-backdrop').forEach(e=>e.remove());document.body.classList.remove('modal-open');document.body.style.overflow='';document.body.style.paddingRight='';me.removeAttribute('aria-hidden');me.style.display='';me.classList.remove('show');const gne=document.getElementById('groupeNomTarif');if(gne)gne.textContent=gn||'Groupe';document.getElementById('tarif_groupe_id').value=gi;document.getElementById('tarif_inscription_id').value=ii||0;document.getElementById('tarif_normal_id').value=ni||0;document.getElementById('tarif_affecte_id').value=ai||0;document.getElementById('tarif_inscription_montant').value=mi||0;document.getElementById('tarif_normal_montant').value=mn||0;document.getElementById('tarif_affecte_montant').value=ma||0;const lsg=document.getElementById('listeSousGroupes');if(lsg){lsg.innerHTML='';const sgl=groupesData[gi]?.sous_groupes||[];sgl.forEach(s=>{lsg.innerHTML+='<span class="badge bg-light text-dark me-1">'+s+'</span>';});}new bootstrap.Modal(me,{backdrop:true,keyboard:true,focus:true}).show();}
+    function sauvegarderTarifGroupe(){const gi=document.getElementById('tarif_groupe_id').value,mi=document.getElementById('tarif_inscription_montant').value,mn=document.getElementById('tarif_normal_montant').value,ma=document.getElementById('tarif_affecte_montant').value,ii=document.getElementById('tarif_inscription_id').value,ni=document.getElementById('tarif_normal_id').value,ai=document.getElementById('tarif_affecte_id').value;if(!mi||parseFloat(mi)<0){alert('Montant inscription invalide');return;}if(!mn||parseFloat(mn)<0){alert('Montant non affecté invalide');return;}if(!ma||parseFloat(ma)<0){alert('Montant affecté invalide');return;}const bs=document.querySelector('#modalTarifGroupe .btn-warning');if(bs){bs.disabled=true;bs.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i>Enregistrement...';}fetch('/parametres/sauvegarder-tarif-groupe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({groupe_id:parseInt(gi),tarif_inscription:{id:parseInt(ii)||0,montant:parseFloat(mi),est_affecte:false,type_tarif:'inscription'},tarif_normal:{id:parseInt(ni)||0,montant:parseFloat(mn),est_affecte:false,type_tarif:'scolarite'},tarif_affecte:{id:parseInt(ai)||0,montant:parseFloat(ma),est_affecte:true,type_tarif:'scolarite'}})}).then(r=>r.json()).then(d=>{if(d.success){const m=bootstrap.Modal.getInstance(document.getElementById('modalTarifGroupe'));if(m)m.hide();setTimeout(()=>{document.querySelectorAll('.modal-backdrop').forEach(e=>e.remove());document.body.classList.remove('modal-open');document.body.style.overflow='';},200);setTimeout(()=>location.reload(),500);}else{alert('Erreur : '+(d.message||'Erreur inconnue'));if(bs){bs.disabled=false;bs.innerHTML='<i class="fas fa-save me-1"></i>Enregistrer';}}}).catch(e=>{alert('Erreur réseau');if(bs){bs.disabled=false;bs.innerHTML='<i class="fas fa-save me-1"></i>Enregistrer';}});}
+    function editerTransport(i,n,c,m,o,d,a){document.getElementById('editTransportNom').value=n;document.getElementById('editTransportCode').value=c;document.getElementById('editTransportMontant').value=m;document.getElementById('editTransportOrdre').value=o;document.getElementById('editTransportDescription').value=d||'';document.getElementById('editTransportActif').checked=a;document.getElementById('modifierTransportForm').action="/parametres/transports/"+i+"/modifier";new bootstrap.Modal(document.getElementById('modifierTransportModal')).show();}
+    function editerCantine(i,n,c,m,o,d,a){document.getElementById('editCantineNom').value=n;document.getElementById('editCantineCode').value=c;document.getElementById('editCantineMontant').value=m;document.getElementById('editCantineOrdre').value=o;document.getElementById('editCantineDescription').value=d||'';document.getElementById('editCantineActif').checked=a;document.getElementById('modifierCantineForm').action="/parametres/cantines/"+i+"/modifier";new bootstrap.Modal(document.getElementById('modifierCantineModal')).show();}
 </script>
 {% endblock %}
