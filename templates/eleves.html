@@ -401,52 +401,9 @@
                     </div>
                     
                     <div class="alert alert-danger py-2 d-none" id="erreur{{ eleve.id }}"></div>
-                    <div class="alert alert-success py-2 d-none" id="succes{{ eleve.id }}"></div>
-                    
-                    <div class="obligatoire-warning">
-                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-                        <strong>⚠️ Frais obligatoires :</strong> 
-                        L'inscription et la tenue scolaire sont obligatoires.
-                        {% if eleve.est_classe_examen %}
-                        Le droit d'examen est également obligatoire pour cette classe.
-                        {% endif %}
-                    </div>
+                    <div class="alert alert-success py-2 d-none" id="succes{{ eleve.id }}"></div>                
                     
                     <!-- ========== INPUTS INDIVIDUELS PAR RUBRIQUE ========== -->
-
-                    <!-- 1. FRAIS D'INSCRIPTION (OBLIGATOIRE) -->
-                {% set inscription_montant = eleve.frais_inscription_montant %}
-                {% set inscription_reste = inscription_montant - (eleve.montant_paye_inscription or 0) %}
-                <div class="payment-input-group">
-                    <label>
-                        <i class="fas fa-file-invoice text-info"></i>
-                        Frais d'inscription
-                        <span class="badge-obligatoire">OBLIGATOIRE</span>
-                    </label>
-                    <div class="input-wrapper">
-                        <input type="number" 
-                            class="form-control montant-input" 
-                            name="montant_inscription" 
-                            id="montantInscription{{ eleve.id }}"
-                            value="0"
-                            min="0"
-                            max="{{ inscription_reste if inscription_reste > 0 else 0 }}"
-                            data-rubrique="inscription"
-                            data-max="{{ inscription_reste if inscription_reste > 0 else 0 }}"
-                            data-obligatoire="true"
-                            {% if inscription_reste <= 0 %}disabled{% endif %}
-                            oninput="calculerTotalPaiement({{ eleve.id }})">
-                        <span class="text-muted">FCFA</span>
-                    </div>
-                    <small class="text-muted">
-                        {% if inscription_reste <= 0 %}
-                            ✅ Frais d'inscription soldé
-                        {% else %}
-                            Montant maximum: <strong>{{ "{:,.0f}".format(inscription_reste) }} FCFA</strong>
-                            <br><span class="text-info">💡 Défini dans Paramètres → Tarifs par Groupe → Inscription</span>
-                        {% endif %}
-                    </small>
-                </div>
 
                 <!-- 2. TENUE SCOLAIRE (OBLIGATOIRE) -->
                 {% set tenue_montant = eleve.frais_tenue_montant %}
@@ -456,7 +413,6 @@
                     <label>
                         <i class="fas fa-tshirt text-danger"></i>
                         Tenue scolaire
-                        <span class="badge-obligatoire">OBLIGATOIRE</span>
                     </label>
                     <div class="input-wrapper">
                         <input type="number" 
@@ -468,7 +424,7 @@
                             max="{{ tenue_reste if tenue_reste > 0 else 0 }}"
                             data-rubrique="tenue"
                             data-max="{{ tenue_reste if tenue_reste > 0 else 0 }}"
-                            data-obligatoire="true"
+                            data-obligatoire="false"
                             {% if tenue_reste <= 0 %}disabled{% endif %}
                             oninput="calculerTotalPaiement({{ eleve.id }})">
                         <span class="text-muted">FCFA</span>
@@ -493,7 +449,6 @@
                     <label>
                         <i class="fas fa-file-alt text-warning"></i>
                         Droit d'examen ({{ eleve.classe }})
-                        <span class="badge-obligatoire">OBLIGATOIRE</span>
                     </label>
                     <div class="input-wrapper">
                         <input type="number" 
@@ -505,7 +460,7 @@
                             max="{{ examen_reste if examen_reste > 0 else 0 }}"
                             data-rubrique="droit_examen"
                             data-max="{{ examen_reste if examen_reste > 0 else 0 }}"
-                            data-obligatoire="true"
+                            data-obligatoire="false"
                             {% if examen_reste <= 0 %}disabled{% endif %}
                             oninput="calculerTotalPaiement({{ eleve.id }})">
                         <span class="text-muted">FCFA</span>
