@@ -70,7 +70,7 @@ def calculer_frais_total(sous_groupe_id, est_affecte, transport_option_id=None,
     
     # 4. Frais de renforcement
     if renforcement_inscrit:
-        classes_renforcement = ['CM1', 'CM2', '3ème', 'Terminale']
+        classes_renforcement = ['CM2', '3ème', 'Terminale']
         if classe in classes_renforcement or renforcement_inscrit:
             tarif_renf = TarifFrais.query.filter_by(
                 type_frais_id=4,  # ID pour le renforcement
@@ -483,17 +483,17 @@ class Eleve(db.Model):
         
         return tarif_normal.montant if tarif_normal else 0
         
-        def mettre_a_jour_frais_scolarite(self):
-            """Recalcule et met à jour les frais de scolarité de l'élève"""
-            self.frais_scolarite = calculer_frais_total(
-                sous_groupe_id=self.sous_groupe_id,
-                est_affecte=self.est_affecte_etat,
-                transport_option_id=self.transport_option_id,
-                cantine_option_id=self.cantine_option_id,
-                renforcement_inscrit=self.renforcement_inscrit,
-                classe=self.classe
-            )
-            self.date_modification = datetime.utcnow()
+    def mettre_a_jour_frais_scolarite(self):
+        """Recalcule et met à jour les frais de scolarité de l'élève"""
+        self.frais_scolarite = calculer_frais_total(
+            sous_groupe_id=self.sous_groupe_id,
+            est_affecte=self.est_affecte_etat,
+            transport_option_id=self.transport_option_id,
+            cantine_option_id=self.cantine_option_id,
+            renforcement_inscrit=self.renforcement_inscrit,
+            classe=self.classe
+        )
+        self.date_modification = datetime.utcnow()
     
     @property
     def frais_transport(self):
@@ -584,16 +584,18 @@ class Eleve(db.Model):
         if not self.est_affecte_etat or not self.sous_groupe:
             return 0
         
-        # Chercher d'abord par groupe
+        # Chercher d'abord par groupe avec type_tarif='scolarite'
         tarif_normal = TarifFraisAffecte.query.filter_by(
             groupe_id=self.sous_groupe.groupe_id,
             est_affecte=False,
+            type_tarif='scolarite',  # ← AJOUTER CETTE LIGNE
             actif=True
         ).first()
         
         tarif_affecte = TarifFraisAffecte.query.filter_by(
             groupe_id=self.sous_groupe.groupe_id,
             est_affecte=True,
+            type_tarif='scolarite',  # ← AJOUTER CETTE LIGNE
             actif=True
         ).first()
         
@@ -602,6 +604,7 @@ class Eleve(db.Model):
             tarif_normal = TarifFraisAffecte.query.filter_by(
                 sous_groupe_id=self.sous_groupe_id,
                 est_affecte=False,
+                type_tarif='scolarite',  # ← AJOUTER CETTE LIGNE
                 actif=True
             ).first()
         
@@ -609,6 +612,7 @@ class Eleve(db.Model):
             tarif_affecte = TarifFraisAffecte.query.filter_by(
                 sous_groupe_id=self.sous_groupe_id,
                 est_affecte=True,
+                type_tarif='scolarite',  # ← AJOUTER CETTE LIGNE
                 actif=True
             ).first()
         
@@ -683,7 +687,7 @@ class Eleve(db.Model):
     
     @property
     def est_renforcement_obligatoire(self):
-        classes_renforcement_obligatoire = ['CM1', 'CM2', '3ème', 'Terminale']
+        classes_renforcement_obligatoire = ['CM2', '3ème', 'Terminale']
         return self.classe in classes_renforcement_obligatoire
     
     @property

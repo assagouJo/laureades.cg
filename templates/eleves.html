@@ -241,9 +241,9 @@
                     <tr id="row{{ eleve.id }}">
                         <td><span class="fw-bold">{{ eleve.matricule }}</span></td>
                         <td>
-                            {{ eleve.genre_icon if eleve.genre else '👤' }} {{ eleve.prenom }} {{ eleve.nom }}
-                            {% if eleve.classe in ['CM2', '3ème', 'Terminale'] %}
-                            <span class="classe-examen-badge ms-1">📚 Examen</span>
+                            {{ eleve.genre_icon if eleve.genre else '👤' }}  {{ eleve.nom }} {{ eleve.prenom }}
+                            {% if eleve.est_classe_examen %}
+                            <span class="classe-examen-badge ms-1">Examen</span>
                             {% endif %}
                         </td>
                         <td>{{ eleve.classe }}</td>
