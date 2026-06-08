@@ -196,6 +196,7 @@ def init_database():
              'description': 'Zone Sud', 'actif': True},
             {'nom': 'Circuit 3', 'code': 'circuit_3', 'montant_supplement': 60000, 'ordre': 3,
              'description': 'Zone Centre', 'actif': True},
+             
             {'nom': 'Pas de transport', 'code': 'aucun_transport', 'montant_supplement': 0, 'ordre': 99,
              'description': 'Sans transport', 'actif': True},
         ]
